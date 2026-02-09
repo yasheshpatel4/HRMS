@@ -1,6 +1,7 @@
 package com.example.hrms_backend.Configure;
 
 import com.example.hrms_backend.Filter.JwtAuthFilter;
+import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 
 import org.springframework.context.annotation.Configuration;
@@ -38,10 +39,11 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/welcome", "/auth/addNewUser", "/auth/login", "/auth/refresh").permitAll()
-                        .requestMatchers("/auth/employee/**").hasAuthority("ROLE_EMPLOYEE")
-                        .requestMatchers("/auth/manager/**").hasAuthority("ROLE_MANAGER")
-                        .requestMatchers("/auth/hr/**").hasAuthority("ROLE_HR")
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                        .requestMatchers("/auth/register", "/auth/welcome", "/auth/login", "/auth/refresh", "/error").permitAll()
+                        .requestMatchers("/auth/employee/**").hasRole("EMPLOYEE")
+                        .requestMatchers("/auth/manager/**").hasRole("MANAGER")
+                        .requestMatchers("/auth/hr/**").hasRole("HR")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
