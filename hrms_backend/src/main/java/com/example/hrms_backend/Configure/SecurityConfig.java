@@ -22,45 +22,28 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
-    private final UserDetailsService userDetailsService;
-    private final PasswordEncoder passwordEncoder;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter, 
-                          UserDetailsService userDetailsService,
-                          PasswordEncoder passwordEncoder) {
+
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
-        this.userDetailsService = userDetailsService;
-        this.passwordEncoder = passwordEncoder;
+
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
+        return http
                 .csrf(csrf -> csrf.disable())
-
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
-                        .requestMatchers("/auth/register", "/auth/welcome", "/auth/login", "/auth/refresh", "/error").permitAll()
+                        .requestMatchers("/auth/login", "/auth/register", "/auth/refresh", "/error").permitAll()
                         .requestMatchers("/auth/employee/**").hasRole("EMPLOYEE")
                         .requestMatchers("/auth/manager/**").hasRole("MANAGER")
                         .requestMatchers("/auth/hr/**").hasRole("HR")
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
-
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder); 
-        return provider;
-    }
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();

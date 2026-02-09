@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/Auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -34,7 +34,7 @@ public class AuthController {
     userService userservice;
 
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateAndGetToken(@RequestBody UserDTO user, HttpServletResponse response) {
+    public ResponseEntity<?> login(@RequestBody UserDTO user, HttpServletResponse response) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword())
         );
@@ -96,10 +96,4 @@ public class AuthController {
         String result = userservice.addUser(userDto);
         return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
-
-    @GetMapping("/welcome")
-    public ResponseEntity<String> welcome(){
-                return new ResponseEntity<>("successful", HttpStatus.ACCEPTED);
-    }
-
 }
