@@ -6,9 +6,12 @@ import com.example.hrms_backend.Entity.User;
 import com.example.hrms_backend.Service.JwtService;
 import com.example.hrms_backend.Service.RefreshTokenService;
 import com.example.hrms_backend.Service.userService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,42 +34,69 @@ public class AuthController {
     userService userservice;
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> authenticateAndGetToken(@RequestBody UserDTO user) {
+    public ResponseEntity<?> authenticateAndGetToken(@RequestBody UserDTO user, HttpServletResponse response) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword())
         );
+
         if (authentication.isAuthenticated()) {
             String accessToken = jwtService.generateToken(user.getEmail());
             User userEntity = userservice.findByEmail(user.getEmail());
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(userEntity);
-            Map<String, String> tokens = new HashMap<>();
-            tokens.put("accessToken", accessToken);
-            tokens.put("refreshToken", refreshToken.getToken());
-            return ResponseEntity.ok(tokens);
+
+            ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(15 * 60)
+                    .sameSite("Strict")
+                    .build();
+
+            ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken.getToken())
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(7 * 24 * 60 * 60)
+                    .sameSite("Strict")
+                    .build();
+
+            response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+            response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+
+            return ResponseEntity.ok("Authentication successful");
         } else {
             throw new UsernameNotFoundException("Invalid user request!");
         }
     }
-    @PostMapping("/register") // 2. Create the register endpoint
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@CookieValue(name = "refreshToken") String refreshToken, HttpServletResponse response) {
+        return refreshTokenService.findByToken(refreshToken)
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUser)
+                .map(user -> {
+                    String newAccessToken = jwtService.generateToken(user.getEmail());
+
+                    ResponseCookie newAccessTokenCookie = ResponseCookie.from("accessToken", newAccessToken)
+                            .httpOnly(true)
+                            .secure(true)
+                            .path("/")
+                            .maxAge(15 * 60)
+                            .sameSite("Strict")
+                            .build();
+
+                    response.addHeader(HttpHeaders.SET_COOKIE, newAccessTokenCookie.toString());
+                    return ResponseEntity.ok("Token refreshed");
+                })
+                .orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
+    }
+
+    @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody UserDTO userDto) {
         String result = userservice.addUser(userDto);
         return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
-    @PostMapping("/refresh")
-    public ResponseEntity<Map<String, String>> refreshToken(@RequestBody Map<String, String> request) {
-        String refreshToken = request.get("refreshToken");
-        return refreshTokenService.findByToken(refreshToken)
-                .map(refreshTokenService::verifyExpiration)
-                .map(RefreshToken::getUser)
-                .map(user -> {
-                    String accessToken = jwtService.generateToken(user.getEmail());
-                    Map<String, String> tokens = new HashMap<>();
-                    tokens.put("accessToken", accessToken);
-                    return ResponseEntity.ok(tokens);
-                })
-                .orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
-    }
     @GetMapping("/welcome")
     public ResponseEntity<String> welcome(){
                 return new ResponseEntity<>("successful", HttpStatus.ACCEPTED);

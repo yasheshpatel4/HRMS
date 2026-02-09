@@ -60,14 +60,9 @@ public class User implements UserDetails {
     )
     private Set<Game> interestedGames = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "role_user",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    @JsonManagedReference
-    private Set<Role> roles = new HashSet<>();
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
 
     private int completedGames = 0;
 
@@ -79,9 +74,7 @@ public class User implements UserDetails {
 
     @Override
     public List<GrantedAuthority> getAuthorities() {
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRoleName()))
-                .collect(Collectors.toList());
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override

@@ -46,6 +46,7 @@ public class userService implements UserDetailsService {
         user1.setDoj(user.getDoj());
         user1.setDesignation(user.getDesignation());
         user1.setDepartment(user.getDepartment());
+        user1.setRole(user.getRole());
         userRepository.save(user1);
         return "successful";
     }
