@@ -5,13 +5,16 @@ import com.example.hrms_backend.Entity.User;
 import com.example.hrms_backend.Repository.UserRepository;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +25,8 @@ public class userService implements UserDetailsService {
     public  UserRepository userRepository;
     @Autowired
     public PasswordEncoder passwordEncoder;
+    @Autowired
+    ModelMapper modelmapper;
 
     public User findByEmail(@Email @NotBlank String email) {
         Optional<User> user = userRepository.findByEmail(email);
@@ -47,11 +52,30 @@ public class userService implements UserDetailsService {
         user1.setDesignation(user.getDesignation());
         user1.setDepartment(user.getDepartment());
         user1.setRole(user.getRole());
+//        User user1=modelmapper.map(user,User.class);
         userRepository.save(user1);
         return "successful";
     }
     public List<User> getAll(){
         return userRepository.findAll();
     }
+
+    public List<User> getOrgChart(Long id) {
+        List<User> userlist = new ArrayList<>();
+
+        while (id != null) {
+            User user = userRepository.findById(id).orElse(null);
+            if (user == null) break;
+
+            userlist.add(user);
+            if (user.getManager() != null) {
+                id = user.getManager().getUserId();
+            } else {
+                id = null;
+            }
+        }
+        return userlist;
+    }
+
 }
 

@@ -23,4 +23,9 @@ public class UserController {
     public ResponseEntity<List<User>> getALL(){
         return ResponseEntity.ok(userservice.getAll());
     }
+
+    @GetMapping("/orgchart/{id}")
+    public ResponseEntity<List<User>> getOrgChart(@PathVariable Long id){
+        return ResponseEntity.ok(userservice.getOrgChart(id));
+    }
 }
