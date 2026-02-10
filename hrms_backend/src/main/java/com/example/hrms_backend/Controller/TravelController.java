@@ -5,6 +5,8 @@ import com.example.hrms_backend.Entity.TravelDocument;
 import com.example.hrms_backend.Entity.User;
 import com.example.hrms_backend.Service.TravelService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -74,5 +76,4 @@ public class TravelController {
         List<TravelDocument> documents = travelService.getDocumentsByTravelAndManager(travelId, managerId);
         return ResponseEntity.ok(documents);
     }
-
 }

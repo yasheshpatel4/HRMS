@@ -145,23 +145,3 @@ public class TravelService {
         return travelDocumentRepository.findDocumentsByTravelAndManager(travelId, managerId);
     }
 }
-
-//public Book addBook(String name, MultipartFile imgUrl) {
-//    try {
-//        File convFile = new File(System.getProperty("java.io.tmpdir") + "/" + imgUrl.getOriginalFilename());
-//        FileOutputStream fos = new FileOutputStream(convFile);
-//        fos.write(imgUrl.getBytes());
-//        fos.close();
-//
-//        var pic = cloudinary.uploader().upload(convFile, ObjectUtils.asMap("folder", "/bookCovers/"));
-//
-//        var newBook = new Book();
-//        newBook.setName(name);
-//        newBook.setImgUrl(pic.get("url").toString());
-//
-//        return this.bookRepository.save(newBook);
-//
-//    } catch (IOException e) {
-//        throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Failed to upload the file.");
-//    }
-//}

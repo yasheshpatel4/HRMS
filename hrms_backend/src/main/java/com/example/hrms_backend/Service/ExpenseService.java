@@ -20,15 +20,12 @@ public class ExpenseService {
     public List<Expense> getAll() {
         return expenseRepository.findAll();
     }
-
     public Expense addExpense(Expense expense){
         return expenseRepository.save(expense);
     }
-    public String deleteExpense(Expense expense){
-        expenseRepository.delete(expense);
-        return "delete successful";
+    public void deleteExpense(Long id){
+        expenseRepository.deleteById(id);
     }
-
 
     public void approve(Long id) {
         expenseRepository.approve(id);

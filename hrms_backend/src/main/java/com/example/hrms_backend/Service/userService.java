@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -52,6 +53,9 @@ public class userService implements UserDetailsService {
         user1.setDesignation(user.getDesignation());
         user1.setDepartment(user.getDepartment());
         user1.setRole(user.getRole());
+        String email= SecurityContextHolder.getContext().getAuthentication().getName();
+        User manager=userRepository.findByEmail(email).orElseThrow(()->new RuntimeException("user who try to register other user is not login"));
+        user1.setManager(manager);
 //        User user1=modelmapper.map(user,User.class);
         userRepository.save(user1);
         return "successful";
@@ -68,14 +72,9 @@ public class userService implements UserDetailsService {
             if (user == null) break;
 
             userlist.add(user);
-            if (user.getManager() != null) {
-                id = user.getManager().getUserId();
-            } else {
-                id = null;
-            }
+            id=(user.getManager()!=null)?user.getManager().getUserId():null;
         }
         return userlist;
     }
-
 }
 

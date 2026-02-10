@@ -29,7 +29,10 @@ public class ExpenseController {
         }
         return ResponseEntity.ok(expenses);
     }
-
+    @DeleteMapping("/delete/{id}")
+    public void deleteExpense(@PathVariable Long id){
+        expenseService.deleteExpense(id);
+    }
     @PostMapping("/submit")
     public ResponseEntity<Expense> addExpense(@RequestBody Expense expense){
         return ResponseEntity.ok(expenseService.addExpense(expense));
