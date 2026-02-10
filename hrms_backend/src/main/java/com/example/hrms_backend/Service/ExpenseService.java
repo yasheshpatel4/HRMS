@@ -21,9 +21,8 @@ public class ExpenseService {
         return expenseRepository.findAll();
     }
 
-    public String addExpense(Expense expense){
-        expenseRepository.save(expense);
-        return "successful";
+    public Expense addExpense(Expense expense){
+        return expenseRepository.save(expense);
     }
     public String deleteExpense(Expense expense){
         expenseRepository.delete(expense);
@@ -31,4 +30,7 @@ public class ExpenseService {
     }
 
 
+    public void approve(Long id) {
+        expenseRepository.approve(id);
+    }
 }

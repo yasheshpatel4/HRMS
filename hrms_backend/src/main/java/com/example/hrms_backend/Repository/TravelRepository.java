@@ -1,6 +1,7 @@
 package com.example.hrms_backend.Repository;
 
 import com.example.hrms_backend.Entity.Travel;
+import com.example.hrms_backend.Entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,7 +13,6 @@ public interface TravelRepository extends JpaRepository<Travel,Long> {
     @Query("SELECT t FROM Travel t JOIN t.assignedUsers u WHERE u.userId = :userId")
     List<Travel> findByUser(@Param("userId") Long userId);
 
-    @Query("SELECT t FROM Travel t WHERE t.createdBy = :hrId")
-    List<Travel> findByHR( Long hrId);
-
+    @Query("SELECT t FROM Travel t WHERE t.createdBy = :user")
+    List<Travel> findByHR( User user);
 }

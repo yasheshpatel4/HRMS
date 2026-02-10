@@ -1,6 +1,8 @@
 package com.example.hrms_backend.DTO;
 
 import com.example.hrms_backend.Entity.Role;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -26,6 +28,8 @@ public class UserDTO {
     private LocalDate doj;
     private String department;
     private String designation;
+
+    @Enumerated(EnumType.STRING)
     @NotBlank
     private Role role;
 

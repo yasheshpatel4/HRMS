@@ -27,6 +27,7 @@ public class Travel {
     private LocalDate endDate;
 
     @ManyToOne
+    @JsonIgnore
     private User createdBy;
 
     private LocalDateTime createdAt;
@@ -37,6 +38,6 @@ public class Travel {
             joinColumns = @JoinColumn(name = "travel_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    @JsonManagedReference
+    @JsonIgnore
     private Set<User> assignedUsers = new HashSet<>();
 }

@@ -5,6 +5,7 @@ import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -35,10 +36,24 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/auth/register", "/auth/refresh", "/error").permitAll()
-                        .requestMatchers("/auth/employee/**").hasRole("EMPLOYEE")
-                        .requestMatchers("/auth/manager/**").hasRole("MANAGER")
-                        .requestMatchers("/auth/hr/**").hasRole("HR")
+                        .requestMatchers("/Auth/login","/Auth/logout", "/Auth/register", "/Auth/refresh", "/error").permitAll()
+
+                        .requestMatchers(HttpMethod.POST, "/Travel/add").hasAnyAuthority("HR","ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/Travel/all").hasAnyAuthority("HR", "MANAGER","ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/Travel/{id}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/Travel/user/{id}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/Travel/HR/{id}").hasAnyAuthority("HR","ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/Travel/Expense/submit").hasAnyAuthority("EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/Travel/Expense/approve/{id}").hasAnyAuthority("HR","ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/Travel/Expense/all").hasAnyAuthority("HR","EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/Travel/Expense/{userId}/{travelId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/Travel/{travelId}/upload").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/Travel/Document/{travelId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/Travel/{travelId}/{travelId}/user/{userId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/Travel/{travelId}/{travelId}/manager/{managerId}").hasAnyAuthority("HR", "MANAGER","ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/User/orgchart/{id}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

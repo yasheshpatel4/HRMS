@@ -4,10 +4,7 @@ import com.example.hrms_backend.Entity.Expense;
 import com.example.hrms_backend.Service.ExpenseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -33,6 +30,15 @@ public class ExpenseController {
         return ResponseEntity.ok(expenses);
     }
 
+    @PostMapping("/submit")
+    public ResponseEntity<Expense> addExpense(@RequestBody Expense expense){
+        return ResponseEntity.ok(expenseService.addExpense(expense));
+    }
+
+    @PutMapping("/approve/{id}")
+    public void approve(@PathVariable Long id){
+        expenseService.approve(id);
+    }
 
 
 }

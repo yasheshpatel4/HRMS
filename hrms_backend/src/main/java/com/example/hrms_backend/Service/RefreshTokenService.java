@@ -5,6 +5,7 @@ import com.example.hrms_backend.Entity.User;
 import com.example.hrms_backend.Repository.RefreshTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -39,5 +40,10 @@ public class RefreshTokenService {
     public void deleteByUser(User user) {
         Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUser(user);
         refreshToken.ifPresent(refreshTokenRepository::delete);
+    }
+
+    @Transactional
+    public void deleteByToken(String token) {
+        refreshTokenRepository.deleteByToken(token);
     }
 }

@@ -77,7 +77,7 @@ public class AuthController {
                 .map(user -> {
                     String newAccessToken = jwtService.generateToken(user.getEmail());
 
-                    ResponseCookie newAccessTokenCookie = ResponseCookie.from("accessToken", newAccessToken)
+                    ResponseCookie AccessTokenCookie = ResponseCookie.from("accessToken", newAccessToken)
                             .httpOnly(true)
                             .secure(true)
                             .path("/")
@@ -85,7 +85,7 @@ public class AuthController {
                             .sameSite("Strict")
                             .build();
 
-                    response.addHeader(HttpHeaders.SET_COOKIE, newAccessTokenCookie.toString());
+                    response.addHeader(HttpHeaders.SET_COOKIE, AccessTokenCookie.toString());
                     return ResponseEntity.ok("Token refreshed");
                 })
                 .orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
@@ -93,7 +93,35 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody UserDTO userDto) {
-        String result = userservice.addUser(userDto);
-        return new ResponseEntity<>(result, HttpStatus.CREATED);
+        return new ResponseEntity<>(userservice.addUser(userDto), HttpStatus.CREATED);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@CookieValue(name = "refreshToken", required = false) String refreshToken, HttpServletResponse response) {
+        if (refreshToken != null) {
+            refreshTokenService.deleteByToken(refreshToken);
+        }
+        ResponseCookie cleanAccessTokenCookie = ResponseCookie.from("accessToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
+
+        ResponseCookie cleanRefreshTokenCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cleanAccessTokenCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, cleanRefreshTokenCookie.toString());
+
+        return ResponseEntity.ok("Logged out successfully");
+    }
+
+
 }
