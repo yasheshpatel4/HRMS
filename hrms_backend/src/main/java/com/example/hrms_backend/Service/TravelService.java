@@ -1,5 +1,7 @@
 package com.example.hrms_backend.Service;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.example.hrms_backend.Entity.Travel;
 import com.example.hrms_backend.Entity.TravelDocument;
 import com.example.hrms_backend.Entity.User;
@@ -12,6 +14,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,6 +39,8 @@ public class TravelService {
     private EmailService emailService;
     @Autowired
     ModelMapper modelMapper;
+    @Autowired
+    private Cloudinary cloudinary;
 
     public Optional<Travel> getTravelById(Long id) {
         return travelRepository.findById(id);
@@ -99,18 +105,27 @@ public class TravelService {
         Travel travel = travelRepository.findById(travelId)
                 .orElseThrow(() -> new RuntimeException("Travel not found"));
 
-        String directory = "uploads/documents/";
-        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-        Path path = Paths.get(directory + fileName);
+//        String directory = "uploads/documents/";
+//        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+//        Path path = Paths.get(directory + fileName);
 
-        Files.createDirectories(path.getParent());
-        Files.write(path, file.getBytes());
-
+//        Files.createDirectories(path.getParent());
+//        Files.write(path, file.getBytes());
         TravelDocument document = new TravelDocument();
+        File convFile = new File(System.getProperty("java.io.tmpdir") + "/" + file.getOriginalFilename()+"_"+document.getDocId());
+        FileOutputStream fos = new FileOutputStream(convFile);
+        fos.write(file.getBytes());
+        fos.close();
+        var pic = cloudinary.uploader().upload(convFile, ObjectUtils.asMap("folder", "/Documents/"));
+
         document.setTravel(travel);
         document.setUser(targetUser);
         document.setUploadedBy(currentUserEmail);
-        document.setFilePath(path.toString());
+        if (pic != null && pic.containsKey("url")) {
+            document.setFilePath(pic.get("url").toString());
+        } else {
+            throw new RuntimeException("Cloudinary upload failed: " + pic);
+        }
         document.setCreatedAt(LocalDateTime.now());
         document.setDocType(file.getContentType());
 
@@ -130,3 +145,23 @@ public class TravelService {
         return travelDocumentRepository.findDocumentsByTravelAndManager(travelId, managerId);
     }
 }
+
+//public Book addBook(String name, MultipartFile imgUrl) {
+//    try {
+//        File convFile = new File(System.getProperty("java.io.tmpdir") + "/" + imgUrl.getOriginalFilename());
+//        FileOutputStream fos = new FileOutputStream(convFile);
+//        fos.write(imgUrl.getBytes());
+//        fos.close();
+//
+//        var pic = cloudinary.uploader().upload(convFile, ObjectUtils.asMap("folder", "/bookCovers/"));
+//
+//        var newBook = new Book();
+//        newBook.setName(name);
+//        newBook.setImgUrl(pic.get("url").toString());
+//
+//        return this.bookRepository.save(newBook);
+//
+//    } catch (IOException e) {
+//        throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Failed to upload the file.");
+//    }
+//}
