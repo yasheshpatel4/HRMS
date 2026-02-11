@@ -1,9 +1,17 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
+
+const api = axios.create({
+  baseURL: "http://localhost:8080",
+  withCredentials: true,
+});
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,62 +21,59 @@ const Login = () => {
     }
   }, [navigate]);
 
-  const handleLogin = (e: React.FormEvent, roleType: 'HR' | 'USER') => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    localStorage.setItem("userRole", roleType);
-    localStorage.setItem("isAuthenticated", "true");
+    setError("");
 
-    navigate("/dashboard");
+    try {
+      const response = await api.post("/Auth/login", { email, password });
+
+      if (response.status === 200) {
+
+        localStorage.setItem("isAuthenticated", "true");
+        navigate("/dashboard");
+      }
+    } catch (err: any) {
+      setError(err.response?.data || "Login failed. Check your credentials.");
+    }
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="p-8 bg-white shadow-xl rounded-2xl w-96">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">HRMS Login</h2>
+        {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
         
-        <form className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Email</label>
             <input 
               type="email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 mt-1 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="name@company.com"
+              required
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              className="w-full p-2 mt-1 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none text-black" 
+              placeholder="name@gmail.com" 
             />
           </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700">Password</label>
             <input 
               type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 mt-1 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="••••••••"
+              required
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              className="w-full p-2 mt-1 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none text-black" 
+              placeholder="••••••••" 
             />
           </div>
-
-          <div className="flex gap-2 pt-4">
-            <button 
-              onClick={(e) => handleLogin(e, 'USER')}
-              className="flex-1 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
-            >
-              Login as User
-            </button>
-            <button 
-              onClick={(e) => handleLogin(e, 'HR')}
-              className="flex-1 bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700 transition"
-            >
-              Login as HR
-            </button>
-          </div>
+          <button 
+            type="submit" 
+            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+          >
+            Login
+          </button>
         </form>
-        
-        <p className="mt-4 text-xs text-center text-gray-500">
-          Demo buttons above will set the role and redirect you.
-        </p>
       </div>
     </div>
   );

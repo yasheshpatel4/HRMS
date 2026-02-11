@@ -62,8 +62,12 @@ public class AuthController {
 
             response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
             response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+            Map<String, String> responseBody = new HashMap<>();
+            responseBody.put("message", "Authentication successful");
+            responseBody.put("role", userEntity.getRole().toString());
+            responseBody.put("name",userEntity.getName());
 
-            return ResponseEntity.ok("Authentication successful");
+            return ResponseEntity.ok(responseBody);
         } else {
             throw new UsernameNotFoundException("Invalid user request!");
         }

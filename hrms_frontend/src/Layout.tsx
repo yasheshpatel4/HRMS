@@ -1,4 +1,5 @@
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 
 const Layout = () => {
   const navigate = useNavigate();
@@ -6,9 +7,17 @@ const Layout = () => {
 
   const role = localStorage.getItem("userRole") || 'USER';
 
-  const handleLogout = () => {
-    localStorage.clear();
-    window.location.href = "/login";
+  const handleLogout = async () => {
+    try {
+      await axios.post("http://localhost:8080/Auth/logout", {}, { 
+        withCredentials: true 
+      });
+    } catch (error) {
+      console.error("Logout API failed", error);
+    } finally {
+      localStorage.clear();
+      navigate("/login", { replace: true });
+    }
   };
 
   const navItems = [
@@ -27,7 +36,7 @@ const Layout = () => {
         <div className="p-6 text-xl font-bold border-b border-slate-700">
           HRMS <span className="text-sm font-normal opacity-50">({role})</span>
         </div>
-        
+       
         <nav className="flex-1 p-4 space-y-2">
           {navItems.map((item) => (
             <Link
@@ -55,7 +64,7 @@ const Layout = () => {
       </aside>
 
       <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-16 bg-white border-b flex items-center justify-between px-8">
+        <header className="h-16 bg-white border-b flex items-center justify-between px-8 text-black">
           <h1 className="text-lg font-semibold capitalize text-gray-700">
             {location.pathname.split("/")[1] || "Home"}
           </h1>
