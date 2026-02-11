@@ -18,4 +18,7 @@ public interface TravelDocumentRepository extends JpaRepository<TravelDocument,L
 
     @Query("select td from TravelDocument td where td.travel.travelId =:travelId and td.user.manager.userId= :managerId")
     List<TravelDocument> findDocumentsByTravelAndManager(Long travelId, Long managerId);
+
+    @Query("select td.filePath from TravelDocument td where td.docId=:docId")
+    String findDocumentURL(Long docId);
 }

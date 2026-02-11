@@ -39,18 +39,26 @@ public class SecurityConfig {
                         .requestMatchers("/Auth/login","/Auth/logout", "/Auth/register", "/Auth/refresh", "/error").permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/Travel/add").hasAnyAuthority("HR","ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/Travel/all").hasAnyAuthority("HR", "MANAGER","ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/Travel/all").hasAnyAuthority("MANAGER","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/Travel/{id}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/Travel/user/{id}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/Travel/HR/{id}").hasAnyAuthority("HR","ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/Travel/{travelId}/upload").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/Travel/Document/{travelId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/Travel/Document/{travelId}/user/{userId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/Travel/Document/{travelId}/manager/{managerId}").hasAnyAuthority("HR", "MANAGER","ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/Travel/Document/{docId}/url").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+
                         .requestMatchers(HttpMethod.POST, "/Travel/Expense/submit").hasAnyAuthority("EMPLOYEE","ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/Travel/Expense/approve/{id}").hasAnyAuthority("HR","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/Travel/Expense/all").hasAnyAuthority("HR","EMPLOYEE","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/Travel/Expense/{userId}/{travelId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/Travel/{travelId}/upload").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/Travel/Document/{travelId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/Travel/{travelId}/{travelId}/user/{userId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/Travel/{travelId}/{travelId}/manager/{managerId}").hasAnyAuthority("HR", "MANAGER","ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/Travel/Expense/{expenseId}/upload-proof").hasAnyAuthority("EMPLOYEE","ADMIN","HR")
+                        .requestMatchers(HttpMethod.GET, "/Travel/Expense/{expenseId}/proofs").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/Travel/Expense/proof/{proofId}/url").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+
 
                         .requestMatchers(HttpMethod.GET, "/User/orgchart/{id}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
 

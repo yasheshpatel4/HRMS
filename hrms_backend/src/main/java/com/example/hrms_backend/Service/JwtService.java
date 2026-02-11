@@ -17,7 +17,7 @@ import java.util.function.Function;
 public class JwtService {
 
     private static final String SECRET = "5367566859703373367639792F423F452848284D6251655468576D5A71347437";
-    private static final long EXPIRATION = 1000 * 60 * 30; // 30 mins
+    private static final long EXPIRATION = 1000 * 60 * 30;
 
     public String generateToken(String email) {
         return Jwts.builder()

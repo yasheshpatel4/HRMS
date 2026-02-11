@@ -76,4 +76,9 @@ public class TravelController {
         List<TravelDocument> documents = travelService.getDocumentsByTravelAndManager(travelId, managerId);
         return ResponseEntity.ok(documents);
     }
+
+    @GetMapping("Document/{docId}/url")
+    public ResponseEntity<String> getDocument(@PathVariable Long docId){
+        return ResponseEntity.ok(travelService.getDocument(docId));
+    }
 }

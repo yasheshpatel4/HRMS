@@ -113,25 +113,32 @@ public class TravelService {
 //        Files.write(path, file.getBytes());
         TravelDocument document = new TravelDocument();
         File convFile = new File(System.getProperty("java.io.tmpdir") + "/" + file.getOriginalFilename()+"_"+document.getDocId());
-        FileOutputStream fos = new FileOutputStream(convFile);
-        fos.write(file.getBytes());
-        fos.close();
-        var pic = cloudinary.uploader().upload(convFile, ObjectUtils.asMap("folder", "/Documents/"));
 
-        document.setTravel(travel);
-        document.setUser(targetUser);
-        document.setUploadedBy(currentUserEmail);
-        if (pic != null && pic.containsKey("url")) {
-            document.setFilePath(pic.get("url").toString());
-        } else {
-            throw new RuntimeException("Cloudinary upload failed: " + pic);
+        try {
+            FileOutputStream fos = new FileOutputStream(convFile);
+            fos.write(file.getBytes());
+            fos.close();
+            var pic = cloudinary.uploader().upload(convFile, ObjectUtils.asMap("folder", "/Documents/"));
+
+            document.setTravel(travel);
+            document.setUser(targetUser);
+            document.setUploadedBy(currentUserEmail);
+            if (pic != null && pic.containsKey("url")) {
+                document.setFilePath(pic.get("url").toString());
+            } else {
+                throw new RuntimeException("Cloudinary upload failed: " + pic);
+            }
+            document.setCreatedAt(LocalDateTime.now());
+            document.setDocType(file.getContentType());
+
+            return travelDocumentRepository.save(document);
         }
-        document.setCreatedAt(LocalDateTime.now());
-        document.setDocType(file.getContentType());
-
-        return travelDocumentRepository.save(document);
+        finally {
+            if(convFile.exists()){
+                convFile.delete();
+            }
+        }
     }
-
 
     public List<TravelDocument> getDocumentsByTravel(Long travelId) {
         return travelDocumentRepository.findDocumentsByTravel(travelId);
@@ -143,5 +150,9 @@ public class TravelService {
 
     public List<TravelDocument> getDocumentsByTravelAndManager(Long travelId, Long managerId) {
         return travelDocumentRepository.findDocumentsByTravelAndManager(travelId, managerId);
+    }
+
+    public String getDocument(Long docId) {
+        return travelDocumentRepository.findDocumentURL(docId);
     }
 }
