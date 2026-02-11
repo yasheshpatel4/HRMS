@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class NotificationService {
@@ -31,5 +32,10 @@ public class NotificationService {
     }
     public void markRead(Long id){
         notificationRepository.markRead(id);
+    }
+
+    public List<Notification> getNotification(Long userId) {
+        User user=userRepository.findById(userId).orElseThrow(()->new RuntimeException("user not found"));
+        return notificationRepository.findNotificationByUser(user);
     }
 }

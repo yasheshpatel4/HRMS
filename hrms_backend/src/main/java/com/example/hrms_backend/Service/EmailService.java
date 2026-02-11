@@ -15,4 +15,7 @@ public class EmailService {
     public void sendJobShareNotification(String email, Job job) {
 
     }
+
+    public void sendJobReferNotification(@Email String reviewerEmail, Job job) {
+    }
 }

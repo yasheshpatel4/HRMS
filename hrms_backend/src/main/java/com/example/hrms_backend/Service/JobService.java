@@ -143,7 +143,9 @@ public class JobService {
             referral.setStatus("Pending");
             referral.setCreatedAt(LocalDateTime.now());
 
-            return referralRepository.save(referral);
+            referralRepository.save(referral);
+
+            emailService.sendJobReferNotification(job.getReviewerEmail(), job);
         }
         finally {
             if(convFile.exists()){
