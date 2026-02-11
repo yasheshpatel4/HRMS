@@ -54,8 +54,8 @@ public class ExpenseService {
             FileOutputStream fos = new FileOutputStream(convFile);
             fos.write(file.getBytes());
             fos.close();
-            var pic = cloudinary.uploader().upload(convFile, ObjectUtils.asMap("folder", "/Expenses/"));
-            expenseProof.setProof(pic.get("url").toString());
+            var result = cloudinary.uploader().upload(convFile, ObjectUtils.asMap("folder", "/Expenses/"));
+            expenseProof.setProof(result.get("url").toString());
             expenseProof.setExpense(expense);
             return expenseProofRepository.save(expenseProof);
         }

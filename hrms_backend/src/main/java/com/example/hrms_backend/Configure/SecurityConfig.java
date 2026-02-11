@@ -59,8 +59,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/Travel/Expense/{expenseId}/proofs").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/Travel/Expense/proof/{proofId}/url").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
 
-
                         .requestMatchers(HttpMethod.GET, "/User/orgchart/{id}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/Job/create").hasAnyAuthority("HR","ADMIN","MANAGER")
+                        .requestMatchers(HttpMethod.GET, "/Job/all").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/Job/{jobId}/share").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/Job/{jobId}/refer").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/Job/{jobId}/share").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/Job/{jobId}/refer").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/Job/{jobId}").hasAnyAuthority("HR", "MANAGER","ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/Job/{jobId}").hasAnyAuthority("HR", "MANAGER","ADMIN")
 
                         .anyRequest().authenticated()
                 )

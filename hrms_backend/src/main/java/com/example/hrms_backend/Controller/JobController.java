@@ -1,11 +1,16 @@
 package com.example.hrms_backend.Controller;
 
 import com.example.hrms_backend.Entity.Job;
+import com.example.hrms_backend.Entity.Referral;
+import com.example.hrms_backend.Entity.Share;
 import com.example.hrms_backend.Service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,21 +24,54 @@ public class JobController {
     public ResponseEntity<List<Job>> getAllJob(){
         return ResponseEntity.ok(jobService.getAllJob());
     }
-    @GetMapping("/{id}")
-    public ResponseEntity<Optional<Job>> getJob(@PathVariable Long id){
-        return ResponseEntity.ok(jobService.getJob(id));
-    }
 
-    @PostMapping
+    @PutMapping("/{jobId}")
     public ResponseEntity<Job> updateJob(@RequestBody Job job){
         return ResponseEntity.ok(jobService.updateJob(job));
     }
-    @DeleteMapping("/{id}")
+
+    @DeleteMapping("/{jobId}")
     public void deleteJob(@PathVariable Long id){
         jobService.deleteJob(id);
     }
-    @PostMapping("/add")
-    public void addJob(@RequestBody Job job){
-        jobService.createJob(job);
+
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Job> createJob(@RequestParam("title") String title,
+                                         @RequestParam("summary") String summary,
+                                         @RequestParam("jdFile") MultipartFile jdFile,
+                                         @RequestParam("hrEmail") String hrEmail,
+                                         @RequestParam("reviewerEmail") String reviewerEmail) throws IOException {
+        Job job = new Job();
+        job.setTitle(title);
+        job.setSummary(summary);
+        job.setHrEmail(hrEmail);
+        job.setReviewerEmail(reviewerEmail);
+        return ResponseEntity.ok(jobService.createJob(job, jdFile));
+    }
+
+    @PostMapping("/{jobId}/share")
+    public ResponseEntity<String> shareJob(@PathVariable Long jobId, @RequestBody List<String> recipientEmails) {
+        jobService.shareJob(jobId, recipientEmails);
+        return ResponseEntity.ok("Shared");
+    }
+
+    @PostMapping(value = "/{jobId}/refer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> referJob(@PathVariable Long jobId,
+                                             @RequestParam("friendName") String friendName,
+                                             @RequestParam("friendEmail") String friendEmail,
+                                             @RequestParam("cv") MultipartFile cv,
+                                             @RequestParam("note") String note) throws IOException {
+        jobService.referJob(jobId, friendName, friendEmail, cv, note);
+        return ResponseEntity.ok("referred successful");
+    }
+
+    @GetMapping("/{jobId}/shares")
+    public ResponseEntity<List<Share>> getShares(@PathVariable Long jobId) {
+        return ResponseEntity.ok(jobService.getSharesByJob(jobId));
+    }
+
+    @GetMapping("/{jobId}/refer")
+    public ResponseEntity<List<Referral>> getReferrals(@PathVariable Long jobId) {
+        return ResponseEntity.ok(jobService.getReferralsByJob(jobId));
     }
 }

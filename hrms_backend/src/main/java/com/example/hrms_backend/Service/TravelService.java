@@ -118,15 +118,15 @@ public class TravelService {
             FileOutputStream fos = new FileOutputStream(convFile);
             fos.write(file.getBytes());
             fos.close();
-            var pic = cloudinary.uploader().upload(convFile, ObjectUtils.asMap("folder", "/Documents/"));
+            var result = cloudinary.uploader().upload(convFile, ObjectUtils.asMap("folder", "/Documents/"));
 
             document.setTravel(travel);
             document.setUser(targetUser);
             document.setUploadedBy(currentUserEmail);
-            if (pic != null && pic.containsKey("url")) {
-                document.setFilePath(pic.get("url").toString());
+            if (result != null && result.containsKey("url")) {
+                document.setFilePath(result.get("url").toString());
             } else {
-                throw new RuntimeException("Cloudinary upload failed: " + pic);
+                throw new RuntimeException("Cloudinary upload failed: " + result);
             }
             document.setCreatedAt(LocalDateTime.now());
             document.setDocType(file.getContentType());
