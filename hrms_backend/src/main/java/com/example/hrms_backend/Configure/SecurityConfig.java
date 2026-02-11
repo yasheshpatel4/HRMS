@@ -54,6 +54,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/Travel/Expense/approve/{id}").hasAnyAuthority("HR","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/Travel/Expense/all").hasAnyAuthority("HR","EMPLOYEE","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/Travel/Expense/{userId}/{travelId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/Travel/Expense/{travelId}").hasAnyAuthority("HR", "MANAGER", "ADMIN")
 
                         .requestMatchers(HttpMethod.POST, "/Travel/Expense/{expenseId}/upload-proof").hasAnyAuthority("EMPLOYEE","ADMIN","HR")
                         .requestMatchers(HttpMethod.GET, "/Travel/Expense/{expenseId}/proofs").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
@@ -69,6 +70,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/Job/{jobId}/refer").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/Job/{jobId}").hasAnyAuthority("HR", "MANAGER","ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/Job/{jobId}").hasAnyAuthority("HR", "MANAGER","ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/Post/create").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/Post/all").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/Post/{postId}/like").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/Post/{postId}/comment").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/Post/{postId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/Notification/{userId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/Notification/{notificationId}/read").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
 
                         .anyRequest().authenticated()
                 )

@@ -24,6 +24,10 @@ public class ExpenseController {
         return ResponseEntity.ok(expenseService.getAll());
     }
 
+    @GetMapping("/{travelId}")
+    public ResponseEntity<Expense> getByTravel(@PathVariable Long travelId){
+        return ResponseEntity.ok(expenseService.getByTravel(travelId));
+    }
     @GetMapping("/{userId}/{travelId}")
     public ResponseEntity<List<Expense>> getByUserTravel(@PathVariable Long userId,@PathVariable Long travelId){
         List<Expense> expenses = expenseService.getAllByUserTravel(userId, travelId);
@@ -43,7 +47,7 @@ public class ExpenseController {
     }
 
     @PutMapping("/approve/{id}")
-    public void approve(@PathVariable Long id){
+    public void setApproveBy(@PathVariable Long id){
         expenseService.approve(id);
     }
 

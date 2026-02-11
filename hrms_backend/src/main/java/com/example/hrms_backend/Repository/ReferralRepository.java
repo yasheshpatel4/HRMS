@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface ReferralRepository extends JpaRepository<Referral,Long> {
 
-    @Query("select R from Referral r where r.job.jobId=:jobId")
+    @Query("select r from Referral r where r.job.jobId=:jobId")
     List<Referral> findByJobId(Long jobId);
 }

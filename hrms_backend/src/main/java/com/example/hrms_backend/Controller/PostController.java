@@ -33,8 +33,20 @@ public class PostController {
     public void deletePost(@PathVariable Long id){
         postService.deletePost(id);
     }
-    @PostMapping("/add")
+    @PostMapping("/create")
     public void addJob(@RequestBody Post post){
         postService.createPost(post);
+    }
+
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<String> addlike(@PathVariable Long postId){
+        postService.addLike(postId);
+        return ResponseEntity.ok("successful");
+    }
+
+    @PostMapping("/{postId}/comment")
+    public ResponseEntity<String> addComment(@PathVariable Long postId,@RequestBody String msg){
+        postService.addComment(postId,msg);
+        return ResponseEntity.ok("successful");
     }
 }

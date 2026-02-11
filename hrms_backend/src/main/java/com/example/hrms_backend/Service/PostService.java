@@ -1,10 +1,16 @@
 package com.example.hrms_backend.Service;
 
+import com.example.hrms_backend.Entity.Comment;
 import com.example.hrms_backend.Entity.Post;
+import com.example.hrms_backend.Entity.User;
+import com.example.hrms_backend.Repository.CommentRepository;
 import com.example.hrms_backend.Repository.PostRepository;
+import com.example.hrms_backend.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,6 +18,10 @@ import java.util.Optional;
 public class PostService {
     @Autowired
     PostRepository postRepository;
+    @Autowired
+    CommentRepository commentRepository;
+    @Autowired
+    UserRepository userRepository;
 
     public List<Post> getAllPost(){
         return postRepository.findAll();
@@ -38,6 +48,25 @@ public class PostService {
     }
 
     public void createPost(Post post) {
+        String email=SecurityContextHolder.getContext().getAuthentication().getName();
+        User user=userRepository.findByEmail(email).orElseThrow(()->new RuntimeException("user not found"));
+        post.setOwner(user);
+        post.setCreatedAt(LocalDateTime.now());
         postRepository.save(post);
+    }
+
+    public void addLike(Long postId) {
+    }
+
+    public void addComment(Long postId, String msg) {
+        String email=SecurityContextHolder.getContext().getAuthentication().getName();
+        User user=userRepository.findByEmail(email).orElseThrow(()->new RuntimeException("user not found"));
+        Post post= postRepository.findById(postId).orElseThrow(()->new RuntimeException("post not found"));
+        Comment comment=new Comment();
+        comment.setPost(post);
+        comment.setAuthor(user);
+        comment.setCreatedAt(LocalDateTime.now());
+        comment.setText(msg);
+        commentRepository.save(comment);
     }
 }

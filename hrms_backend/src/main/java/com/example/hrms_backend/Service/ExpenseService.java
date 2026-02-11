@@ -73,5 +73,9 @@ public class ExpenseService {
     public String getProofById(Long proofId) {
         return expenseProofRepository.findProofUrl(proofId);
     }
+
+    public Expense getByTravel(Long travelId) {
+        return expenseRepository.findByTravel(travelId);
+    }
 }
 
