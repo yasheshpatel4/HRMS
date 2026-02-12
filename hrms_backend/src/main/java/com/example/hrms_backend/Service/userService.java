@@ -29,6 +29,14 @@ public class userService implements UserDetailsService {
     @Autowired
     ModelMapper modelmapper;
 
+    public User getCurrentUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User currentUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return currentUser;
+    }
+
     public User findByEmail(@Email @NotBlank String email) {
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent()) {

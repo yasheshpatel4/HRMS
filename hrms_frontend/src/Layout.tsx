@@ -1,11 +1,11 @@
-import {  Outlet, useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
-import Sidebar from "./components/Sidebar";
+import {  Outlet, useLocation } from "react-router-dom";
+import Sidebar from "./components/Sidebar";            
+import { useAuth } from "./Context/AuthContext";
 
 const Layout = () => {
   
   const location = useLocation();
-  const role = localStorage.getItem("userRole") || 'USER';
+  const { role } = useAuth();
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -25,7 +25,7 @@ const Layout = () => {
         </header>
 
         <div className="flex-1 overflow-y-auto p-8 bg-gray-50">
-          <Outlet /> 
+          <Outlet />
         </div>
       </main>
     </div>

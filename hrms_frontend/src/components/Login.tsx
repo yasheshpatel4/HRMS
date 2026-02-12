@@ -1,40 +1,30 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-
-
-const api = axios.create({
-  baseURL: "http://localhost:8080",
-  withCredentials: true,
-});
+import { useAuth } from "../Context/AuthContext";
 
 const Login = () => {
+  const { login, isAuthenticated } = useAuth();
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    const auth = localStorage.getItem("isAuthenticated");
-    if (auth === "true") {
+    if (isAuthenticated) {
       navigate("/dashboard", { replace: true });
     }
-  }, [navigate]);
+  }, [isAuthenticated, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
-      const response = await api.post("/Auth/login", { email, password });
-
-      if (response.status === 200) {
-
-        localStorage.setItem("isAuthenticated", "true");
-        navigate("/dashboard");
-      }
+      await login(email, password);
+      navigate("/dashboard");
     } catch (err: any) {
-      setError(err.response?.data || "Login failed. Check your credentials.");
+      setError(err);
     }
   };
 

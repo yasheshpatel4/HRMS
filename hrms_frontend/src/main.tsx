@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
+import { AuthProvider, useAuth } from './Context/AuthContext'
+
 import './index.css'
 import Layout from './Layout'
 import Login from './components/Login'
@@ -17,8 +19,11 @@ import OrgChart from './components/Organization/OrgChart'
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+  const { isAuthenticated } = useAuth();
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
 };
 
 const router = createBrowserRouter([
@@ -52,7 +57,9 @@ const router = createBrowserRouter([
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
     </QueryClientProvider>
   </StrictMode>,
 )

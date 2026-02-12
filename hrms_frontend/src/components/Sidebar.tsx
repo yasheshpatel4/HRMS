@@ -1,5 +1,5 @@
 import { NavLink,useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useAuth } from "../Context/AuthContext";
 
 
 const navItems = [
@@ -16,19 +16,11 @@ const navItems = [
 const Sidebar=()=>{
 
     const navigate = useNavigate();
-      const role = localStorage.getItem("userRole") || 'USER';
+    const { role, logout } = useAuth();
 
     const handleLogout = async () => {
-        try {
-        await axios.post("http://localhost:8080/Auth/logout", {}, { 
-            withCredentials: true 
-        });
-        } catch(error){
-        console.error("Logout API failed", error);
-        } finally{
-        localStorage.clear();
+        await logout();
         navigate("/login", { replace: true });
-        }
     };
 
     return <>

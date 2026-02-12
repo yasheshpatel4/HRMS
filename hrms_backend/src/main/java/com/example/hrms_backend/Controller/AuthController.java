@@ -95,6 +95,12 @@ public class AuthController {
                 .orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<User> getCurrentUser() {
+        return ResponseEntity.ok(userservice.getCurrentUser());
+    }
+
+
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody UserDTO userDto) {
         return new ResponseEntity<>(userservice.addUser(userDto), HttpStatus.CREATED);
