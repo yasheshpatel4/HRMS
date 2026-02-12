@@ -1,1 +1,23 @@
 @import "tailwindcss";
+
+.p-organizationchart .p-organizationchart-node-content {
+    border: 1px solid #e5e7eb;
+    background: #c1bdbd;
+    color: #4b5563;
+    padding: 1.25rem;
+    border-radius: 12px; 
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.p-organizationchart .p-organizationchart-line-down,
+.p-organizationchart .p-organizationchart-line-top{
+    border-color: #c1c4c8 !important;
+    border-width: 1.5px !important;
+}
+svg.p-icon.p-node-toggler-icon{
+    width: 1.2rem;
+    height: 1.2rem;
+    display: inline-block;
+    position: relative;
+    top: .25rem;
+}

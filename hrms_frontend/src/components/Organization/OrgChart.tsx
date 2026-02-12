@@ -1,6 +1,7 @@
 import { useEffect,useState } from 'react';
 import axios from 'axios';
 import EmployeeNode from './EmployeeNode'
+import OrgChart1 from './OrgChart1';
 
 export interface User {
   userId: number;
@@ -83,6 +84,7 @@ const OrgChart = () => {
           </div>
         )}
       </div>
+      <OrgChart1/>
     </div>
   );
 };

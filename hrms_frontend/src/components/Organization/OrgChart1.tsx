@@ -41,7 +41,8 @@ const OrgChart1 = () => {
       userMap.set(u.userId, {
         expanded: true,
         label:u.name, 
-        data: u,       
+        data: u, 
+        className: 'border-round-xl border-2 border-gray-300 shadow-2 ',    
         children: []
       });
     });
