@@ -14,7 +14,7 @@ const Layout = () => {
       <main className="flex-1 flex flex-col overflow-hidden">
         <header className="h-16 bg-white border-b flex items-center justify-between px-8 text-black">
           <h1 className="text-lg font-semibold capitalize text-gray-700">
-            {location.pathname.split("/")[1] || "Home"}
+            {location.pathname.split("/")[1]}
           </h1>
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-500">Welcome, {role}</span>
