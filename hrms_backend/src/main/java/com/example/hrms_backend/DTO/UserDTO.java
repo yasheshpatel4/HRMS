@@ -33,4 +33,7 @@ public class UserDTO {
     @NotBlank
     private Role role;
 
+    @NotBlank
+    private String managerEmail;
+
 }

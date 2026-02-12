@@ -53,7 +53,7 @@ public class userService implements UserDetailsService {
         user1.setDesignation(user.getDesignation());
         user1.setDepartment(user.getDepartment());
         user1.setRole(user.getRole());
-        String email= SecurityContextHolder.getContext().getAuthentication().getName();
+        String email= user.getManagerEmail();
         User manager=userRepository.findByEmail(email).orElseThrow(()->new RuntimeException("user who try to register other user is not login"));
         user1.setManager(manager);
 //        User user1=modelmapper.map(user,User.class);
