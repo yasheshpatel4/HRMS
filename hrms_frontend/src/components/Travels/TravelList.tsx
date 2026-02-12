@@ -79,7 +79,8 @@ const TravelList = () => {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-800">Travel Assignments</h2>
         {role === 'HR' && (
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+          <button onClick={() => setShowTravelForm(true)} 
+          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
             Create New Travel
           </button>
         )}
@@ -98,7 +99,7 @@ const TravelList = () => {
             <div className="space-y-2 text-sm text-gray-600">
               <p><span className="font-medium">Start:</span> {new Date(travel.startDate).toLocaleDateString()}</p>
               <p><span className="font-medium">End:</span> {new Date(travel.endDate).toLocaleDateString()}</p>
-              <p><span className="font-medium">Purpose:</span> {travel.description}</p>
+              <p><span className="font-medium">Description:</span> {travel.description}</p>
               <p><span className="font-medium">Employees:</span> {travel.assignedUsers?.length || 0}</p>
             </div>
 
