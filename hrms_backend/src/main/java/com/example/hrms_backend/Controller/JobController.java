@@ -26,8 +26,8 @@ public class JobController {
     }
 
     @PutMapping("/{jobId}")
-    public ResponseEntity<Job> updateJob(@RequestBody Job job){
-        return ResponseEntity.ok(jobService.updateJob(job));
+    public ResponseEntity<Job> updateJob(@RequestBody Job job, @RequestParam("reviewerEmails") List<String> reviewerEmails){
+        return ResponseEntity.ok(jobService.updateJob(job, reviewerEmails));
     }
 
     @DeleteMapping("/{jobId}")
@@ -40,13 +40,12 @@ public class JobController {
                                          @RequestParam("summary") String summary,
                                          @RequestParam("jdFile") MultipartFile jdFile,
                                          @RequestParam("hrEmail") String hrEmail,
-                                         @RequestParam("reviewerEmail") String reviewerEmail) throws IOException {
+                                         @RequestParam("reviewerEmails") List<String> reviewerEmails) throws IOException {
         Job job = new Job();
         job.setTitle(title);
         job.setSummary(summary);
         job.setHrEmail(hrEmail);
-        job.setReviewerEmail(reviewerEmail);
-        return ResponseEntity.ok(jobService.createJob(job, jdFile));
+        return ResponseEntity.ok(jobService.createJob(job, jdFile, reviewerEmails));
     }
 
     @PostMapping("/{jobId}/share")
@@ -57,10 +56,10 @@ public class JobController {
 
     @PostMapping(value = "/{jobId}/refer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> referJob(@PathVariable Long jobId,
-                                             @RequestParam("friendName") String friendName,
-                                             @RequestParam("friendEmail") String friendEmail,
-                                             @RequestParam("cv") MultipartFile cv,
-                                             @RequestParam("note") String note) throws IOException {
+                                           @RequestParam("friendName") String friendName,
+                                           @RequestParam("friendEmail") String friendEmail,
+                                           @RequestParam("cv") MultipartFile cv,
+                                           @RequestParam("note") String note) throws IOException {
         jobService.referJob(jobId, friendName, friendEmail, cv, note);
         return ResponseEntity.ok("referred successful");
     }

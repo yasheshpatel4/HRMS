@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -47,7 +48,7 @@ public class JobService {
         return jobRepository.findById(id);
     }
 
-    public Job createJob(Job job, MultipartFile jdFile) throws IOException {
+    public Job createJob(Job job, MultipartFile jdFile, List<String> reviewerEmails) throws IOException {
         String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userRepository.findByEmail(currentUserEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -64,15 +65,29 @@ public class JobService {
             throw new RuntimeException("Cloudinary upload failed: " + uploadResult);
         }
 
+        Set<User> reviewers = new HashSet<>();
+        for (String email : reviewerEmails) {
+            User reviewer = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("Reviewer not found: " + email));
+            reviewers.add(reviewer);
+        }
+        job.setReviewers(reviewers);
+
         return jobRepository.save(job);
     }
 
-    public Job updateJob(Job job) {
+    public Job updateJob(Job job, List<String> reviewerEmails) {
         return jobRepository.findById(job.getJobId())
                 .map(job1 -> {
                     job1.setTitle(job.getTitle());
                     job1.setHrEmail(job.getHrEmail());
-                    job1.setReviewerEmail(job.getReviewerEmail());
+                    Set<User> reviewers = new HashSet<>();
+                    for (String email : reviewerEmails) {
+                        User reviewer = userRepository.findByEmail(email)
+                                .orElseThrow(() -> new RuntimeException("Reviewer not found: " + email));
+                        reviewers.add(reviewer);
+                    }
+                    job1.setReviewers(reviewers);
                     job1.setJdFilePath(job.getJdFilePath());
                     job1.setSummary(job.getSummary());
                     return jobRepository.save(job1);
@@ -145,7 +160,9 @@ public class JobService {
 
             referralRepository.save(referral);
 
-            emailService.sendJobReferNotification(job.getReviewerEmail(), job);
+            for (User reviewer : job.getReviewers()) {
+                emailService.sendJobReferNotification(reviewer.getEmail(), job);
+            }
         }
         finally {
             if(convFile.exists()){
