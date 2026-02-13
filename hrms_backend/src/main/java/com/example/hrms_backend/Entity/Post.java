@@ -50,4 +50,5 @@ public class Post {
 
     private Boolean IsDeleted;
     private String DeletedBy;
+    private Boolean isSystemGenerated = false;
 }

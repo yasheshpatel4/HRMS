@@ -49,11 +49,7 @@ const TravelList = () => {
   const viewDocuments = async (travel: Travel) => {
     try {
       let response;
-      if (role == 'HR' || role == 'ADMIN' || role == 'MANAGER') {
         response = await axios.get(`http://localhost:8080/Travel/Document/${travel.travelId}`, { withCredentials: true });
-      } else {
-        response = await axios.get(`http://localhost:8080/Travel/Document/${travel.travelId}/user/${user?.userId}`, { withCredentials: true });
-      }
       setDocuments(response.data);
       setSelectedTravel(travel);
     } catch (error) {

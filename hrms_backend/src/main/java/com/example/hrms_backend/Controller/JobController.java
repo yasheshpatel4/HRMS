@@ -73,4 +73,9 @@ public class JobController {
     public ResponseEntity<List<Referral>> getReferrals(@PathVariable Long jobId) {
         return ResponseEntity.ok(jobService.getReferralsByJob(jobId));
     }
+
+    @PutMapping("/referral/{referralId}/status")
+    public ResponseEntity<Referral> updateReferralStatus(@PathVariable Long referralId, @RequestBody String newStatus) {
+        return ResponseEntity.ok(jobService.updateReferralStatus(referralId, newStatus));
+    }
 }

@@ -29,6 +29,6 @@ public class Referral {
 
     private String cvFilePath;
     private String status;
-
+    private String note;
     private LocalDateTime createdAt;
 }

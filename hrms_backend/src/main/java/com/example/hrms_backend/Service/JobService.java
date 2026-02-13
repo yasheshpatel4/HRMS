@@ -44,9 +44,9 @@ public class JobService {
         return jobRepository.findAll();
     }
 
-    public Optional<Job> getJob(Long id) {
-        return jobRepository.findById(id);
-    }
+//    public Optional<Job> getJob(Long id) {
+//        return jobRepository.findById(id);
+//    }
 
     public Job createJob(Job job, MultipartFile jdFile, List<String> reviewerEmails) throws IOException {
         String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -143,7 +143,7 @@ public class JobService {
             FileOutputStream fos = new FileOutputStream(convFile);
             fos.write(cv.getBytes());
             fos.close();
-            var uploadResult = cloudinary.uploader().upload(convFile, ObjectUtils.asMap("folder", "/CVs/"));
+            var uploadResult = cloudinary.uploader().upload(convFile, ObjectUtils.asMap("folder", "/CVs/","resource_type", "auto"));
 
             Referral referral = new Referral();
             referral.setJob(job);
@@ -156,6 +156,7 @@ public class JobService {
                 throw new RuntimeException("Cloudinary upload failed: " + uploadResult);
             }
             referral.setStatus("Pending");
+            referral.setNote(note);
             referral.setCreatedAt(LocalDateTime.now());
 
             referralRepository.save(referral);
@@ -177,6 +178,13 @@ public class JobService {
 
     public List<Referral> getReferralsByJob(Long jobId) {
         return referralRepository.findByJobId(jobId);
+    }
+
+    public Referral updateReferralStatus(Long referralId, String newStatus) {
+        Referral referral = referralRepository.findById(referralId)
+                .orElseThrow(() -> new RuntimeException("Referral not found"));
+        referral.setStatus(newStatus);
+        return referralRepository.save(referral);
     }
 
 }

@@ -77,6 +77,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/Job/{jobId}/refer").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/Job/{jobId}").hasAnyAuthority("HR", "MANAGER","ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/Job/{jobId}").hasAnyAuthority("HR", "MANAGER","ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/Job/referral/{referralId}/status").hasAnyAuthority("HR", "MANAGER","ADMIN")
+
 
                         .requestMatchers(HttpMethod.POST, "/Post/create").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/Post/all").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
