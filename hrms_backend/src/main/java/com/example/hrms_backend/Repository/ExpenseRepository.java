@@ -18,7 +18,7 @@ public interface ExpenseRepository extends JpaRepository<Expense,Long> {
     List<Expense> findByUserTravel(@Param("userId") Long userId, @Param("travelId") Long travelId);
 
     @Modifying
-    @Query("update Expense e set e.status='APPROVED' where e.travel.travelId=:id")
+    @Query("update Expense e set e.status='APPROVED' where e.expenseId=:id")
     void approve(Long id);
 
     @Query("select e from Expense e where e.travel.travelId=:travelId")

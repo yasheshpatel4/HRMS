@@ -69,7 +69,7 @@ const OrgChart = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800">Organization Chart</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Organization Chart</h2>
 
       <div className="bg-white rounded-lg shadow-md p-6">
         {hierarchy.length > 0 ? (

@@ -1,13 +1,13 @@
 
-const Job=()=> {
+const Notification=()=> {
 
   return (
     <>
       <h1 className="text-3xl font-bold underline">
-      Hello!!!
+      Notification..!
     </h1>
     </>
   )
 }
 
-export default Job
+export default Notification

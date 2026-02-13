@@ -1,13 +1,13 @@
 
-const Notification=()=> {
+const Post=()=> {
 
   return (
     <>
       <h1 className="text-3xl font-bold underline">
-      Hello!!!
+      Post..!
     </h1>
     </>
   )
 }
 
-export default Notification
+export default Post

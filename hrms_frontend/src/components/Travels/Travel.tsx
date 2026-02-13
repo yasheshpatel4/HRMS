@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { useAuth } from '../Context/AuthContext';
-// import TravelForm from './Travels/TravelForm';
-import TravelList from './Travels/TravelList';
-import ExpenseForm from './Travels/ExpenseForm';
-import ExpenseList from './Travels/ExpenseList';
-
+import { useAuth } from '../../Context/AuthContext';
+// import TravelForm from './TravelForm';
+import TravelList from './TravelList';
+import ExpenseForm from './ExpenseForm';
+import ExpenseList from './ExpenseList';
 const Travel = () => {
   const { role } = useAuth();
   const [activeTab, setActiveTab] = useState<'travels' | 'expenses'>('travels');

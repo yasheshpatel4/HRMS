@@ -1,13 +1,13 @@
 
-const Post=()=> {
+const Games=()=> {
 
   return (
     <>
       <h1 className="text-3xl font-bold underline">
-      Hello!!!
+      Game..!
     </h1>
     </>
   )
 }
 
-export default Post
+export default Games
