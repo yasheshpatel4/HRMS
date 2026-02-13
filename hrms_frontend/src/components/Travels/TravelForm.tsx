@@ -24,7 +24,7 @@ interface TravelFormProps {
   onSuccess: () => void;
 }
 
-const TravelForm: React.FC<TravelFormProps> = ({ isOpen, onClose, onSuccess }) => {
+const TravelForm = ({ isOpen, onClose, onSuccess }: TravelFormProps) => {
   const { user } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [formData, setFormData] = useState<TravelFormData>({
@@ -72,7 +72,7 @@ const TravelForm: React.FC<TravelFormProps> = ({ isOpen, onClose, onSuccess }) =
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title || !formData.startDate || !formData.endDate || formData.assignedUserIds.length === 0) {
+    if (!formData.title || !formData.startDate || !formData.endDate || formData.assignedUserIds.length == 0) {
       setMessage('Please fill all required fields and assign at least one user');
       return;
     }
@@ -86,6 +86,7 @@ const TravelForm: React.FC<TravelFormProps> = ({ isOpen, onClose, onSuccess }) =
     try {
       const travelData = {
         ...formData,
+        budget: Number(formData.budget),
         createdBy: { userId: user?.userId },
         assignedUsers: formData.assignedUserIds.map(id => ({ userId: id })),
       };
@@ -171,7 +172,7 @@ const TravelForm: React.FC<TravelFormProps> = ({ isOpen, onClose, onSuccess }) =
               Budget
             </label>
             <input
-              type="number"
+              type="text"
               name="budget"
               value={formData.budget}
               onChange={handleInputChange}
