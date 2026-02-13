@@ -5,6 +5,9 @@ import com.cloudinary.utils.ObjectUtils;
 import com.example.hrms_backend.Entity.*;
 import com.example.hrms_backend.Repository.ExpenseProofRepository;
 import com.example.hrms_backend.Repository.ExpenseRepository;
+import com.example.hrms_backend.Repository.TravelRepository;
+import com.example.hrms_backend.Repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,10 @@ public class ExpenseService {
     Cloudinary cloudinary;
     @Autowired
     ExpenseProofRepository expenseProofRepository;
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    TravelRepository travelRepository;
 
     public List<Expense> getAllByUserTravel(Long userId,Long travelId){
         return expenseRepository.findByUserTravel(userId,travelId);
@@ -34,13 +41,30 @@ public class ExpenseService {
     public List<Expense> getAll() {
         return expenseRepository.findAll();
     }
-    public Expense addExpense(Expense expense){
+
+    public Expense addExpense(Expense expense) {
+
+        if (expense.getUser() != null && expense.getUser().getUserId() != null) {
+            User user = userRepository.findById(expense.getUser().getUserId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            expense.setUser(user);
+        }
+
+        if (expense.getTravel() != null && expense.getTravel().getTravelId() != null) {
+            Travel travel = travelRepository.findById(expense.getTravel().getTravelId())
+                    .orElseThrow(() -> new RuntimeException("Travel not found"));
+            expense.setTravel(travel);
+        }
+        expense.setSubmittedAt(LocalDateTime.now());
+
         return expenseRepository.save(expense);
     }
+
     public void deleteExpense(Long id){
         expenseRepository.deleteById(id);
     }
 
+    @Transactional
     public void approve(Long id) {
         expenseRepository.approve(id);
     }
