@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useAuth } from '../../Context/AuthContext';
 import DocumentUpload from './DocumentUpload';
 import TravelForm from './TravelForm';
+import api from '../../Api';
 
 interface Travel {
   travelId: number;
@@ -31,12 +31,12 @@ const TravelList = () => {
     try {
       let response;
       if (role == 'HR') {
-        response = await axios.get(`http://localhost:8080/Travel/HR/${user?.userId}`, { withCredentials: true });
+        response = await api.get(`/Travel/HR/${user?.userId}`);
       }
       else if(role =='MANAGER' || role == 'ADMIN'){
-         response = await axios.get(`http://localhost:8080/Travel/HR/all`, { withCredentials: true });       
+         response = await api.get(`/Travel/HR/all`);       
       } else {
-        response = await axios.get(`http://localhost:8080/Travel/user/${user?.userId}`, { withCredentials: true });
+        response = await api.get(`/Travel/user/${user?.userId}`);
       }
       setTravels(response.data);
     } catch (error) {
@@ -49,7 +49,7 @@ const TravelList = () => {
   const viewDocuments = async (travel: Travel) => {
     try {
       let response;
-        response = await axios.get(`http://localhost:8080/Travel/Document/${travel.travelId}`, { withCredentials: true });
+        response = await api.get(`/Travel/Document/${travel.travelId}`);
       setDocuments(response.data);
       setSelectedTravel(travel);
     } catch (error) {
@@ -59,7 +59,7 @@ const TravelList = () => {
 
   const downloadDocument = async (docId: number) => {
     try {
-      const response = await axios.get(`http://localhost:8080/Travel/Document/${docId}/url`, { withCredentials: true });
+      const response = await api.get(`/Travel/Document/${docId}/url`);
       window.open(`${response.data}`, '_blank');
     } catch (error) {
       console.error('Error downloading document:', error);

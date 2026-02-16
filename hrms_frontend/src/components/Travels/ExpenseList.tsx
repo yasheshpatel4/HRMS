@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useAuth } from '../../Context/AuthContext';
+import api from '../../Api';
 
 interface Expense {
   expenseId: number;
@@ -38,15 +38,15 @@ const ExpenseList = () => {
     try {
       let response;
       if (role === 'HR') {
-        response = await axios.get('http://localhost:8080/Travel/Expense/all', { withCredentials: true });
+        response = await api.get('/Travel/Expense/all');
       } else {
-        const travelResponse = await axios.get(`http://localhost:8080/Travel/user/${user?.userId}`, { withCredentials: true });
+        const travelResponse = await api.get(`/Travel/user/${user?.userId}`);
         const userTravels = travelResponse.data;
 
         const allExpenses: Expense[] = [];
         for (const travel of userTravels) {
           try {
-            const expenseResponse = await axios.get(`http://localhost:8080/Travel/Expense/${user?.userId}/${travel.travelId}`, { withCredentials: true });
+            const expenseResponse = await api.get(`/Travel/Expense/${user?.userId}/${travel.travelId}`);
             if (expenseResponse.data) {
               allExpenses.push(...expenseResponse.data);
             }
@@ -64,7 +64,7 @@ const ExpenseList = () => {
 
       for (const travelId of uniqueTravelIds) {
         try {
-          const travelResponse = await axios.get(`http://localhost:8080/Travel/${travelId}`, { withCredentials: true });
+          const travelResponse = await api.get(`/Travel/${travelId}`);
           if (travelResponse.data) {
             travelMap.set(travelId?0:0, travelResponse.data);
           }
@@ -83,9 +83,9 @@ const ExpenseList = () => {
   const handleStatusChange = async (expenseId: number, newStatus: 'APPROVED' | 'REJECTED', remarks?: string) => {
     try {
       if (newStatus === 'APPROVED') {
-        await axios.put(`http://localhost:8080/Travel/Expense/approve/${expenseId}`, {}, { withCredentials: true });
+        await api.put(`/Travel/Expense/approve/${expenseId}`)
       } else {
-        await axios.put(`http://localhost:8080/Travel/Expense/reject/${expenseId}`, { remarks }, { withCredentials: true });
+        await api.put(`/Travel/Expense/reject/${expenseId}`, { remarks });
       }
       fetchExpenses();
     } catch (error) {
@@ -95,7 +95,7 @@ const ExpenseList = () => {
 
   const viewProofs = async (expenseId: number) => {
     try {
-      const response = await axios.get(`http://localhost:8080/Travel/Expense/${expenseId}/proofs`, { withCredentials: true });
+      const response = await api.get(`/Travel/Expense/${expenseId}/proofs`);
       setProofUrls(response.data);
       setSelectedExpense(expenses.find(exp => exp.expenseId == expenseId) || null);
     } catch (error) {
@@ -252,7 +252,7 @@ const ExpenseList = () => {
                     <div className="text-center">
                       <div className="text-4xl mb-2">📄</div>
                       <a
-                        href={`http://localhost:8080${url}`}
+                        href={`${url}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:text-blue-800 text-sm"

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useAuth } from '../../Context/AuthContext';
+import api from '../../Api';
 
 interface Travel {
   travelId: number;
@@ -37,9 +37,7 @@ const ExpenseForm = () => {
 
   const fetchTravels = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/Travel/user/${user?.userId}`, { 
-        withCredentials: true 
-      });
+      const response = await api.get(`/Travel/user/${user?.userId}`); 
       
       const currentDate = new Date();
       const eligibleTravels = response.data.filter((travel: Travel) => {
@@ -87,19 +85,13 @@ const ExpenseForm = () => {
         status: 'SUBMITTED',
       };
 
-      const expenseResponse = await axios.post('http://localhost:8080/Travel/Expense/submit', expenseData, {
-        withCredentials: true,
-      });
+      const expenseResponse = await api.post('/Travel/Expense/submit', expenseData);
       const expenseId = expenseResponse.data.expenseId;
 
       for (const file of proofFiles) {
         const formDataUpload = new FormData();
         formDataUpload.append('file', file);
-        
-        await axios.post(`http://localhost:8080/Travel/Expense/${expenseId}/upload-proof`, formDataUpload, {
-          withCredentials: true,
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
+        await api.post(`/Travel/Expense/${expenseId}/upload-proof`, formDataUpload);
       }
 
       setMessage('Expense submitted successfully!');

@@ -1,7 +1,7 @@
 import { useEffect,useState } from 'react';
-import axios from 'axios';
 import EmployeeNode from './EmployeeNode'
 import OrgChart1 from './OrgChart1';
+import api from '../../Api';
 
 export interface User {
   userId: number;
@@ -24,7 +24,7 @@ const OrgChart = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/User/all', { withCredentials: true });
+      const response = await api.get('/User/all');
       setUsers(response.data);
     } catch (error) {
       console.error(error);

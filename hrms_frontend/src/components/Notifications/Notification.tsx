@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useAuth } from '../../Context/AuthContext';
+import api from '../../Api';
 
 interface NotificationType {
     notificationId: number;
@@ -19,7 +19,7 @@ const Notification = () => {
     const fetchNotifications = async () => {
         if (!user?.userId) return; 
         try {
-            const response = await axios.get(`http://localhost:8080/Notification/${user.userId}`, { withCredentials: true });
+            const response = await api.get(`/Notification/${user.userId}`);
             setNotifications(response.data);
         } catch (error) {
             console.error("Error fetching notifications:", error);
@@ -34,7 +34,7 @@ const Notification = () => {
 
     const handleMarkRead = async (id: number) => {
         try {
-            await axios.put(`http://localhost:8080/Notification/${id}/read`, {}, { withCredentials: true });
+            await api.get(`/Notification/${id}/read`); 
             setNotifications(prev => 
                 prev.map(n => n.notificationId === id ? { ...n, read: true } : n)
             );

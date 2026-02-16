@@ -4,6 +4,7 @@ import com.example.hrms_backend.Entity.Notification;
 import com.example.hrms_backend.Entity.User;
 import com.example.hrms_backend.Repository.NotificationRepository;
 import com.example.hrms_backend.Repository.UserRepository;
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class NotificationService {
         notificationRepository.save(notification);
 
     }
+    @Transactional
     public void markRead(Long id){
         notificationRepository.markRead(id);
     }

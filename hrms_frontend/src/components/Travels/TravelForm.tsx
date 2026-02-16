@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useAuth } from '../../Context/AuthContext';
+import api from '../../Api';
 
 interface User {
   userId: number;
@@ -46,7 +46,7 @@ const TravelForm = ({ isOpen, onClose, onSuccess }: TravelFormProps) => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/User/all', { withCredentials: true });
+      const response = await api.get('/User/all');
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -91,9 +91,7 @@ const TravelForm = ({ isOpen, onClose, onSuccess }: TravelFormProps) => {
         assignedUsers: formData.assignedUserIds.map(id => ({ userId: id })),
       };
 
-      await axios.post('http://localhost:8080/Travel/add', travelData, {
-        withCredentials: true,
-      });
+      await api.post('/Travel/add', travelData);
 
       setMessage('Travel created successfully!');
       setFormData({

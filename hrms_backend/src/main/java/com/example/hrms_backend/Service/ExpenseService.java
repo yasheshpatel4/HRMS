@@ -33,6 +33,8 @@ public class ExpenseService {
     UserRepository userRepository;
     @Autowired
     TravelRepository travelRepository;
+    @Autowired
+    NotificationService notificationService;
 
     public List<Expense> getAllByUserTravel(Long userId,Long travelId){
         return expenseRepository.findByUserTravel(userId,travelId);
@@ -44,21 +46,28 @@ public class ExpenseService {
 
     public Expense addExpense(Expense expense) {
 
-        if (expense.getUser() != null && expense.getUser().getUserId() != null) {
-            User user = userRepository.findById(expense.getUser().getUserId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            expense.setUser(user);
-        }
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (expense.getTravel() != null && expense.getTravel().getTravelId() != null) {
-            Travel travel = travelRepository.findById(expense.getTravel().getTravelId())
-                    .orElseThrow(() -> new RuntimeException("Travel not found"));
-            expense.setTravel(travel);
-        }
+        expense.setUser(user);
+        Travel travel = travelRepository.findById(expense.getTravel().getTravelId())
+                .orElseThrow(() -> new RuntimeException("Travel not found"));
+        expense.setTravel(travel);
+
         expense.setSubmittedAt(LocalDateTime.now());
+        Expense savedExpense = expenseRepository.save(expense);
 
-        return expenseRepository.save(expense);
-    }
+        User hr=travel.getCreatedBy();
+
+        notificationService.createNotification(
+                hr.getUserId(),
+                "Expense",
+                "New expense submitted by " + user.getName() +
+                        " for travel: " + travel.getTitle());
+        return savedExpense;
+
+}
 
     public void deleteExpense(Long id){
         expenseRepository.deleteById(id);
@@ -66,7 +75,13 @@ public class ExpenseService {
 
     @Transactional
     public void approve(Long id) {
-        expenseRepository.approve(id);
+        String email=SecurityContextHolder.getContext().getAuthentication().getName();
+        User user=userRepository.findByEmail(email).orElseThrow(()->new RuntimeException("user not found"));
+        Expense expense=expenseRepository.findById(id).orElseThrow(()->new RuntimeException("Expense not found"));
+        expense.setStatus("APPROVED");
+        expense.setProcessedAt(LocalDateTime.now());
+        expense.setProcessedBy(user);
+        expenseRepository.save(expense);
     }
 
     public ExpenseProof upload(Long expenseId, MultipartFile file) throws IOException {

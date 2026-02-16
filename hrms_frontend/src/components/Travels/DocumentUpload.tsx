@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useAuth } from '../../Context/AuthContext';
+import api from '../../Api';
 
 interface DocumentUploadProps {
   travelId: number;
@@ -32,10 +32,7 @@ const DocumentUpload = ({ travelId, onUploadSuccess }:DocumentUploadProps) => {
       formData.append('file', selectedFile);
       formData.append('userId', user?.userId?.toString() || '');
 
-      await axios.post(`http://localhost:8080/Travel/${travelId}/upload`, formData, {
-        withCredentials: true,
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      await api.post(`/Travel/${travelId}/upload`, formData)
 
       setMessage('Document uploaded successfully!');
       setSelectedFile(null);

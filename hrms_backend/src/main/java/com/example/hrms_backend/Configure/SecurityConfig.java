@@ -91,7 +91,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/Post/{postId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
 
                         .requestMatchers(HttpMethod.GET, "/Notification/{userId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/Notification/{notificationId}/read").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/Notification/{notificationId}/read").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
 
                         .anyRequest().authenticated()
                 )
