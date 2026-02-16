@@ -22,7 +22,7 @@ public class FairnessQueue {
     @JoinColumn(name = "game_id")
     private Game game;
 
-    private int slotsPlayedCurrentCycle;
+    private int slotsPlayedCurrentCycle = 0;
     private LocalDateTime requestTimestamp;
 }
 

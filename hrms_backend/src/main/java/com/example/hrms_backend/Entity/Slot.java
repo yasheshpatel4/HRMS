@@ -10,19 +10,19 @@ import java.util.*;
 @Entity
 @Getter @Setter
 public class Slot {
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long slotId;
 
-    @OneToOne
-    @JoinColumn(name = "game_id", unique = true)
+    @ManyToOne
+    @JoinColumn(name = "game_id")
     private Game game;
 
-    private LocalTime startTime;
-    private LocalTime endTime;
-    private int duration;
-
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+    private boolean isAvailable;
 }
+
 
 

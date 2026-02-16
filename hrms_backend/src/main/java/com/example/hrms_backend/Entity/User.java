@@ -67,13 +67,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private Role role;
 
-    private int completedGames = 0;
-
     @ManyToMany(mappedBy = "participants")
     private Set<Booking> bookings = new HashSet<>();
 
-    @OneToMany(mappedBy = "user")
-    private List<FairnessQueue> gameFairnessStats;
 
     @Override
     public List<GrantedAuthority> getAuthorities() {

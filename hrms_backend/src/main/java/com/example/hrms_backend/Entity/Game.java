@@ -11,21 +11,18 @@ import java.util.*;
 @Getter @Setter
 public class Game {
 
-    @Id
+    @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long gameId;
 
     @NotBlank
     private String gameName;
 
-    private int maxPlayers;
-
-
-    @OneToOne(mappedBy = "game")
-    private Slot slot;
-
     @ManyToMany(mappedBy = "interestedGames")
     @JsonIgnore
     private Set<User> interestedUsers = new HashSet<>();
+
+    @OneToOne(mappedBy = "game", cascade = CascadeType.ALL)
+    private GameConfiguration configuration;
 }
 
