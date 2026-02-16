@@ -43,7 +43,11 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/Auth/login","/Auth/logout", "/Auth/register", "/Auth/refresh","/Auth/me", "/error").permitAll()
+                        .requestMatchers("/api/openapi/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/Auth/login","/Auth/logout", "/Auth/register", "/Auth/refresh","/Auth/me", "/error").permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/Travel/add").hasAnyAuthority("HR","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/Travel/all").hasAnyAuthority("MANAGER","ADMIN")
