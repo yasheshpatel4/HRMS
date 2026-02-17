@@ -1,12 +1,13 @@
 package com.example.hrms_backend.Controller;
 
-import com.example.hrms_backend.Entity.Job;
 import com.example.hrms_backend.Entity.Post;
 import com.example.hrms_backend.Service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,5 +49,15 @@ public class PostController {
     public ResponseEntity<String> addComment(@PathVariable Long postId,@RequestBody String msg){
         postService.addComment(postId,msg);
         return ResponseEntity.ok("successful");
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Post>> searchPosts(
+            @RequestParam(required = false) String author,
+            @RequestParam(required = false) String tag,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+        List<Post> posts = postService.searchPosts(author, tag, startDate, endDate);
+        return ResponseEntity.ok(posts);
     }
 }

@@ -18,4 +18,7 @@ public class EmailService {
 
     public void sendJobReferNotification(@Email String reviewerEmail, Job job) {
     }
+
+    public void sendEmail(@Email @NotBlank String email, String s, @NotBlank String s1) {
+    }
 }

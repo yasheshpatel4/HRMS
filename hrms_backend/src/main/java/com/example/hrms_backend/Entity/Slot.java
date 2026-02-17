@@ -17,6 +17,7 @@ public class Slot {
 
     @ManyToOne
     @JoinColumn(name = "game_id")
+    @JsonIgnoreProperties({"configuration", "interestedUsers"})
     private Game game;
 
     private LocalDateTime startTime;

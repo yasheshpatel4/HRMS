@@ -23,6 +23,7 @@ public class Game {
     private Set<User> interestedUsers = new HashSet<>();
 
     @OneToOne(mappedBy = "game", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private GameConfiguration configuration;
 }
 

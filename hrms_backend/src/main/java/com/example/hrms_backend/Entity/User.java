@@ -61,6 +61,7 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "game_id")
     )
+    @JsonIgnoreProperties("interestedUsers")
     private Set<Game> interestedGames = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
@@ -68,6 +69,7 @@ public class User implements UserDetails {
     private Role role;
 
     @ManyToMany(mappedBy = "participants")
+    @JsonIgnoreProperties("participants")
     private Set<Booking> bookings = new HashSet<>();
 
 

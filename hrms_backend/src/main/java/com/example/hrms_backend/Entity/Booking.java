@@ -1,6 +1,7 @@
 package com.example.hrms_backend.Entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -25,6 +26,7 @@ public class Booking {
 
     @ManyToOne
     @JoinColumn(name = "booked_by_id")
+    @JsonBackReference
     private User bookedBy;
 
     private LocalDateTime bookedAt;
@@ -38,6 +40,7 @@ public class Booking {
             joinColumns = @JoinColumn(name = "booking_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
+    @JsonIgnore
     private Set<User> participants = new HashSet<>();
 }
 
