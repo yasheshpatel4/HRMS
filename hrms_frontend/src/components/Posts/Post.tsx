@@ -1,13 +1,21 @@
+import { useState } from 'react';
+import PostForm from './PostForm';
+import PostList from './PostList';
 
-const Post=()=> {
 
-  return (
+const Post = () => {
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handlePostCreated = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
+  return(
     <>
-      <h1 className="text-3xl font-bold underline">
-      Post..!
-    </h1>
-    </>
-  )
-}
+      <PostForm onPostCreated={handlePostCreated}/>
+     <PostList filter="all" refreshTrigger={refreshTrigger} />
+    </> 
+  );
+   
+};
 
-export default Post
+export default Post;
