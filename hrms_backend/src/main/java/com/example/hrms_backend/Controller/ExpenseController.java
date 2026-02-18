@@ -2,7 +2,9 @@ package com.example.hrms_backend.Controller;
 
 import com.example.hrms_backend.Entity.Expense;
 import com.example.hrms_backend.Entity.ExpenseProof;
+import com.example.hrms_backend.Entity.Travel;
 import com.example.hrms_backend.Entity.TravelDocument;
+import com.example.hrms_backend.Repository.TravelRepository;
 import com.example.hrms_backend.Service.ExpenseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,8 @@ public class ExpenseController {
 
     @Autowired
     ExpenseService expenseService;
+    @Autowired
+    TravelRepository travelRepository;
 
     @GetMapping("/all")
     public ResponseEntity<List<Expense>> getAll(){
@@ -42,7 +46,19 @@ public class ExpenseController {
         expenseService.deleteExpense(id);
     }
     @PostMapping("/submit")
-    public ResponseEntity<Expense> addExpense(@RequestBody Expense expense){
+    public ResponseEntity<Expense> addExpense(
+            @RequestParam Double amount,
+            @RequestParam String category,
+            @RequestParam String description,
+            @RequestParam Long travelId
+    ) {
+        Expense expense = new Expense();
+        expense.setAmount(amount);
+        expense.setCategory(category);
+        expense.setDescription(description);
+
+        Travel travel=travelRepository.findById(travelId).orElseThrow(()->new RuntimeException("not found"));
+        expense.setTravel(travel);
         return ResponseEntity.ok(expenseService.addExpense(expense));
     }
 

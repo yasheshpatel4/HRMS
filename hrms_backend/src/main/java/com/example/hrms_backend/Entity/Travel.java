@@ -41,4 +41,5 @@ public class Travel {
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "userId")
     @JsonIdentityReference(alwaysAsId = true)
     private Set<User> assignedUsers = new HashSet<>();
+    private int budget;
 }

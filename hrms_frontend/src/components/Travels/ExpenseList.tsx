@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../Context/AuthContext';
-import api from '../../Api';
+import api from '../../api';
 
 interface Expense {
   expenseId: number;
@@ -193,7 +193,7 @@ const ExpenseList = () => {
                     >
                       View Proofs
                     </button>
-                    {role === 'HR' && expense.status === 'SUBMITTED' && (
+                    {role === 'HR' && expense.status != 'APPROVED' && (
                       <>
                         <button
                           onClick={() => handleStatusChange(expense.expenseId, 'APPROVED')}

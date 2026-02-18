@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../Context/AuthContext';
 import DocumentUpload from './DocumentUpload';
 import TravelForm from './TravelForm';
-import api from '../../Api';
+import api from '../../api';
 
 interface Travel {
   travelId: number;

@@ -4,7 +4,7 @@ import JobCard from './JobCard';
 import ShareModal from './ShareModal';
 import ReferModal from './ReferModal';
 import { useAuth } from '../../Context/AuthContext';
-import api from '../../Api';
+import api from '../../api';
 
 interface Job {
   jobId: number;

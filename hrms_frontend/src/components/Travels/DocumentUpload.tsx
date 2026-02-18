@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../Context/AuthContext';
-import api from '../../Api';
+import api from '../../api';
 
 interface DocumentUploadProps {
   travelId: number;

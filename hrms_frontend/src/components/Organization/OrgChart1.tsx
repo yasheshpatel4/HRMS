@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { OrganizationChart } from 'primereact/organizationchart';
 import type { TreeNode } from 'primereact/treenode';
-import api from '../../Api';
+import api from '../../api';
 
 export interface User {
     userId: number;

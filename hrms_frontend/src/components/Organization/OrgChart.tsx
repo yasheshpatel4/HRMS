@@ -1,7 +1,7 @@
 import { useEffect,useState } from 'react';
 import EmployeeNode from './EmployeeNode'
 import OrgChart1 from './OrgChart1';
-import api from '../../Api';
+import api from '../../api';
 
 export interface User {
   userId: number;

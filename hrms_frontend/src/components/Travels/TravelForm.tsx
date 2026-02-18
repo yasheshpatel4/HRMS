@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../Context/AuthContext';
-import api from '../../Api';
+import api from '../../api';
 
 interface User {
   userId: number;
@@ -84,14 +84,18 @@ const TravelForm = ({ isOpen, onClose, onSuccess }: TravelFormProps) => {
 
     setLoading(true);
     try {
-      const travelData = {
-        ...formData,
-        budget: Number(formData.budget),
-        createdBy: { userId: user?.userId },
-        assignedUsers: formData.assignedUserIds.map(id => ({ userId: id })),
-      };
+      const data = new FormData();
+  data.append('title', formData.title);
+  data.append('description', formData.description);
+  data.append('budget', formData.budget.toString());
+  data.append('startDate', formData.startDate);
+  data.append('endDate', formData.endDate);
+  
+  formData.assignedUserIds.forEach(id => {
+    data.append('assignedUserIds', id.toString());
+  });
 
-      await api.post('/Travel/add', travelData);
+      await api.post('/Travel/add', data);
 
       setMessage('Travel created successfully!');
       setFormData({

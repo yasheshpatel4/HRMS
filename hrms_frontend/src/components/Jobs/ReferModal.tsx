@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import api from '../../Api';
+import api from '../../api';
 
 interface ReferModalProps {
   jobId: number;
@@ -75,7 +75,7 @@ const ReferModal = ({ jobId, isOpen, onClose }:ReferModalProps) => {
             CV File:
             <input
               type="file"
-              accept=".pdf,.doc,.docx"
+              accept="image/*,.pdf"
               onChange={(e) => setCv(e.target.files ? e.target.files[0] : null)}
               className="w-full p-2 border rounded mt-1"
               required

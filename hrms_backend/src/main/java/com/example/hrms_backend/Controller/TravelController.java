@@ -3,6 +3,7 @@ package com.example.hrms_backend.Controller;
 import com.example.hrms_backend.Entity.Travel;
 import com.example.hrms_backend.Entity.TravelDocument;
 import com.example.hrms_backend.Entity.User;
+import com.example.hrms_backend.Repository.UserRepository;
 import com.example.hrms_backend.Service.TravelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
@@ -16,8 +17,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/Travel")
@@ -25,6 +28,8 @@ public class TravelController {
 
     @Autowired
     TravelService travelService;
+    @Autowired
+    UserRepository userRepository;
 
     @GetMapping("/all")
     public ResponseEntity<List<Travel>> getAll(){
@@ -37,7 +42,14 @@ public class TravelController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Travel> addTravel(@RequestBody Travel travel){
+    public ResponseEntity<Travel> addTravel(@ModelAttribute Travel travel, @RequestParam List<Long> assignedUserIds) {
+
+        Set<User> users = new HashSet<>();
+        for (Long id : assignedUserIds) {
+            users.add(userRepository.findById(id).orElseThrow(()->new RuntimeException("not found")));
+        }
+        travel.setAssignedUsers(users);
+
         return ResponseEntity.ok(travelService.createTravel(travel));
     }
 

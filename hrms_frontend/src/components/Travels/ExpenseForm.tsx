@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../Context/AuthContext';
-import api from '../../Api';
+import api from '../../api';
 
 interface Travel {
   travelId: number;
@@ -78,14 +78,13 @@ const ExpenseForm = () => {
     setLoading(true);
     try {
 
-      const expenseData = {
-        ...formData,
-        user: { userId: user?.userId },
-        travel: { travelId: formData.travelId },
-        status: 'SUBMITTED',
-      };
+      const data = new FormData();
+  data.append('amount', formData.amount.toString());
+  data.append('category', formData.category);
+  data.append('description', formData.description);
+  data.append('travelId', formData.travelId.toString());
 
-      const expenseResponse = await api.post('/Travel/Expense/submit', expenseData);
+      const expenseResponse = await api.post('/Travel/Expense/submit', data);
       const expenseId = expenseResponse.data.expenseId;
 
       for (const file of proofFiles) {

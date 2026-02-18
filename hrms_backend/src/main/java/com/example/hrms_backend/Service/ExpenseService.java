@@ -87,7 +87,7 @@ public class ExpenseService {
     public ExpenseProof upload(Long expenseId, MultipartFile file) throws IOException {
         Expense expense=expenseRepository.findById(expenseId).orElseThrow(()->new RuntimeException("expense not found"));
         ExpenseProof expenseProof=new ExpenseProof();
-        TravelDocument document = new TravelDocument();
+//        TravelDocument document = new TravelDocument();
         File convFile = new File(System.getProperty("java.io.tmpdir") + "/" + file.getOriginalFilename()+"_"+expense.getExpenseId());
         try {
             FileOutputStream fos = new FileOutputStream(convFile);
