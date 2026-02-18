@@ -19,7 +19,10 @@ import OrgChart from './components/Organization/OrgChart'
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuth();
+  const { isLoading,isAuthenticated } = useAuth();
+  if (isLoading) {
+    return <div>Loading...</div>; 
+  }
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
@@ -35,10 +38,10 @@ const router = createBrowserRouter([
     path: "/",
     element: <ProtectedRoute><Layout /></ProtectedRoute>,
     children: [
-      {
-        index: true,
-        element: <Navigate to="/dashboard" replace />,
-      },
+      { 
+      index: true, 
+      element: <Dashboard />
+    },
       { path: "dashboard", element: <Dashboard /> },
       { path: "posts", element: <Post /> },
       { path: "travel", element: <Travel /> },

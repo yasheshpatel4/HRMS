@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import api from '../Api';
+import api from '../api';
 
 interface User {
   userId: number;
@@ -14,6 +14,7 @@ interface AuthContextType {
   user: User | null;
   role: string;
   isAuthenticated: boolean;
+  isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: User) => void;
@@ -36,6 +37,7 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children } : AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const role = user?.role || 'USER';
 
@@ -48,6 +50,8 @@ export const AuthProvider = ({ children } : AuthProviderProps) => {
       } catch (error) {
         setUser(null);
         setIsAuthenticated(false);
+      }finally {
+        setIsLoading(false);
       }
     };
     checkAuth();
@@ -55,8 +59,9 @@ export const AuthProvider = ({ children } : AuthProviderProps) => {
 
   const login = async (email: string, password: string) => {
     try {
+      
       const response = await api.post('/Auth/login', { email, password });
-      setUser(response.data.user);
+      setUser(response.data);
       setIsAuthenticated(true);
     } catch (error) {
       throw error;
@@ -75,7 +80,7 @@ export const AuthProvider = ({ children } : AuthProviderProps) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, role, isAuthenticated, login, logout, setUser }}>
+    <AuthContext.Provider value={{ user, role, isAuthenticated,isLoading, login, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );

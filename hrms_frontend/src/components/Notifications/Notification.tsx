@@ -34,7 +34,7 @@ const Notification = () => {
 
     const handleMarkRead = async (id: number) => {
         try {
-            await api.get(`/Notification/${id}/read`); 
+            await api.put(`/Notification/${id}/read`); 
             setNotifications(prev => 
                 prev.map(n => n.notificationId === id ? { ...n, read: true } : n)
             );
