@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 @Entity
@@ -35,4 +36,7 @@ public class Job {
     )
     @JsonIgnore
     private Set<User> reviewers;
+    private LocalDate createdAt;
+    @ManyToOne
+    private User createdBy;
 }

@@ -67,6 +67,11 @@ public class ExpenseController {
         expenseService.approve(id);
     }
 
+    @PutMapping("/reject/{id}")
+    public void setRejectBy(@PathVariable Long id){
+        expenseService.reject(id);
+    }
+
     @PostMapping("/{expenseId}/upload-proof")
     public ResponseEntity<ExpenseProof> upload(@PathVariable Long expenseId,
                                @RequestParam("file") MultipartFile file) throws IOException{

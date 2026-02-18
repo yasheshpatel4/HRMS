@@ -30,7 +30,8 @@ public class Post {
 
     private String description;
     private String tags;
-    private String post;
+    private String content;
+    private String filePath;
 
     private String visibility;
 
@@ -48,7 +49,7 @@ public class Post {
     )
     private Set<User> likedBy = new HashSet<>();
 
-    private Boolean IsDeleted;
-    private String DeletedBy;
+    private Boolean isDeleted;
+    private String deletedBy;
     private Boolean isSystemGenerated = false;
 }

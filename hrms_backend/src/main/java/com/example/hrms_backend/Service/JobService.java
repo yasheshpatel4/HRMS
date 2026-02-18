@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -72,6 +73,8 @@ public class JobService {
             reviewers.add(reviewer);
         }
         job.setReviewers(reviewers);
+        job.setCreatedAt(LocalDate.now());
+        job.setCreatedBy(currentUser);
 
         return jobRepository.save(job);
     }

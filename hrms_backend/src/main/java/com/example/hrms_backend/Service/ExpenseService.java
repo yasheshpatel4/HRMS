@@ -114,7 +114,19 @@ public class ExpenseService {
     }
 
     public Expense getByTravel(Long travelId) {
+
         return expenseRepository.findByTravel(travelId);
+    }
+
+    @Transactional
+    public void reject(Long id) {
+        String email=SecurityContextHolder.getContext().getAuthentication().getName();
+        User user=userRepository.findByEmail(email).orElseThrow(()->new RuntimeException("user not found"));
+        Expense expense=expenseRepository.findById(id).orElseThrow(()->new RuntimeException("Expense not found"));
+        expense.setStatus("REJECTED");
+        expense.setProcessedAt(LocalDateTime.now());
+        expense.setProcessedBy(user);
+        expenseRepository.save(expense);
     }
 }
 

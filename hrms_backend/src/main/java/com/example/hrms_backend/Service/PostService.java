@@ -1,5 +1,7 @@
 package com.example.hrms_backend.Service;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.example.hrms_backend.Entity.Comment;
 import com.example.hrms_backend.Entity.Post;
 import com.example.hrms_backend.Entity.User;
@@ -10,11 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -27,6 +32,8 @@ public class PostService {
     UserRepository userRepository;
     @Autowired
     EmailService emailService;
+    @Autowired
+    Cloudinary cloudinary;
 
     public List<Post> getAllPost(){
         return postRepository.findAllByOrderByCreatedAtDesc();
@@ -49,27 +56,41 @@ public class PostService {
         postRepository.deleteById(id);
     }
 
-    public Post updatePost(Post post){
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User currentUser = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("user not found"));
-        return postRepository.findById(post.getPostId())
-                .map(post1 -> {
-                    if (!post1.getOwner().equals(currentUser) && !currentUser.getRole().name().equals("HR")) {
-                        throw new RuntimeException("You do not have permission to update this post");
-                    }
-                    post1.setPost(post.getPost());
-                    post1.setDescription(post.getDescription());
-                    post1.setTitle(post.getTitle());
-                    post1.setTags(post.getTags());
-                    post1.setVisibility(post.getVisibility());
-                    return postRepository.save(post1);
-                })
-                .orElseThrow(()->new RuntimeException("post not found"));
-    }
+//    public Post updatePost(Long id,Post post,MultipartFile file) throws IOException{
+//        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+//        User currentUser = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+//
+//        Post existingPost = postRepository.findById(id)
+//                .orElseThrow(() -> new RuntimeException("Post not found"));
+//
+//        if (!existingPost.getOwner().equals(currentUser) && !currentUser.getRole().name().equals("HR")) {
+//            throw new RuntimeException("No permission to update");
+//        }
+//
+//        if (file != null && !file.isEmpty()) {
+//            Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
+//                    ObjectUtils.asMap("folder", "/Posts/"));
+//            existingPost.setFilePath(uploadResult.get("url").toString());
+//        }
+//
+//        existingPost.setPost(post.getPost());
+//        existingPost.setDescription(post.getDescription());
+//        existingPost.setTitle(post.getTitle());
+//        existingPost.setTags(post.getTags());
+//        existingPost.setVisibility(post.getVisibility());
+//
+//        return postRepository.save(existingPost);
+//    }
 
-    public void createPost(Post post) {
+    public void createPost(Post post, MultipartFile file) throws IOException {
         String email=SecurityContextHolder.getContext().getAuthentication().getName();
         User user=userRepository.findByEmail(email).orElseThrow(()->new RuntimeException("user not found"));
+        if (file != null && !file.isEmpty()) {
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
+                    ObjectUtils.asMap("folder", "/Posts/"));
+            post.setFilePath(uploadResult.get("url").toString());
+        }
+
         post.setOwner(user);
         post.setCreatedAt(LocalDateTime.now());
         if (post.getVisibility() == null) {
@@ -116,7 +137,7 @@ public class PostService {
         for (User user : usersWithBirthday) {
             Post birthdayPost = new Post();
             birthdayPost.setTitle("Happy Birthday!");
-            birthdayPost.setPost("Today is " + user.getName() + "'s birthday! Wish them a happy birthday.");
+            birthdayPost.setContent("Today is " + user.getName() + "'s birthday! Wish them a happy birthday.");
             birthdayPost.setDescription("System-generated birthday post");
             birthdayPost.setOwner(user);
             birthdayPost.setCreatedAt(LocalDateTime.now());
@@ -137,7 +158,7 @@ public class PostService {
             long years = ChronoUnit.YEARS.between(user.getDoj(), today);
             Post anniversaryPost = new Post();
             anniversaryPost.setTitle("Work Anniversary!");
-            anniversaryPost.setPost(user.getName() + " completes " + years + " years at the organization. Congratulations!");
+            anniversaryPost.setContent(user.getName() + " completes " + years + " years at the organization. Congratulations!");
             anniversaryPost.setDescription("System-generated anniversary post");
             anniversaryPost.setOwner(user);
             anniversaryPost.setCreatedAt(LocalDateTime.now());

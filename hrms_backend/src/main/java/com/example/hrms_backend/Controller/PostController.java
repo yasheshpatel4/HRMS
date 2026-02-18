@@ -4,9 +4,12 @@ import com.example.hrms_backend.Entity.Post;
 import com.example.hrms_backend.Service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -26,18 +29,26 @@ public class PostController {
         return ResponseEntity.ok(postService.getPost(id));
     }
 
-    @PostMapping
-    public ResponseEntity<Post> updatePost(@RequestBody Post post){
-        return ResponseEntity.ok(postService.updatePost(post));
-    }
     @DeleteMapping("/{id}")
     public void deletePost(@PathVariable Long id){
         postService.deletePost(id);
     }
-    @PostMapping("/create")
-    public void addJob(@RequestBody Post post){
-        postService.createPost(post);
+
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void addPost(
+            @ModelAttribute Post post,
+            @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
+        postService.createPost(post, file);
     }
+
+
+//    @PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public Post updatePost(
+//            @PathVariable Long id,
+//            @ModelAttribute Post post,
+//            @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
+//        return postService.updatePost(id, post, file);
+//    }
 
     @PostMapping("/{postId}/like")
     public ResponseEntity<String> addlike(@PathVariable Long postId){

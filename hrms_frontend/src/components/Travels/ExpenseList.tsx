@@ -10,7 +10,7 @@ interface Expense {
   category: string;
   description: string;
   date: string;
-  status: 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED';
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
   hrRemarks?: string;
   submittedAt: string;
   approvedAt?: string;
@@ -131,7 +131,7 @@ const ExpenseList = () => {
           className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="ALL">All Expenses</option>
-          <option value="SUBMITTED">Submitted</option>
+          <option value="PENDING">Pending</option>
           <option value="APPROVED">Approved</option>
           <option value="REJECTED">Rejected</option>
         </select>
@@ -178,7 +178,7 @@ const ExpenseList = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">
-                      {new Date(expense.date).toLocaleDateString()}
+                      {new Date(expense.submittedAt).toLocaleDateString()}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -193,7 +193,7 @@ const ExpenseList = () => {
                     >
                       View Proofs
                     </button>
-                    {role === 'HR' && expense.status != 'APPROVED' && (
+                    {role === 'HR' && expense.status == 'PENDING' && (
                       <>
                         <button
                           onClick={() => handleStatusChange(expense.expenseId, 'APPROVED')}
