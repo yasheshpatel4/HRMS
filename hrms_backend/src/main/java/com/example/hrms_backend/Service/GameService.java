@@ -47,28 +47,6 @@ public class GameService {
         gameRepository.deleteById(id);
     }
 
-    public void createGame(Game game){
-        gameRepository.save(game);
-    }
-
-    public GameConfiguration configureGameOperatingHours(Long gameId, LocalTime operatingHoursStart,
-                                                         LocalTime operatingHoursEnd, int slotDurationMins,
-                                                         int maxPlayers) {
-        Game game = gameRepository.findById(gameId)
-                .orElseThrow(() -> new RuntimeException("Game not found"));
-
-        GameConfiguration config = gameConfigurationRepository.findByGame(game)
-                .orElse(new GameConfiguration());
-
-        config.setGame(game);
-        config.setOperatingHoursStart(operatingHoursStart);
-        config.setOperatingHoursEnd(operatingHoursEnd);
-        config.setSlotDurationMins(slotDurationMins);
-        config.setMaxPlayers(maxPlayers);
-
-        return gameConfigurationRepository.save(config);
-    }
-
     public GameConfiguration getGameConfiguration(Long gameId) {
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new RuntimeException("Game not found"));
@@ -113,29 +91,49 @@ public class GameService {
 
     @Transactional
     public void scheduleNextDayConfig(Long gameId, GameConfiguration newConfig) {
-        Game game = gameRepository.findById(gameId).orElseThrow();
-        newConfig.setGame(game);
-        gameConfigurationRepository.save(newConfig);
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new RuntimeException("Game not found with ID: " + gameId));
+        GameConfiguration existingConfig = gameConfigurationRepository.findByGame(game)
+                .orElse(new GameConfiguration());
+
+        existingConfig.setGame(game);
+        existingConfig.setOperatingHoursStart(newConfig.getOperatingHoursStart());
+        existingConfig.setOperatingHoursEnd(newConfig.getOperatingHoursEnd());
+        existingConfig.setSlotDurationMins(newConfig.getSlotDurationMins());
+        existingConfig.setMaxPlayers(newConfig.getMaxPlayers());
+        gameConfigurationRepository.save(existingConfig);
     }
 
     @Transactional
-    public List<Slot> generateDailySlots(Long gameId, LocalDate date) {
-        Game game = gameRepository.findById(gameId).orElseThrow();
-        GameConfiguration config = game.getConfiguration();
+    public void generateDailySlots() {
+        LocalDate targetDate = LocalDate.now().plusDays(1);
+        List<Game> allGames = gameRepository.findAll();
 
-        List<Slot> slots = new ArrayList<>();
-        LocalTime current = config.getOperatingHoursStart();
+        for (Game game : allGames) {
+            GameConfiguration config = game.getConfiguration();
+            if (config == null) continue;
+            LocalDateTime startOfTargetDay = targetDate.atStartOfDay();
+            LocalDateTime endOfTargetDay = targetDate.atTime(LocalTime.MAX);
+            List<Slot> existing = slotRepository.findSlotsForDateRange(game.getGameId(), startOfTargetDay, endOfTargetDay);
 
-        while (current.plusMinutes(config.getSlotDurationMins()).isBefore(config.getOperatingHoursEnd()) ||
-                current.plusMinutes(config.getSlotDurationMins()).equals(config.getOperatingHoursEnd())) {
-            Slot slot = new Slot();
-            slot.setGame(game);
-            slot.setStartTime(date.atTime(current));
-            slot.setEndTime(date.atTime(current.plusMinutes(config.getSlotDurationMins())));
-            slot.setAvailable(true);
-            slots.add(slot);
-            current = current.plusMinutes(config.getSlotDurationMins());
+            if (!existing.isEmpty()) continue;
+
+            List<Slot> slots = new ArrayList<>();
+            LocalTime current = config.getOperatingHoursStart();
+            LocalTime end = config.getOperatingHoursEnd();
+
+            while (!current.plusMinutes(config.getSlotDurationMins()).isAfter(end)) {
+                Slot slot = new Slot();
+                slot.setGame(game);
+                slot.setStartTime(targetDate.atTime(current));
+
+                LocalTime nextTime = current.plusMinutes(config.getSlotDurationMins());
+                slot.setEndTime(targetDate.atTime(nextTime));
+                slot.setAvailable(true);
+                slots.add(slot);
+                current = nextTime;
+            }
+            slotRepository.saveAll(slots);
         }
-        return slotRepository.saveAll(slots);
     }
 }

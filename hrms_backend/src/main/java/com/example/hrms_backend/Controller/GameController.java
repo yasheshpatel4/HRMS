@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,22 +40,6 @@ public class GameController {
         gameService.deleteGame(id);
     }
 
-//    @PostMapping("/add")
-//    public void addGame(@RequestBody Game game){
-//        gameService.createGame(game);
-//    }
-
-    @PutMapping("/{gameId}/configure")
-    public ResponseEntity<GameConfiguration> configureGame(
-            @PathVariable Long gameId,
-            @RequestParam LocalTime operatingHoursStart,
-            @RequestParam LocalTime operatingHoursEnd,
-            @RequestParam int slotDurationMins,
-            @RequestParam int maxPlayers) {
-        GameConfiguration config = gameService.configureGameOperatingHours(
-                gameId, operatingHoursStart, operatingHoursEnd, slotDurationMins, maxPlayers);
-        return ResponseEntity.ok(config);
-    }
     @GetMapping("/{gameId}/configuration")
     public ResponseEntity<GameConfiguration> getGameConfiguration(@PathVariable Long gameId) {
         return ResponseEntity.ok(gameService.getGameConfiguration(gameId));
@@ -84,12 +69,10 @@ public class GameController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return ResponseEntity.ok(gameService.getAllSlotsForDate(gameId, date));
     }
+    @Scheduled(cron = "0 0 0 * * *")
     @PostMapping("/generate-slots")
-    public ResponseEntity<List<Slot>> generateSlots(
-            @RequestParam Long gameId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        List<Slot> slots = gameService.generateDailySlots(gameId, date);
-        return ResponseEntity.ok(slots);
+    public void generateSlots() {
+        gameService.generateDailySlots();
     }
 
     @PostMapping("/booking/book")
@@ -148,14 +131,12 @@ public class GameController {
     }
 
     @PutMapping("/{gameId}/configure")
-    @PreAuthorize("hasAnyRole('HR', 'ADMIN')")
-    public ResponseEntity<String> updateConfig(@PathVariable Long gameId, @RequestBody GameConfiguration config) {
+    public ResponseEntity<String> updateConfig(@PathVariable Long gameId, @ModelAttribute GameConfiguration config) {
         gameService.scheduleNextDayConfig(gameId, config);
         return ResponseEntity.ok("Configuration saved! Will apply to tomorrow's slots.");
     }
 
     @PostMapping("/add")
-    @PreAuthorize("hasAnyRole('HR', 'ADMIN')")
     public ResponseEntity<Void> addGame(@RequestBody Game game) {
         gameService.scheduleNextDayConfig(null, game.getConfiguration());
         return ResponseEntity.status(HttpStatus.CREATED).build();
