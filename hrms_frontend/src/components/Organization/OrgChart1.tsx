@@ -90,7 +90,7 @@ const OrgChart1 = () => {
 
     return (
         <div className="p-6 overflow-auto">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Interactive Org Chart</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Org Chart</h2>
             <div className="flex justify-center">
                 <OrganizationChart value={focusedData} nodeTemplate={nodeTemplate} />
             </div>
