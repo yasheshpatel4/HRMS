@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/Travel/Expense")
@@ -87,5 +88,18 @@ public class ExpenseController {
     public ResponseEntity<String> getProofById(@PathVariable Long proofId){
         return ResponseEntity.ok(expenseService.getProofById(proofId));
     }
+    @GetMapping("/hr/{hrUserId}")
+    public ResponseEntity<List<Expense>> getExpensesByHRTravel(@PathVariable Long hrUserId){
+        return ResponseEntity.ok(expenseService.getExpensesByHRTravel(hrUserId));
+    }
 
+    @GetMapping("/{userId}/{travelId}/budget-check")
+    public ResponseEntity<Boolean> checkBudget(@PathVariable Long userId, @PathVariable Long travelId, @RequestParam Double amount){
+        return ResponseEntity.ok(expenseService.checkBudgetForExpense(userId, travelId, amount));
+    }
+
+    @GetMapping("/{userId}/{travelId}/budget-info")
+    public ResponseEntity<Map<String, Object>> getBudgetInfo(@PathVariable Long userId, @PathVariable Long travelId){
+        return ResponseEntity.ok(expenseService.getBudgetInfo(userId, travelId));
+    }
 }

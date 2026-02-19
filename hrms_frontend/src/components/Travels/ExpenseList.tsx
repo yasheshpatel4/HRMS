@@ -6,6 +6,11 @@ interface Expense {
   expenseId: number;
   travel: Travel;
   userId: number;
+  user?: {
+    userId: number;
+    name: string;
+    email: string;
+  };
   amount: number;
   category: string;
   description: string;
@@ -16,9 +21,10 @@ interface Expense {
   approvedAt?: string;
 }
 
+
 interface Travel {
   travelId: number;
-  destination: string;
+  title: string;
 }
 
 const ExpenseList = () => {
@@ -38,8 +44,9 @@ const ExpenseList = () => {
     try {
       let response;
       if (role === 'HR') {
-        response = await api.get('/Travel/Expense/all');
+        response = await api.get(`/Travel/Expense/hr/${user?.userId}`);
       } else {
+
         const travelResponse = await api.get(`/Travel/user/${user?.userId}`);
         const userTravels = travelResponse.data;
 
@@ -145,6 +152,11 @@ const ExpenseList = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Travel
                 </th>
+                {role === 'HR' && (
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Submitted By
+                  </th>
+                )}
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Amount
                 </th>
@@ -162,15 +174,26 @@ const ExpenseList = () => {
                 </th>
               </tr>
             </thead>
+
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredExpenses.map((expense) => (
                 <tr key={expense.expenseId} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
-                      {travels.get(expense.travel.travelId)?.destination || `Travel ${expense.travel.travelId}`}
+                      {travels.get(expense.travel.travelId)?.title || `Travel ${expense.travel.travelId}`}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">
+                      {expense.user?.name || 'Unknown'}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                       ID: {expense.user?.userId || expense.userId}
+                    </div>
+                  </td>
+
+                  <td className="px-6 py-4 whitespace-nowrap">
+
                     <div className="text-sm text-gray-900">${expense.amount.toFixed(2)}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

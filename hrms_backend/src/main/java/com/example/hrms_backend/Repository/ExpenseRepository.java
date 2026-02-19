@@ -17,10 +17,14 @@ public interface ExpenseRepository extends JpaRepository<Expense,Long> {
             "WHERE u.userId = :userId AND t.travelId = :travelId")
     List<Expense> findByUserTravel(@Param("userId") Long userId, @Param("travelId") Long travelId);
 
-    @Modifying
-    @Query("update Expense e set e.status='APPROVED' where e.expenseId=:id")
-    void approve(Long id);
-
+//    @Modifying
+//    @Query("update Expense e set e.status='APPROVED' where e.expenseId=:id")
+//    void approve(Long id);
     @Query("select e from Expense e where e.travel.travelId=:travelId")
     Expense findByTravel(Long travelId);
+    @Query("select e from Expense e join e.travel t where t.createdBy.userId = :hrUserId")
+    List<Expense> findByTravelCreatedBy(@Param("hrUserId") Long hrUserId);
+
+    @Query("select COALESCE(SUM(e.amount), 0) from Expense e where e.user.userId = :userId and e.travel.travelId = :travelId")
+    Double getTotalExpenseByUserAndTravel(@Param("userId") Long userId, @Param("travelId") Long travelId);
 }

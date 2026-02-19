@@ -18,7 +18,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ExpenseService {
@@ -35,6 +37,8 @@ public class ExpenseService {
     TravelRepository travelRepository;
     @Autowired
     NotificationService notificationService;
+    @Autowired
+    private EmailService emailService;
 
     public List<Expense> getAllByUserTravel(Long userId,Long travelId){
         return expenseRepository.findByUserTravel(userId,travelId);
@@ -65,8 +69,8 @@ public class ExpenseService {
                 "Expense",
                 "New expense submitted by " + user.getName() +
                         " for travel: " + travel.getTitle());
+        emailService.sendEmail(hr.getEmail(), "Expense Submitted for:"+travel.getTitle(),user.getName()+"has submitted the expense for the travel:"+travel.getTitle());
         return savedExpense;
-
 }
 
     public void deleteExpense(Long id){
@@ -127,6 +131,39 @@ public class ExpenseService {
         expense.setProcessedAt(LocalDateTime.now());
         expense.setProcessedBy(user);
         expenseRepository.save(expense);
+    }
+    public List<Expense> getExpensesByHRTravel(Long hrUserId) {
+        return expenseRepository.findByTravelCreatedBy(hrUserId);
+    }
+
+//    public Double getTotalExpenseByUserAndTravel(Long userId, Long travelId) {
+//        return expenseRepository.getTotalExpenseByUserAndTravel(userId, travelId);
+//    }
+
+    public boolean checkBudgetForExpense(Long userId, Long travelId, Double newAmount) {
+        Travel travel = travelRepository.findById(travelId)
+                .orElseThrow(() -> new RuntimeException("Travel not found"));
+
+        Double totalExpense = expenseRepository.getTotalExpenseByUserAndTravel(userId, travelId);
+        Double newTotal = totalExpense + newAmount;
+
+        return newTotal <= travel.getBudget();
+    }
+
+    public Map<String, Object> getBudgetInfo(Long userId, Long travelId) {
+        Travel travel = travelRepository.findById(travelId)
+                .orElseThrow(() -> new RuntimeException("Travel not found"));
+
+        Double totalExpense = expenseRepository.getTotalExpenseByUserAndTravel(userId, travelId);
+
+        Map<String, Object> budgetInfo = new HashMap<>();
+        budgetInfo.put("travelId", travelId);
+        budgetInfo.put("budget", travel.getBudget());
+        budgetInfo.put("totalExpense", totalExpense);
+        budgetInfo.put("remainingBudget", travel.getBudget() - totalExpense);
+        budgetInfo.put("canSubmit", (totalExpense < travel.getBudget()));
+
+        return budgetInfo;
     }
 }
 
