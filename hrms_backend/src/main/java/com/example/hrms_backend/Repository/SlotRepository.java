@@ -17,4 +17,7 @@ public interface SlotRepository extends JpaRepository<Slot, Long> {
 
     @Query("SELECT s FROM Slot s WHERE s.game.gameId = :gameId AND s.startTime >= :startTime AND s.startTime < :endTime ORDER BY s.startTime")
     List<Slot> findSlotsForDateRange(Long gameId, LocalDateTime startTime, LocalDateTime endTime);
+
+    @Query("SELECT s FROM Slot s WHERE s.game.gameId = :gameId AND s.startTime >= :start AND s.startTime <= :end")
+    List<Slot> findUpcomingSlotsForToday( Long gameId, LocalDateTime start, LocalDateTime end);
 }

@@ -2,6 +2,7 @@ package com.example.hrms_backend.Repository;
 
 import com.example.hrms_backend.Entity.Booking;
 import com.example.hrms_backend.Entity.BookingStatus;
+import com.example.hrms_backend.Entity.Slot;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -26,4 +27,8 @@ public interface BookingRepository extends JpaRepository<Booking,Long> {
     @Query("Select b from Booking b where b.status = ?1 and b.slot.endTime < ?2")
     List<Booking> findByStatusAndSlotEndTimeBefore(BookingStatus status, LocalDateTime endTime);
 
+    Optional<Booking> findBySlotAndStatus(Slot slot, BookingStatus status);
+
+    @Query("SELECT COUNT(b) FROM Booking b JOIN b.participants p WHERE p.userId = :userId AND b.status = 'ACTIVE'")
+    int countActiveSlotsByUserId(Long userId);
 }

@@ -4,7 +4,9 @@ import com.example.hrms_backend.Service.GameBookingService;
 import com.example.hrms_backend.Service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -12,6 +14,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/Game")
@@ -36,10 +39,10 @@ public class GameController {
         gameService.deleteGame(id);
     }
 
-    @PostMapping("/add")
-    public void addGame(@RequestBody Game game){
-        gameService.createGame(game);
-    }
+//    @PostMapping("/add")
+//    public void addGame(@RequestBody Game game){
+//        gameService.createGame(game);
+//    }
 
     @PutMapping("/{gameId}/configure")
     public ResponseEntity<GameConfiguration> configureGame(
@@ -132,4 +135,29 @@ public class GameController {
         return ResponseEntity.ok(gameBookingService.getBookingsForGame(gameId));
     }
 
+    @GetMapping("/{gameId}/slots/today")
+    public ResponseEntity<List<Slot>> viewSlots(@PathVariable Long gameId) {
+        return ResponseEntity.ok(gameService.getTodayUpcoming(gameId));
+    }
+
+    @PostMapping("/slots/{slotId}/book")
+    public ResponseEntity<String> bookSlot(@PathVariable Long slotId,
+                                           @RequestParam Long userId,
+                                           @RequestBody Set<Long> participants) {
+        return ResponseEntity.ok(gameBookingService.processBooking(slotId, userId, participants));
+    }
+
+    @PutMapping("/{gameId}/configure")
+    @PreAuthorize("hasAnyRole('HR', 'ADMIN')")
+    public ResponseEntity<String> updateConfig(@PathVariable Long gameId, @RequestBody GameConfiguration config) {
+        gameService.scheduleNextDayConfig(gameId, config);
+        return ResponseEntity.ok("Configuration saved! Will apply to tomorrow's slots.");
+    }
+
+    @PostMapping("/add")
+    @PreAuthorize("hasAnyRole('HR', 'ADMIN')")
+    public ResponseEntity<Void> addGame(@RequestBody Game game) {
+        gameService.scheduleNextDayConfig(null, game.getConfiguration());
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 }

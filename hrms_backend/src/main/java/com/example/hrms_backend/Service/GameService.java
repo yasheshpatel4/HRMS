@@ -8,6 +8,7 @@ import com.example.hrms_backend.Repository.GameConfigurationRepository;
 import com.example.hrms_backend.Repository.GameRepository;
 import com.example.hrms_backend.Repository.SlotRepository;
 import com.example.hrms_backend.Repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -106,28 +107,35 @@ public class GameService {
         LocalDateTime endOfDay = date.atTime(23, 59, 59);
         return slotRepository.findSlotsForDateRange(gameId, startOfDay, endOfDay);
     }
+    public List<Slot> getTodayUpcoming(Long gameId) {
+        return slotRepository.findUpcomingSlotsForToday(gameId, LocalDateTime.now(), LocalDate.now().atTime(23, 59));
+    }
+
+    @Transactional
+    public void scheduleNextDayConfig(Long gameId, GameConfiguration newConfig) {
+        Game game = gameRepository.findById(gameId).orElseThrow();
+        newConfig.setGame(game);
+        gameConfigurationRepository.save(newConfig);
+    }
+
+    @Transactional
     public List<Slot> generateDailySlots(Long gameId, LocalDate date) {
-        Game game = gameRepository.findById(gameId)
-                .orElseThrow(() -> new RuntimeException("Game not found"));
+        Game game = gameRepository.findById(gameId).orElseThrow();
+        GameConfiguration config = game.getConfiguration();
 
-        GameConfiguration config = gameConfigurationRepository.findByGame(game)
-                .orElseThrow(() -> new RuntimeException("Configuration not found"));
+        List<Slot> slots = new ArrayList<>();
+        LocalTime current = config.getOperatingHoursStart();
 
-        List<Slot> generatedSlots = new ArrayList<>();
-        LocalDateTime currentDateTime = LocalDateTime.of(date, config.getOperatingHoursStart());
-        LocalDateTime endDateTime = LocalDateTime.of(date, config.getOperatingHoursEnd());
-
-        while (currentDateTime.plusMinutes(config.getSlotDurationMins()).isBefore(endDateTime) ||
-                currentDateTime.plusMinutes(config.getSlotDurationMins()).isEqual(endDateTime)) {
+        while (current.plusMinutes(config.getSlotDurationMins()).isBefore(config.getOperatingHoursEnd()) ||
+                current.plusMinutes(config.getSlotDurationMins()).equals(config.getOperatingHoursEnd())) {
             Slot slot = new Slot();
             slot.setGame(game);
-            slot.setStartTime(currentDateTime);
-            slot.setEndTime(currentDateTime.plusMinutes(config.getSlotDurationMins()));
+            slot.setStartTime(date.atTime(current));
+            slot.setEndTime(date.atTime(current.plusMinutes(config.getSlotDurationMins())));
             slot.setAvailable(true);
-            generatedSlots.add(slot);
-            currentDateTime = currentDateTime.plusMinutes(config.getSlotDurationMins());
+            slots.add(slot);
+            current = current.plusMinutes(config.getSlotDurationMins());
         }
-
-        return slotRepository.saveAll(generatedSlots);
+        return slotRepository.saveAll(slots);
     }
 }

@@ -1,9 +1,6 @@
 package com.example.hrms_backend.Service;
 import com.example.hrms_backend.Entity.*;
-import com.example.hrms_backend.Repository.BookingRepository;
-import com.example.hrms_backend.Repository.GameConfigurationRepository;
-import com.example.hrms_backend.Repository.SlotRepository;
-import com.example.hrms_backend.Repository.UserRepository;
+import com.example.hrms_backend.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -25,6 +23,10 @@ public class GameBookingService {
     userService userService;
     @Autowired
     GameConfigurationRepository gameConfigurationRepository;
+    @Autowired
+    GameRepository gameRepository;
+    @Autowired
+    FairnessQueueRepository fairnessQueueRepository;
 
     @Transactional
     public Booking bookSlot(Long slotId, List<Long> participantIds) {
@@ -142,5 +144,58 @@ public class GameBookingService {
 
         }
     }
+    @Transactional
+    public String processBooking(Long slotId, Long requesterId, Set<Long> participantIds) {
+        User requester = userRepository.findById(requesterId).orElseThrow(() -> new RuntimeException("User not found"));
+        Slot slot = slotRepository.findById(slotId).orElseThrow(() -> new RuntimeException("Slot not found"));
 
+        int requesterPlayedCount = bookingRepository.countActiveSlotsByUserId(requesterId);
+        Optional<Booking> currentBooking = bookingRepository.findBySlotAndStatus(slot, BookingStatus.ACTIVE);
+
+        if (currentBooking.isEmpty()) {
+            createBooking(slot, requester, participantIds);
+            updateQueue(requester, slot.getGame(), requesterPlayedCount + 1);
+            return "SUCCESS_BOOKED";
+        }
+
+        User existingUser = currentBooking.get().getBookedBy();
+        int existingPlayedCount = bookingRepository.countActiveSlotsByUserId(existingUser.getUserId());
+
+        if (requesterPlayedCount < existingPlayedCount) {
+            cancelBooking(currentBooking.get(), "Displaced by higher priority user");
+            createBooking(slot, requester, participantIds);
+            updateQueue(requester, slot.getGame(), requesterPlayedCount + 1);
+            return "SUCCESS_DISPLACED";
+        } else {
+            updateQueue(requester, slot.getGame(), requesterPlayedCount);
+            return "FAILED_LOWER_PRIORITY";
+        }
+    }
+
+    private void createBooking(Slot slot, User user, Set<Long> pIds) {
+        Booking booking = new Booking();
+        booking.setSlot(slot);
+        booking.setBookedBy(user);
+        booking.setBookedAt(LocalDateTime.now());
+        booking.setParticipants(new HashSet<>(userRepository.findAllById(pIds)));
+        bookingRepository.save(booking);
+
+        slot.setAvailable(false);
+        slotRepository.save(slot);
+    }
+
+    private void cancelBooking(Booking b, String reason) {
+        b.setStatus(BookingStatus.CANCELLED);
+        bookingRepository.save(b);
+    }
+
+    private void updateQueue(User user, Game game, int newCount) {
+        FairnessQueue entry = fairnessQueueRepository.findByUserAndGame(user, game)
+                .orElse(new FairnessQueue());
+        entry.setUser(user);
+        entry.setGame(game);
+        entry.setSlotsPlayedCurrentCycle(newCount);
+        entry.setRequestTimestamp(LocalDateTime.now());
+        fairnessQueueRepository.save(entry);
+    }
 }
