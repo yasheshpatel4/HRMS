@@ -15,8 +15,8 @@ public interface BookingRepository extends JpaRepository<Booking,Long> {
     @Query("Select b from Booking b where b.bookedBy.userId = :userId and b.status = :status")
     List<Booking> findByBookedByAndStatus(Long userId, BookingStatus status);
 
-    @Query("Select b from Booking b where b.bookedBy.userId = :userId and b.status = 'active' and b.slot.startTime >= :startOfDay and b.slot.startTime < :endOfDay")
-    Optional<Booking> findActiveBookingForUserOnDate(Long userId, LocalDateTime startOfDay, LocalDateTime endOfDay);
+    @Query("Select b from Booking b where b.bookedBy.userId = :userId and b.slot.startTime >= :startOfDay and b.slot.startTime < :endOfDay")
+    Optional<List<Booking>> findActiveBookingForUserOnDate(Long userId, LocalDateTime startOfDay, LocalDateTime endOfDay);
 
     @Query("Select b from Booking b where b.status = 'active' and b.slot.endTime >= :startTime order by b.slot.startTime")
     List<Booking> findUpcomingActiveBookings(LocalDateTime startTime);
@@ -29,6 +29,10 @@ public interface BookingRepository extends JpaRepository<Booking,Long> {
 
     Optional<Booking> findBySlotAndStatus(Slot slot, BookingStatus status);
 
-    @Query("SELECT COUNT(b) FROM Booking b JOIN b.participants p WHERE p.userId = :userId AND b.status = 'ACTIVE'")
-    int countActiveSlotsByUserId(Long userId);
+    @Query("SELECT COUNT(b) FROM Booking b where b.bookedBy.userId=:userId AND b.status = 'ACTIVE' AND b.slot.game.gameId=:gameId")
+    int countActiveSlotsByUserId(Long userId,Long gameId);
+
+    @Query("SELECT COUNT(b)>0 FROM Booking b where b.bookedBy.userId=:userId AND b.status = 'ACTIVE' AND b.slot.game.gameId=:gameId")
+    boolean hasActiveBookingForGame(Long userId, Long gameId);
+
 }

@@ -20,7 +20,7 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long bookingId;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "slot_id")
     private Slot slot;
 

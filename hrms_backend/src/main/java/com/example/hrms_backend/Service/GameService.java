@@ -9,11 +9,9 @@ import com.example.hrms_backend.Repository.GameRepository;
 import com.example.hrms_backend.Repository.SlotRepository;
 import com.example.hrms_backend.Repository.UserRepository;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -106,7 +104,8 @@ public class GameService {
 
     @Transactional
     public void generateDailySlots() {
-        LocalDate targetDate = LocalDate.now().plusDays(1);
+        LocalDate targetDate = LocalDate.now();
+//        LocalDate targetDate = LocalDate.now().plusDays(1);
         List<Game> allGames = gameRepository.findAll();
 
         for (Game game : allGames) {
@@ -135,5 +134,11 @@ public class GameService {
             }
             slotRepository.saveAll(slots);
         }
+    }
+
+    public Game createGame(String name) {
+        Game game = new Game();
+        game.setGameName(name);
+        return gameRepository.save(game);
     }
 }

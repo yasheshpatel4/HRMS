@@ -7,13 +7,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -34,7 +31,10 @@ public class GameController {
     public ResponseEntity<Optional<Game>> getGame(@PathVariable Long id){
         return ResponseEntity.ok(gameService.getGame(id));
     }
-
+    @PostMapping("/create")
+    public ResponseEntity<Game> createGame(@RequestParam String gameName) {
+        return ResponseEntity.ok(gameService.createGame(gameName));
+    }
     @DeleteMapping("/{id}")
     public void deleteGame(@PathVariable Long id){
         gameService.deleteGame(id);
@@ -74,17 +74,6 @@ public class GameController {
     public void generateSlots() {
         gameService.generateDailySlots();
     }
-
-    @PostMapping("/booking/book")
-    public ResponseEntity<Booking> bookSlot(@RequestBody Map<String, Object> request) {
-        Long slotId = Long.parseLong(request.get("slotId").toString());
-        List<Long> participantIds = ((List<Number>) request.get("participantIds"))
-                .stream()
-                .map(Number::longValue)
-                .toList();
-        Booking booking = gameBookingService.bookSlot(slotId, participantIds);
-        return ResponseEntity.ok(booking);
-    }
     @PutMapping("/booking/{bookingId}/cancel")
     public ResponseEntity<Void> cancelBooking(@PathVariable Long bookingId) {
         gameBookingService.cancelBooking(bookingId);
@@ -103,8 +92,8 @@ public class GameController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/booking/my-bookings")
-    public ResponseEntity<List<Booking>> getMyBookings() {
+    @GetMapping("/booking/user")
+    public ResponseEntity<Optional<List<Booking>>> getMyBookings() {
         return ResponseEntity.ok(gameBookingService.getUserBookings());
     }
 
