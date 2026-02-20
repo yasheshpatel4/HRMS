@@ -3,7 +3,7 @@ import PostCard from './PostCard';
 import api from '../../api';
 
 interface PostListProps {
-  filter?: 'all' | 'celebrations';
+  filter?: 'all';
   refreshTrigger?: number;
 }
 
@@ -21,11 +21,6 @@ const PostList = ({ filter = 'all', refreshTrigger = 0 }: PostListProps) => {
       const response = await api.get('/Post/all');
       let filteredPosts = response.data;
 
-      if (filter === 'celebrations') {
-        filteredPosts = filteredPosts.filter(
-          (post: any) => post.isSystemGenerated === true
-        );
-      }
 
       filteredPosts.sort(
         (a: any, b: any) =>
@@ -75,12 +70,8 @@ const PostList = ({ filter = 'all', refreshTrigger = 0 }: PostListProps) => {
 
   if (posts.length === 0) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500 text-lg">
-          {filter === 'celebrations'
-            ? 'No celebrations yet. Check back soon!'
-            : 'No posts yet. Be the first to create one!'}
-        </p>
+      <div className="text-center text-gray-500 text-lg py-12">
+        No posts yet. Be the first to create one!
       </div>
     );
   }

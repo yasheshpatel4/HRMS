@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useAuth } from '../../Context/AuthContext';
 import api from '../../api';
 import { X, Upload } from 'lucide-react';
 
@@ -9,7 +8,6 @@ interface PostFormProps {
 }
 
 const PostForm = ({ onPostCreated, onCancel }: PostFormProps) => {
-  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -208,7 +206,6 @@ const PostForm = ({ onPostCreated, onCancel }: PostFormProps) => {
             >
               <option value="all employees">All Employees</option>
               <option value="department">Department Only</option>
-              <option value="team">Team Only</option>
             </select>
           </div>
         </div>
