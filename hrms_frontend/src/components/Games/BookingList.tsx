@@ -2,9 +2,16 @@ import api from '../../api';
 
 interface Booking {
   bookingId: number;
-  gameName?: string;
-  slotStartTime: string;
   status: string;
+
+  slot: {
+    startTime: string;
+    endTime: string;
+    isAvailable: boolean;
+    game:{
+      gameName: string;
+    }
+  };
 }
 
 export const BookingList = ({ bookings, onRefresh }: { bookings: Booking[], onRefresh: () => void }) => {
@@ -28,8 +35,14 @@ export const BookingList = ({ bookings, onRefresh }: { bookings: Booking[], onRe
           {bookings.map((b) => (
             <div key={b.bookingId} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
               <div>
-                <p className="font-bold text-gray-900">Slot #{b.bookingId}</p>
-                <p className="text-sm text-gray-500">{b.slotStartTime}</p>
+                <p className="font-bold text-gray-900">Slot #{new Date(b.slot.startTime).toLocaleTimeString([], { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: true 
+                  })}
+                </p>
+                <p className="text-sm text-gray-500">{b.slot.game.gameName}</p>
+                {/* <p className="text-sm text-gray-500">{b.slot.startTime}</p> */}
                 <span className={`text-xs font-bold px-2 py-1 rounded ${
                   b.status === 'COMPLETED' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
                 }`}>
@@ -37,7 +50,7 @@ export const BookingList = ({ bookings, onRefresh }: { bookings: Booking[], onRe
                 </span>
               </div>
               <div className="flex gap-2">
-                {b.status !== 'CANCELLED' && (
+                {b.status == 'ACTIVE' && (
                   <>
                     <button 
                       onClick={() => handleAction(b.bookingId, 'complete')}

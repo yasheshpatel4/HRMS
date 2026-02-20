@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { OrganizationChart } from 'primereact/organizationchart';
 import type { TreeNode } from 'primereact/treenode';
 import api from '../../api';
+import { useAuth } from '../../Context/AuthContext';
 
 export interface User {
     userId: number;
@@ -17,7 +18,7 @@ const OrgChart1 = () => {
     const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-
+    const {user}=useAuth();
     useEffect(() => {
         fetchUsers();
     }, []);
@@ -27,7 +28,7 @@ const OrgChart1 = () => {
             const response = await api.get('/User/all');
             const userData: User[] = response.data;
             setUsers(userData);
-            if (userData.length > 0) setSelectedUserId(userData[0].userId);
+            if (userData.length > 0) setSelectedUserId(user?.userId  || userData[0].userId);
         } catch (err) {
             setError('Failed to load organization chart');
         } finally {
@@ -51,13 +52,20 @@ const OrgChart1 = () => {
 
         const subordinates = allUsers.filter(u => u.manager === targetId);
 
-        const createNode = (user: User, children: TreeNode[] = []): TreeNode => ({
-            expanded: true,
-            label: user.name,
-            data: user,
-            className: 'border-round-xl border-2 border-gray-300 shadow-2 cursor-pointer hover:border-blue-500 transition-colors',
-            children: children
-        });
+        const createNode = (user: User, children: TreeNode[] = []): TreeNode => {
+        const isSelected = user.userId === selectedUserId;
+            return {
+                expanded: true,
+                label: user.name,
+                data: user,
+                className: `border-round-xl border-2 shadow-2 cursor-pointer transition-colors ${
+                    isSelected 
+                        ? 'bg-blue-50 border-blue-600' 
+                        : 'bg-white border-gray-300 hover:border-blue-500'
+                }`,
+                children: children
+            };
+        };
 
         const targetNode = createNode(targetUser, subordinates.map(sub => createNode(sub)));
 
@@ -71,14 +79,20 @@ const OrgChart1 = () => {
 
     const nodeTemplate = (node: TreeNode) => {
         const person = node.data as User;
+        const isSelected = person.userId === selectedUserId;
+
         return (
             <div 
-                className="p-2 flex flex-col items-center" 
-                onClick={() => setSelectedUserId(person.userId)}
+            className={`p-2 flex flex-col items-center border-round-xl border-2 transition-colors w-full h-full ${
+                isSelected 
+                ? 'bg-blue-50 border-blue-600 shadow-3' 
+                : 'bg-white border-gray-300 hover:border-blue-500 shadow-1'
+            }`}
+            onClick={() => setSelectedUserId(person.userId)}
             >
-                <div className="font-bold text-gray-900">{person.name}</div>
-                <div className="text-sm text-gray-600 italic">{person.designation}</div>
-                <div className="text-xs text-blue-500 mt-1">{person.department}</div>
+            <div className="font-bold text-gray-900">{person.name}</div>
+            <div className="text-sm text-gray-600 italic">{person.designation}</div>
+            <div className="text-xs text-blue-500 mt-1">{person.department}</div>
             </div>
         );
     };
