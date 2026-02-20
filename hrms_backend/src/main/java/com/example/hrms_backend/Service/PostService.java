@@ -9,6 +9,9 @@ import com.example.hrms_backend.Repository.CommentRepository;
 import com.example.hrms_backend.Repository.PostRepository;
 import com.example.hrms_backend.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -35,9 +38,11 @@ public class PostService {
     @Autowired
     Cloudinary cloudinary;
 
-    public List<Post> getAllPost(){
-        return postRepository.findAllByOrderByCreatedAtDesc();
+    @Cacheable(value = "posts", key = "#pageable.pageNumber")
+    public Page<Post> getAllPost(Pageable pageable) {
+        return postRepository.findAll(pageable);
     }
+
 
     public Optional<Post> getPost(Long id){
         return postRepository.findById(id);

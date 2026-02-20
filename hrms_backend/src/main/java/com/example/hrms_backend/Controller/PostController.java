@@ -3,6 +3,11 @@ package com.example.hrms_backend.Controller;
 import com.example.hrms_backend.Entity.Post;
 import com.example.hrms_backend.Service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +26,13 @@ public class PostController {
     PostService postService;
 
     @GetMapping("/all")
-    public ResponseEntity<List<Post>> getAllPost(){
-        return ResponseEntity.ok(postService.getAllPost());
+    @Cacheable(value = "posts", key = "#pageable.pageNumber")
+    public ResponseEntity<Page<Post>> getAllPost(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return ResponseEntity.ok(postService.getAllPost(pageable));
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<Optional<Post>> getPost(@PathVariable Long id){
         return ResponseEntity.ok(postService.getPost(id));

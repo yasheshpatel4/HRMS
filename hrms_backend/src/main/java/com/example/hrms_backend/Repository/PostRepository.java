@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post,Long> {
-    List<Post> findAllByOrderByCreatedAtDesc();
+//    List<Post> findAllByOrderByCreatedAtDesc();
 
     @Query("select p from Post p where " +
             "(:author is null or p.owner.name like %:author%) AND " +

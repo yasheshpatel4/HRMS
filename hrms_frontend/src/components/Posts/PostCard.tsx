@@ -41,7 +41,9 @@ const PostCard = ({ post, onDelete, onEdit, onCommentAdded, expanded = false, on
 
     setCommenting(true);
     try {
-      await api.post(`/Post/${post.postId}/comment`, commentText);
+      await api.post(`/Post/${post.postId}/comment`, commentText, {
+        headers: { 'Content-Type': 'text/plain' }
+      });
       setCommentText('');
       onCommentAdded(); 
     } catch (err) {
