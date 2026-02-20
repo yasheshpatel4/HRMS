@@ -7,6 +7,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -83,6 +86,13 @@ public class userService implements UserDetailsService {
             id=(user.getManager()!=null)?user.getManager().getUserId():null;
         }
         return userlist;
+    }
+    public Page<User> getAllUsers(String search, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        if (search != null && !search.isEmpty()) {
+            return userRepository.findByNameContainingIgnoreCase(search, pageable);
+        }
+        return userRepository.findAll(pageable);
     }
 }
 

@@ -129,7 +129,7 @@ public class JobService {
         shareRepository.save(share);
 
         for (String email : recipientEmails) {
-            emailService.sendJobShareNotification(email, job);
+            emailService.sendEmail(email,"Job-opening:"+job.getTitle(),"A new Job opening has been created for the position: "+job.getTitle());
         }
     }
 
@@ -165,7 +165,20 @@ public class JobService {
             referralRepository.save(referral);
 
             for (User reviewer : job.getReviewers()) {
-                emailService.sendJobReferNotification(reviewer.getEmail(), job);
+                String emailBody = String.format(
+                        "Hello,\n\n" +
+                                "A new referral has been submitted for the position: %s.\n\n" +
+                                "Details:\n" +
+                                "- Referrer: %s\n" +
+                                "- Referrer's friend: %s\n" +
+                                "- friend's email: %s\n",
+                        job.getTitle(),
+                        currentUser.getName(),
+                        friendName,
+                        friendEmail
+                );
+                emailService.sendEmail(reviewer.getEmail(), "New Job Referral: " + job.getTitle(), emailBody);
+
             }
         }
         finally {

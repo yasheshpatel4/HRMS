@@ -117,7 +117,7 @@ const Games = () => {
         </header>
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
-          <div className="xl:col-span-2">
+          <div className="xl:col-span-3">
             <GameList 
               games={games} 
               role={role} 

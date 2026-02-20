@@ -90,7 +90,7 @@ public class TravelService {
         Travel savedTravel = travelRepository.save(travel);
 
         for (User user : savedTravel.getAssignedUsers()) {
-            emailService.sendTravelNotification(user.getEmail(), savedTravel);
+            emailService.sendEmail(user.getEmail(),"Assigned Travel:"+travel.getTitle(),"You have been assigned to travel: " + savedTravel.getTitle());
             notificationService.createNotification(user.getUserId(),"Travel", "You have been assigned to travel: " + savedTravel.getTitle());
         }
         return savedTravel;
