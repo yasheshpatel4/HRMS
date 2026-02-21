@@ -7,13 +7,20 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface FairnessQueueRepository extends JpaRepository<FairnessQueue,Long> {
-    @Query("delete FairnessQueue fq where fq.game=:game and fq.user=:user")
-    void deleteByGameUser(Game game, User user);
+//    @Query("delete FairnessQueue fq where fq.game=:game and fq.user=:user")
+//    void deleteByGameUser(Game game, User user);
 
     Optional<FairnessQueue> findByUserAndGame(User user, Game game);
+
+    List<FairnessQueue> findByGameOrderBySlotsPlayedCurrentCycleAscRequestTimestampAsc(Game game);
+
+    void deleteByUserAndGame(User user, Game game);
+
+    boolean existsByUserAndGame(User user, Game game);
 
 }

@@ -103,8 +103,7 @@ const OrgChart1 = () => {
     if (error) return <div className="text-center py-8 text-red-600">{error}</div>;
 
     return (
-        <div className="p-6 overflow-auto">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Org Chart</h2>
+        <div className="overflow-auto bg-white rounded-lg shadow-md">
             <div className="flex justify-center">
                 <OrganizationChart value={focusedData} nodeTemplate={nodeTemplate} />
             </div>

@@ -86,11 +86,11 @@ public class GameController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/bookings/complete-expired")
-    public ResponseEntity<Void> completeExpiredBookings() {
-        gameBookingService.completeExpiredBookings();
-        return ResponseEntity.ok().build();
-    }
+//    @PostMapping("/bookings/complete-expired")
+//    public ResponseEntity<Void> completeExpiredBookings() {
+//        gameBookingService.completeExpiredBookings();
+//        return ResponseEntity.ok().build();
+//    }
 
     @GetMapping("/booking/user")
     public ResponseEntity<Optional<List<Booking>>> getMyBookings() {
@@ -102,10 +102,10 @@ public class GameController {
     return ResponseEntity.ok(gameBookingService.getUpcomingBookings());
     }
 
-    @GetMapping("/booking/game/{gameId}")
-    public ResponseEntity<List<Booking>> getBookingsForGame(@PathVariable Long gameId) {
-        return ResponseEntity.ok(gameBookingService.getBookingsForGame(gameId));
-    }
+//    @GetMapping("/booking/game/{gameId}")
+//    public ResponseEntity<List<Booking>> getBookingsForGame(@PathVariable Long gameId) {
+//        return ResponseEntity.ok(gameBookingService.getBookingsForGame(gameId));
+//    }
 
     @GetMapping("/{gameId}/slots/today")
     public ResponseEntity<List<Slot>> viewSlots(@PathVariable Long gameId) {

@@ -34,14 +34,23 @@ const Games = () => {
 
   const handleSelectGame = (id: number) => {
     setSelectedGameId(id);
-    api.get(`/Game/${id}/slots/today`).then(res => setSlots(res.data));
+    api.get(`/Game/${id}/slots/today`).then(res => setSlots(res.data));    
+    
   };
 
   const handleBookSlot = async (slotId: number, participantIds: number[]) => {
     try {
-      await api.post(`/Game/slots/${slotId}/book`, participantIds, {
+      const res=await api.post(`/Game/slots/${slotId}/book`, participantIds, {
         params: { userId: user?.userId }
       });
+      if (res.data === "SLOT_ASSIGNED_FIRST_TIME") {
+        alert("🎉 Slot assigned successfully!");
+      } else if (res.data === "ADDED_TO_QUEUE") {
+        alert("⏳ Added to fairness queue.");
+      }
+      else {
+        alert(res.data);
+      }
       handleSelectGame(selectedGameId!); 
       loadBookings();
     } catch (err) {
@@ -127,12 +136,12 @@ const Games = () => {
           </div>
           
           <div className="xl:col-span-3">
-            {selectedGameId ? (
-              <GameSlots slots={slots} onBook={handleBookSlot} />
-            ) : (
-              <div className="h-64 border-4 border-dashed border-gray-200 rounded-3xl flex items-center justify-center text-gray-400 font-medium">
-                Select a game to check priority status
-              </div>
+            {selectedGameId && (
+              <GameSlots 
+                slots={slots} 
+                onBook={handleBookSlot} 
+                onClose={() => setSelectedGameId(null)}
+              />
             )}
           </div>
           <div className="xl:col-span-3">

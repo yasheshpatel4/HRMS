@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -28,5 +30,8 @@ public class FairnessQueue {
 
     private int slotsPlayedCurrentCycle = 0;
     private LocalDateTime requestTimestamp;
+
+    @ElementCollection
+    private Set<Long> participantIds = new HashSet<>();
 }
 

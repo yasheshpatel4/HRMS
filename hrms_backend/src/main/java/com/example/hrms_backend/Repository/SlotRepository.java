@@ -1,7 +1,6 @@
 package com.example.hrms_backend.Repository;
 
 import com.example.hrms_backend.Entity.Slot;
-import com.example.hrms_backend.Entity.Game;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -20,4 +19,7 @@ public interface SlotRepository extends JpaRepository<Slot, Long> {
 
     @Query("SELECT s FROM Slot s WHERE s.game.gameId = :gameId AND s.startTime >= :start AND s.startTime <= :end")
     List<Slot> findUpcomingSlotsForToday( Long gameId, LocalDateTime start, LocalDateTime end);
+
+    @Query("SELECT s FROM Slot s WHERE s.startTime BETWEEN :now AND :future")
+    List<Slot> findSlotsStartingInNext30Minutes(LocalDateTime now, LocalDateTime future);
 }

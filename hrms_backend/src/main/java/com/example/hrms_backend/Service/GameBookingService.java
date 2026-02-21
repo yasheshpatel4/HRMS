@@ -2,9 +2,11 @@ package com.example.hrms_backend.Service;
 import com.example.hrms_backend.Entity.*;
 import com.example.hrms_backend.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -33,32 +35,6 @@ public class GameBookingService {
     private EmailService emailService;
 
     @Transactional
-    public void cancelBooking(Long bookingId) {
-        Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
-        User currentUser = userService.getCurrentUser();
-        emailService.sendEmail(currentUser.getEmail(),
-                "slot cancelled",
-                "your booked slot is cancelled " +
-                        "due to some other person who has higher priority try to book the same slot as you");
-
-        if (!booking.getBookedBy().equals(currentUser)) {
-            throw new RuntimeException("You can only cancel your own booking");
-        }
-
-        if (booking.getStatus() != BookingStatus.ACTIVE) {
-            throw new RuntimeException("Booking is not active");
-        }
-
-        Slot slot = booking.getSlot();
-        slot.setAvailable(true);
-        slotRepository.save(slot);
-//        updateQueue(currentUser, slot.getGame(), );
-        booking.setStatus(BookingStatus.CANCELLED);
-        bookingRepository.save(booking);
-    }
-
-    @Transactional
     public void completeBooking(Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
@@ -85,90 +61,141 @@ public class GameBookingService {
         return bookingRepository.findUpcomingActiveBookings(LocalDateTime.now());
     }
 
-    public List<Booking> getBookingsForGame(Long gameId) {
-        return bookingRepository.findUpcomingActiveBookingsByGame(gameId, LocalDateTime.now());
-    }
     @Transactional
-    public void completeExpiredBookings() {
-        List<Booking> expiredBookings = bookingRepository.findByStatusAndSlotEndTimeBefore(
-                BookingStatus.ACTIVE, LocalDateTime.now());
-        for (Booking booking : expiredBookings) {
-            booking.setStatus(BookingStatus.COMPLETED);
-            bookingRepository.save(booking);
-
-        }
-    }
-    @Transactional
-    public String processBooking(Long slotId, Long requesterId, Set<Long> participantIds) {
-        User requester = userRepository.findById(requesterId)
+    public String processBooking(Long slotId, Long userId, Set<Long> participantIds) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Slot slot = slotRepository.findById(slotId)
                 .orElseThrow(() -> new RuntimeException("Slot not found"));
         Game game = slot.getGame();
 
-        boolean isInterested = requester.getInterestedGames().stream()
+        boolean isInterested = user.getInterestedGames().stream()
                 .anyMatch(g -> g.getGameId().equals(game.getGameId()));
 
         if (!isInterested) {
-            throw new RuntimeException("You must add " + game.getGameName() + " to your interested games first.");
+            return ("You must add " + game.getGameName() + " to your interested games first.");
         }
 
-        if (bookingRepository.hasActiveBookingForGame(requesterId, game.getGameId())) {
-            throw new RuntimeException("You already have an active booking for " + game.getGameName());
+        if (bookingRepository.hasActiveBookingForGame(userId, game.getGameId())) {
+            return ("You already have an active booking for " + game.getGameName());
         }
-
-        int requesterPlayedCount = bookingRepository.countActiveSlotsByUserId(requesterId,game.getGameId());
-        Optional<Booking> currentBooking = bookingRepository.findBySlotAndStatus(slot, BookingStatus.ACTIVE);
-
-        int maxOtherEmployees = game.getConfiguration().getMaxPlayers();
+        int maxOtherEmployees = game.getConfiguration().getMaxPlayers()-1;
         if (participantIds.size() > maxOtherEmployees) {
-            throw new RuntimeException("Maximum " + maxOtherEmployees + " other employees can be added");
+            return ("Maximum " + maxOtherEmployees + " other employees can be added");
+        }
+        int completedCount = bookingRepository.countCompletedSlotsByUser(userId, game.getGameId());
+        Optional<Booking> activeBooking =
+                bookingRepository.findBySlotAndStatus(slot, BookingStatus.ACTIVE);
+        if (completedCount == 0 && activeBooking.isEmpty()) {
+
+            assignSlot(user, slot,participantIds);
+            return "SLOT_ASSIGNED_FIRST_TIME";
         }
 
-        if (currentBooking.isEmpty()) {
-            createBooking(slot, requester, participantIds);
-            for(Long id:participantIds){
-                User participant=userRepository.findById(id).orElseThrow(()->new RuntimeException("participantsId is not matching"));
-                emailService.sendEmail(participant.getEmail(),"Added into participants for slot","you are added into slot"+slot.getStartTime()+"by the :"+requester.getName());
-            }
-            updateQueue(requester, slot.getGame(), requesterPlayedCount + 1);
-            return "SUCCESS_BOOKED";
-        }
-
-        User existingUser = currentBooking.get().getBookedBy();
-        int existingPlayedCount = bookingRepository.countActiveSlotsByUserId(existingUser.getUserId(),game.getGameId());
-
-        if (requesterPlayedCount < existingPlayedCount) {
-            currentBooking.get().setStatus(BookingStatus.CANCELLED);
-            createBooking(slot, requester, participantIds);
-            updateQueue(requester, game, requesterPlayedCount + 1);
-            updateQueue(existingUser, game, Math.max(0, existingPlayedCount - 1));
-            return "SUCCESS_DISPLACED";
-        } else {
-            updateQueue(requester, game, requesterPlayedCount);
-            return "FAILED_LOWER_PRIORITY";
-        }
+        addToQueue(user, game, completedCount,participantIds);
+        return "ADDED_TO_QUEUE";
     }
+    private void assignSlot(User user, Slot slot,Set<Long> participantsIds) {
 
-    private void createBooking(Slot slot, User user, Set<Long> pIds) {
         Booking booking = new Booking();
-        booking.setSlot(slot);
         booking.setBookedBy(user);
+        booking.setSlot(slot);
         booking.setBookedAt(LocalDateTime.now());
-        booking.setParticipants(new HashSet<>(userRepository.findAllById(pIds)));
+        booking.setStatus(BookingStatus.ACTIVE);
+        booking.setParticipants(new HashSet<>(userRepository.findAllById(participantsIds)));
+
         bookingRepository.save(booking);
 
         slot.setAvailable(false);
         slotRepository.save(slot);
+
+        emailService.sendEmail(
+                user.getEmail(),
+                "Slot Confirmed",
+                "Your slot for " +slot.getGame().getGameName()+ " at " + slot.getStartTime() + " is confirmed."
+        );
     }
 
-    private void updateQueue(User user, Game game, int newCount) {
-        FairnessQueue entry = fairnessQueueRepository.findByUserAndGame(user, game)
-                .orElse(new FairnessQueue());
-        entry.setUser(user);
-        entry.setGame(game);
-        entry.setSlotsPlayedCurrentCycle(newCount);
-        entry.setRequestTimestamp(LocalDateTime.now());
-        fairnessQueueRepository.save(entry);
+    private void addToQueue(User user, Game game, int completedCount,Set<Long> participantIds) {
+
+        if (fairnessQueueRepository.existsByUserAndGame(user, game))
+            return;
+
+        FairnessQueue queue = new FairnessQueue();
+        queue.setUser(user);
+        queue.setGame(game);
+        queue.setSlotsPlayedCurrentCycle(completedCount);
+        queue.setRequestTimestamp(LocalDateTime.now());
+        queue.setParticipantIds(participantIds);
+        fairnessQueueRepository.save(queue);
+    }
+    @Transactional
+    @Scheduled(fixedRate = 60000)
+    public void queueAssignmentEngine() {
+
+        List<Slot> upcomingSlots =
+                slotRepository.findSlotsStartingInNext30Minutes(
+                        LocalDateTime.now(),
+                        LocalDateTime.now().plusMinutes(30)
+                );
+
+        for (Slot slot : upcomingSlots) {
+
+            Optional<Booking> activeBooking =
+                    bookingRepository.findBySlotAndStatus(slot, BookingStatus.ACTIVE);
+            if (activeBooking.isPresent())
+                continue;
+            assignFromQueue(slot);
+        }
+    }
+
+    private void assignFromQueue(Slot slot) {
+
+        List<FairnessQueue> queue = fairnessQueueRepository
+                        .findByGameOrderBySlotsPlayedCurrentCycleAscRequestTimestampAsc(slot.getGame());
+
+        if (queue.isEmpty())
+            return;
+
+        FairnessQueue top = queue.get(0);
+
+        assignSlot(top.getUser(), slot,top.getParticipantIds());
+
+        fairnessQueueRepository.delete(top);
+    }
+
+    public void cancelBooking(Long bookingId) {
+
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        Slot slot = booking.getSlot();
+
+        booking.setStatus(BookingStatus.CANCELLED);
+        bookingRepository.save(booking);
+
+        slot.setAvailable(true);
+        slotRepository.save(slot);
+
+        long minutesRemaining =
+                Duration.between(LocalDateTime.now(),
+                        slot.getStartTime()).toMinutes();
+
+        if (minutesRemaining <= 30) {
+            assignFromQueue(slot);
+        }
+    }
+
+    @Transactional
+    @Scheduled(fixedRate = 60000)
+    public void autoCompleteBookings() {
+
+        List<Booking> bookings =
+                bookingRepository.findBookingsToAutoComplete(LocalDateTime.now());
+
+        for (Booking booking : bookings) {
+            booking.setStatus(BookingStatus.COMPLETED);
+            bookingRepository.save(booking);
+        }
     }
 }
