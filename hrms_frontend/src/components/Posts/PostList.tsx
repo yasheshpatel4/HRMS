@@ -6,9 +6,10 @@ import { Loader2 } from 'lucide-react';
 interface PostListProps {
   filter?: 'all';
   refreshTrigger?: number;
+  searchParams?: any; // Added to receive filters from PostSearch
 }
 
-const PostList = ({ filter = 'all', refreshTrigger = 0 }: PostListProps) => {
+const PostList = ({ filter = 'all', refreshTrigger = 0, searchParams = null }: PostListProps) => {
   const [posts, setPosts] = useState<any[]>([]);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -36,9 +37,26 @@ const PostList = ({ filter = 'all', refreshTrigger = 0 }: PostListProps) => {
     setError('');
 
     try {
-      const response = await api.get(`/Post/all?page=${pageNum}&size=10`);
+      // Determine endpoint based on whether searchParams exist
+      const baseUrl = searchParams ? '/Post/search' : '/Post/all';
       
-      const { content, last } = response.data;
+      const params = new URLSearchParams();
+      // If searching, spread the filters into the params
+      if (searchParams) {
+        Object.entries(searchParams).forEach(([key, value]) => {
+          if (value) params.append(key, value as string);
+        });
+      }
+      
+      params.append('page', pageNum.toString());
+      params.append('size', '10');
+
+      const response = await api.get(`${baseUrl}?${params.toString()}`);
+      
+      // Defensive check for Spring Page object or direct array
+      const rawData = response.data;
+      const content = rawData.content || (Array.isArray(rawData) ? rawData : []);
+      const last = rawData.last !== undefined ? rawData.last : true;
 
       setPosts(prev => isInitial ? content : [...prev, ...content]);
       setHasMore(!last);
@@ -50,12 +68,14 @@ const PostList = ({ filter = 'all', refreshTrigger = 0 }: PostListProps) => {
     }
   };
 
+  // Trigger reset and initial fetch when filter, search, or refresh happens
   useEffect(() => {
     setPage(0);
     setHasMore(true);
     fetchPosts(0, true);
-  }, [filter, refreshTrigger]);
+  }, [filter, refreshTrigger, JSON.stringify(searchParams)]); // Stringify params to detect deep changes
 
+  // Pagination trigger
   useEffect(() => {
     if (page > 0) {
       fetchPosts(page);
@@ -80,24 +100,11 @@ const PostList = ({ filter = 'all', refreshTrigger = 0 }: PostListProps) => {
 
   return (
     <div className="space-y-4 pb-10">
-      {posts.map((post, index) => {
-        if (posts.length === index + 1) {
-          return (
-            <div ref={lastPostElementRef} key={post.postId}>
-              <PostCard
-                post={post}
-                onDelete={handleDelete}
-                onEdit={(p) => console.log('Edit:', p)}
-                onCommentAdded={() => fetchPosts(0, true)}
-                expanded={expandedPostId === post.postId}
-                onToggleExpand={handleExpandToggle}
-              />
-            </div>
-          );
-        } else {
-          return (
+      {(posts || []).map((post, index) => {
+        const isLast = posts.length === index + 1;
+        return (
+          <div ref={isLast ? lastPostElementRef : null} key={post.postId || index}>
             <PostCard
-              key={post.postId}
               post={post}
               onDelete={handleDelete}
               onEdit={(p) => console.log('Edit:', p)}
@@ -105,8 +112,8 @@ const PostList = ({ filter = 'all', refreshTrigger = 0 }: PostListProps) => {
               expanded={expandedPostId === post.postId}
               onToggleExpand={handleExpandToggle}
             />
-          );
-        }
+          </div>
+        );
       })}
 
       {loading && (
@@ -123,7 +130,7 @@ const PostList = ({ filter = 'all', refreshTrigger = 0 }: PostListProps) => {
 
       {!loading && posts.length === 0 && (
         <div className="text-center text-gray-500 text-lg py-12">
-          No posts yet. Be the first to create one!
+          {searchParams ? 'No posts found matching your search.' : 'No posts yet. Be the first to create one!'}
         </div>
       )}
     </div>

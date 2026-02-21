@@ -1,21 +1,18 @@
 import { useState } from 'react';
 import { Search, X } from 'lucide-react';
-import api from '../../api';
 
 interface PostSearchProps {
-  onSearch: (posts: any[]) => void;
+  onSearch: (filters: any) => void;
   onClearSearch: () => void;
 }
 
 const PostSearch = ({ onSearch, onClearSearch }: PostSearchProps) => {
-  const [isSearching, setIsSearching] = useState(false);
   const [filters, setFilters] = useState({
     author: '',
     tag: '',
     startDate: '',
     endDate: '',
   });
-  const [error, setError] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,111 +20,93 @@ const PostSearch = ({ onSearch, onClearSearch }: PostSearchProps) => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSearch = async (e: React.FormEvent) => {
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSearching(true);
-    setError('');
+    setHasSearched(true);
 
-    try {
-      const params = new URLSearchParams();
-      if (filters.author) params.append('author', filters.author);
-      if (filters.tag) params.append('tag', filters.tag);
-      if (filters.startDate) params.append('startDate', filters.startDate);
-      if (filters.endDate) params.append('endDate', filters.endDate);
-      
-      const response = await api.get(`/Post/search?${params.toString()}`);
-      onSearch(response.data);
-      setHasSearched(true);
-    } catch (err) {
-      setError('Failed to search posts');
-    } finally {
-      setIsSearching(false);
-    }
+    onSearch(filters);
   };
 
   const handleClear = () => {
-    setFilters({ author: '', tag: '', startDate: '', endDate: '' });
+    const emptyFilters = { author: '', tag: '', startDate: '', endDate: '' };
+    setFilters(emptyFilters);
     setHasSearched(false);
     onClearSearch();
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">Search Posts</h3>
-
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
-          {error}
-        </div>
-      )}
+    <div className="bg-white rounded-lg shadow-md p-6 mb-6 border border-gray-100">
+      <div className="flex items-center gap-2 mb-4">
+        <Search className="text-blue-600" size={20} />
+        <h3 className="text-lg font-semibold text-gray-800">Search Posts</h3>
+      </div>
 
       <form onSubmit={handleSearch} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Author</label>
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Author</label>
             <input
               type="text"
               name="author"
               value={filters.author}
               onChange={handleFilterChange}
-              placeholder="Search by author..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="author"
+              className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tag</label>
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Tag</label>
             <input
               type="text"
               name="tag"
               value={filters.tag}
               onChange={handleFilterChange}
-              placeholder="Search by tag..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="tag"
+              className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">From</label>
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">From</label>
             <input
               type="datetime-local"
               name="startDate"
               value={filters.startDate}
               onChange={handleFilterChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">To</label>
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">To</label>
             <input
               type="datetime-local"
               name="endDate"
               value={filters.endDate}
               onChange={handleFilterChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             />
           </div>
         </div>
 
-        <div className="flex gap-2 justify-end">
+        <div className="flex gap-2 justify-end pt-2">
           {hasSearched && (
             <button
               type="button"
               onClick={handleClear}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 transition"
+              className="flex items-center gap-2 px-4 py-2 text-gray-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
             >
               <X size={18} />
-              Clear Filters
+              Reset
             </button>
           )}
           <button
             type="submit"
-            disabled={isSearching}
-            className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition disabled:opacity-50"
+            className="flex items-center gap-2 px-8 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm hover:shadow-md transition-all active:scale-95"
           >
             <Search size={18} />
-            {isSearching ? 'Searching...' : 'Search'}
+            Search
           </button>
         </div>
       </form>
