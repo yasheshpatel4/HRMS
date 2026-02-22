@@ -69,7 +69,7 @@ public class GameController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return ResponseEntity.ok(gameService.getAllSlotsForDate(gameId, date));
     }
-    @Scheduled(cron = "0 0 0 * * *")
+
     @PostMapping("/generate-slots")
     public void generateSlots() {
         gameService.generateDailySlots();

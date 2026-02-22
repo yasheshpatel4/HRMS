@@ -11,6 +11,9 @@ import com.example.hrms_backend.Repository.UserRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -101,7 +104,8 @@ public class GameService {
         existingConfig.setMaxPlayers(newConfig.getMaxPlayers());
         gameConfigurationRepository.save(existingConfig);
     }
-
+    @Scheduled(cron = "0 1 0 * * *") 
+    @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void generateDailySlots() {
         LocalDate targetDate = LocalDate.now();
