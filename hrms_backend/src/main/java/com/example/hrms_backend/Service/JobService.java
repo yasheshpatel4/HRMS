@@ -4,6 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.example.hrms_backend.Entity.*;
 import com.example.hrms_backend.Repository.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class JobService {
 
@@ -40,6 +42,8 @@ public class JobService {
 
     @Autowired
     private Cloudinary cloudinary;
+    @Autowired
+    private LoggingService loggingService;
 
     public List<Job> getAllJob() {
         return jobRepository.findAll().stream()
@@ -52,6 +56,7 @@ public class JobService {
 //    }
 
     public Job createJob(Job job, MultipartFile jdFile, List<String> reviewerEmails) throws IOException {
+        log.info("Process started: Creating Job ");
         String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userRepository.findByEmail(currentUserEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -65,6 +70,7 @@ public class JobService {
         if (uploadResult != null && uploadResult.containsKey("url")) {
             job.setJdFilePath(uploadResult.get("url").toString());
         } else {
+            loggingService.saveLog("ERROR", "Creation Failed", "JobService","Cloudinary upload failed: " + uploadResult);
             throw new RuntimeException("Cloudinary upload failed: " + uploadResult);
         }
 
@@ -77,7 +83,7 @@ public class JobService {
         job.setReviewers(reviewers);
         job.setCreatedAt(LocalDate.now());
         job.setCreatedBy(currentUser);
-
+        loggingService.saveLog("INFO", "Job Created", "JobService", "successful");
         return jobRepository.save(job);
     }
 
