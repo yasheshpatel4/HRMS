@@ -7,6 +7,12 @@ import ExpenseList from './ExpenseList';
 const Travel = () => {
   const { role } = useAuth();
   const [activeTab, setActiveTab] = useState<'travels' | 'expenses'>('travels');
+  const [preSelectedId, setPreSelectedId] = useState<number | undefined>(undefined);
+
+  const handleQuickSubmit = (travelId: number) => {
+    setPreSelectedId(travelId); 
+    setActiveTab('expenses');   
+  };
 
   const tabs = [
     { id: 'travels', label: 'Travel Assignments', roles: ['EMPLOYEE', 'MANAGER', 'HR'] },
@@ -40,10 +46,18 @@ const Travel = () => {
       </div>
 
       <div className="mt-6">
-        {activeTab === 'travels' && <TravelList />}
+        {activeTab === 'travels' && (
+          <TravelList onNavigateToExpense={handleQuickSubmit} />
+        )}
+        
         {activeTab === 'expenses' && (
           <div className="space-y-8">
-            {role === 'EMPLOYEE' && <ExpenseForm />}
+            {role === 'EMPLOYEE' && (
+              <ExpenseForm 
+                preSelectedTravelId={preSelectedId} 
+                onSuccess={() => setPreSelectedId(undefined)}
+              />
+            )}
             <ExpenseList />
           </div>
         )}

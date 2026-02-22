@@ -14,8 +14,10 @@ interface Travel {
   assignedUsers: number[];
   createdBy: number;
 }
-
-const TravelList = () => {
+interface TravelListProps {
+  onNavigateToExpense?: (travelId: number) => void;
+}
+const TravelList = ({ onNavigateToExpense }:TravelListProps) => {
   const { user, role } = useAuth();
   const [travels, setTravels] = useState<Travel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -107,7 +109,10 @@ const TravelList = () => {
                 View Documents
               </button>
               {role === 'EMPLOYEE' && (
-                <button className="flex-1 bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700 text-sm">
+                <button 
+                  onClick={() => onNavigateToExpense?.(travel.travelId)}
+                  className="flex-1 bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700 text-sm"
+                >
                   Submit Expense
                 </button>
               )}
