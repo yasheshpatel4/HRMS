@@ -29,7 +29,14 @@ const Notification = () => {
     };
 
     useEffect(() => {
+        if (!user?.userId) return;
         fetchNotifications();
+
+        const interval = setInterval(() => {
+            fetchNotifications();
+        }, 60000);
+
+        return () => clearInterval(interval);
     }, [user?.userId]);
 
     const handleMarkRead = async (id: number) => {

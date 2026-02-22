@@ -42,7 +42,9 @@ public class JobService {
     private Cloudinary cloudinary;
 
     public List<Job> getAllJob() {
-        return jobRepository.findAll();
+        return jobRepository.findAll().stream()
+                .filter(job -> !job.isDeleted())
+                .collect(Collectors.toList());
     }
 
 //    public Optional<Job> getJob(Long id) {
@@ -100,7 +102,10 @@ public class JobService {
     }
 
     public void deleteJob(Long id) {
-        jobRepository.deleteById(id);
+        Job job = jobRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+        job.setDeleted(true);
+        jobRepository.save(job);
     }
 
     public void shareJob(Long jobId, List<String> recipientEmails) {
@@ -202,5 +207,17 @@ public class JobService {
         referral.setStatus(newStatus);
         return referralRepository.save(referral);
     }
+    public List<Referral> getReferralsForCurrentUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
+        boolean isHr = user.getRole()==Role.HR;
+
+        if (isHr) {
+            return referralRepository.findAll();
+        } else {
+            return referralRepository.findByReferrerUserId(user.getUserId());
+        }
+    }
 }

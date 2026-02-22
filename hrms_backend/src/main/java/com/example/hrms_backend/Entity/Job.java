@@ -28,7 +28,7 @@ public class Job {
     @Email
     private String hrEmail;
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "job_reviewers",
             joinColumns = @JoinColumn(name = "job_id"),
@@ -39,4 +39,6 @@ public class Job {
     private LocalDate createdAt;
     @ManyToOne
     private User createdBy;
+
+    private boolean deleted = false;
 }

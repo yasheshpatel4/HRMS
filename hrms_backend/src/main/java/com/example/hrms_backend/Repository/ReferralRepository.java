@@ -12,4 +12,6 @@ public interface ReferralRepository extends JpaRepository<Referral,Long> {
 
     @Query("select r from Referral r where r.job.jobId=:jobId")
     List<Referral> findByJobId(Long jobId);
+    List<Referral> findByReferrerUserId(Long userId);
+    List<Referral> findByJobJobId(Long jobId);
 }

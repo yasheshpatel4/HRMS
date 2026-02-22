@@ -49,7 +49,7 @@ public class Post {
     )
     private Set<User> likedBy = new HashSet<>();
 
-    private Boolean isDeleted;
+    private Boolean isDeleted=false;
     private String deletedBy;
     private Boolean isSystemGenerated = false;
 }

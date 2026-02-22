@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,15 +23,23 @@ public class JobController {
 
     @GetMapping("/all")
     public ResponseEntity<List<Job>> getAllJob(){
+
         return ResponseEntity.ok(jobService.getAllJob());
     }
 
-    @PutMapping("/{jobId}")
-    public ResponseEntity<Job> updateJob(@RequestBody Job job, @RequestParam("reviewerEmails") List<String> reviewerEmails){
-        return ResponseEntity.ok(jobService.updateJob(job, reviewerEmails));
+    @PutMapping("/{id}")
+    public ResponseEntity<Job> updateJob(
+            @PathVariable("id") Long id,
+            @ModelAttribute Job job,
+            @RequestParam(value = "reviewerEmails", required = false) List<String> reviewerEmails
+    ) {
+        job.setJobId(id);
+        List<String> emails = (reviewerEmails == null) ? new ArrayList<>() : reviewerEmails;
+
+        return ResponseEntity.ok(jobService.updateJob(job, emails));
     }
 
-    @DeleteMapping("/{jobId}")
+    @DeleteMapping("/{id}")
     public void deleteJob(@PathVariable Long id){
         jobService.deleteJob(id);
     }
@@ -77,5 +86,9 @@ public class JobController {
     @PutMapping("/referral/{referralId}/status")
     public ResponseEntity<Referral> updateReferralStatus(@PathVariable Long referralId, @RequestBody String newStatus) {
         return ResponseEntity.ok(jobService.updateReferralStatus(referralId, newStatus));
+    }
+    @GetMapping("/referrals")
+    public ResponseEntity<List<Referral>> getMyReferrals() {
+        return ResponseEntity.ok(jobService.getReferralsForCurrentUser());
     }
 }

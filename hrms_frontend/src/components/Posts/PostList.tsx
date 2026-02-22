@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import PostCard from './PostCard';
 import api from '../../api';
 import { Loader2 } from 'lucide-react';
+import EditPostModal from './EditPostModal';
 
 interface PostListProps {
   filter?: 'all';
@@ -16,8 +17,13 @@ const PostList = ({ filter = 'all', refreshTrigger = 0, searchParams = null }: P
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState('');
   const [expandedPostId, setExpandedPostId] = useState<number | null>(null);
+  const [editingPost, setEditingPost] = useState<any | null>(null);
 
   const observer = useRef<IntersectionObserver | null>(null);
+
+  const handleUpdateLocal = (updatedPost: any) => {
+    setPosts(prev => prev.map(p => p.postId === updatedPost.postId ? updatedPost : p));
+  };
 
   const lastPostElementRef = useCallback((node: HTMLDivElement | null) => {
     if (loading) return;
@@ -107,7 +113,7 @@ const PostList = ({ filter = 'all', refreshTrigger = 0, searchParams = null }: P
             <PostCard
               post={post}
               onDelete={handleDelete}
-              onEdit={(p) => console.log('Edit:', p)}
+              onEdit={(p) => setEditingPost(p)}
               onCommentAdded={() => fetchPosts(0, true)}
               expanded={expandedPostId === post.postId}
               onToggleExpand={handleExpandToggle}
@@ -115,6 +121,14 @@ const PostList = ({ filter = 'all', refreshTrigger = 0, searchParams = null }: P
           </div>
         );
       })}
+
+      {editingPost && (
+        <EditPostModal 
+          post={editingPost} 
+          onClose={() => setEditingPost(null)} 
+          onUpdate={handleUpdateLocal}
+        />
+      )}
 
       {loading && (
         <div className="flex justify-center py-4">

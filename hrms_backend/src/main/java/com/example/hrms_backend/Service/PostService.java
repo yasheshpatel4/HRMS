@@ -40,7 +40,7 @@ public class PostService {
 
     @Cacheable(value = "posts", key = "#pageable.pageNumber")
     public Page<Post> getAllPost(Pageable pageable) {
-        return postRepository.findAll(pageable);
+        return postRepository.findAllByIsDeletedFalse(pageable);
     }
 
 
@@ -58,34 +58,37 @@ public class PostService {
             emailService.sendEmail(post.getOwner().getEmail(), "Warning: Post Deleted by HR",
                     "Your post titled '" + post.getTitle() + "' has been deleted by HR for inappropriate content.");
         }
-        postRepository.deleteById(id);
+        post.setIsDeleted(true);
+        post.setDeletedBy(currentUser.getEmail());
+
+        postRepository.save(post);
     }
 
-//    public Post updatePost(Long id,Post post,MultipartFile file) throws IOException{
-//        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-//        User currentUser = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-//
-//        Post existingPost = postRepository.findById(id)
-//                .orElseThrow(() -> new RuntimeException("Post not found"));
-//
-//        if (!existingPost.getOwner().equals(currentUser) && !currentUser.getRole().name().equals("HR")) {
-//            throw new RuntimeException("No permission to update");
-//        }
-//
-//        if (file != null && !file.isEmpty()) {
-//            Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
-//                    ObjectUtils.asMap("folder", "/Posts/"));
-//            existingPost.setFilePath(uploadResult.get("url").toString());
-//        }
-//
-//        existingPost.setPost(post.getPost());
-//        existingPost.setDescription(post.getDescription());
-//        existingPost.setTitle(post.getTitle());
-//        existingPost.setTags(post.getTags());
-//        existingPost.setVisibility(post.getVisibility());
-//
-//        return postRepository.save(existingPost);
-//    }
+    public Post updatePost(Long id,Post post,MultipartFile file) throws IOException{
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+
+        Post existingPost = postRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        if (!existingPost.getOwner().equals(currentUser) && !currentUser.getRole().name().equals("HR")) {
+            throw new RuntimeException("No permission to update");
+        }
+
+        if (file != null && !file.isEmpty()) {
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
+                    ObjectUtils.asMap("folder", "/Posts/"));
+            existingPost.setFilePath(uploadResult.get("url").toString());
+        }
+
+        existingPost.setContent(post.getContent());
+        existingPost.setDescription(post.getDescription());
+        existingPost.setTitle(post.getTitle());
+        existingPost.setTags(post.getTags());
+        existingPost.setVisibility(post.getVisibility());
+
+        return postRepository.save(existingPost);
+    }
 
     public void createPost(Post post, MultipartFile file) throws IOException {
         String email=SecurityContextHolder.getContext().getAuthentication().getName();
@@ -172,4 +175,5 @@ public class PostService {
             postRepository.save(anniversaryPost);
         }
     }
+
 }

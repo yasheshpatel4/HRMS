@@ -86,26 +86,12 @@ const PostForm = ({ onPostCreated, onCancel }: PostFormProps) => {
   };
 
 
-  if (!isOpen) {
-    return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="mb-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition"
-      >
-        + Create Post
-      </button>
-    );
-  }
-
   return (
     <div className="mb-8 bg-white rounded-lg shadow-lg p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold text-gray-800">Create Achievement Post</h2>
         <button
-          onClick={() => {
-            setIsOpen(false);
-            if (onCancel) onCancel();
-          }}
+          onClick={onCancel}
           className="text-gray-500 hover:text-gray-700"
         >
           <X size={24} />

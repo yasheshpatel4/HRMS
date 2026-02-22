@@ -51,13 +51,13 @@ public class PostController {
     }
 
 
-//    @PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public Post updatePost(
-//            @PathVariable Long id,
-//            @ModelAttribute Post post,
-//            @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
-//        return postService.updatePost(id, post, file);
-//    }
+    @PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Post updatePost(
+            @PathVariable Long id,
+            @ModelAttribute Post post,
+            @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
+        return postService.updatePost(id, post, file);
+    }
 
     @PostMapping("/{postId}/like")
     public ResponseEntity<String> addlike(@PathVariable Long postId){

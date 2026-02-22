@@ -6,9 +6,11 @@ import PostSearch from './PostSearch';
 const Post = () => {
   const [searchParams, setSearchParams] = useState<any>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [isFormOpen, setIsFormOpen] = useState(false); 
 
   const handlePostCreated = () => {
     setRefreshTrigger((prev) => prev + 1);
+    setIsFormOpen(false);
   };
 
   const handleSearch = (filters: any) => {
@@ -21,20 +23,33 @@ const Post = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-800">Social Achievements & Celebrations</h1>
+      <div className="flex justify-between items-center border-b pb-4">
+        <h1 className="text-3xl font-bold text-gray-800">
+          Social Achievements & Celebrations
+        </h1>
+        <button
+          onClick={() => setIsFormOpen(true)}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition shadow-sm active:scale-95"
+        >
+          + Create Post
+        </button>
       </div>
 
       <div className="mt-6">
         <div className="space-y-6">
-          <PostForm onPostCreated={handlePostCreated} />
+          {isFormOpen && (
+            <PostForm 
+              onPostCreated={handlePostCreated} 
+              onCancel={() => setIsFormOpen(false)} 
+            />
+          )}
 
           <PostSearch onSearch={handleSearch} onClearSearch={handleClearSearch} />
 
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
-              {searchParams ? 'Search Results' : 'Recent Updates'}
-            </h3>
+            <h5 className=" font-semibold text-gray-800 mb-2">
+              {searchParams ? 'Search Results' : 'Recent Post'}
+            </h5>
 
             <PostList 
               refreshTrigger={refreshTrigger} 
