@@ -18,6 +18,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: User) => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -34,35 +35,37 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-export const AuthProvider = ({ children } : AuthProviderProps) => {
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const role = user?.role || 'USER';
 
+  const refreshUser = async () => {
+    try {
+      const response = await api.get('/Auth/me');
+      setUser(response.data);
+      setIsAuthenticated(true);
+    } catch (error) {
+      setUser(null);
+      setIsAuthenticated(false);
+    }
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
-      try {
-        const response = await api.get('/Auth/me');
-        setUser(response.data);
-        setIsAuthenticated(true);
-      } catch (error) {
-        setUser(null);
-        setIsAuthenticated(false);
-      }finally {
-        setIsLoading(false);
-      }
+      await refreshUser();
+      setIsLoading(false);
     };
     checkAuth();
   }, []);
 
   const login = async (email: string, password: string) => {
     try {
-      
-      const response = await api.post('/Auth/login', { email, password });
-      setUser(response.data);
-      setIsAuthenticated(true);
+      await api.post('/Auth/login', { email, password });
+      await refreshUser();
+
     } catch (error) {
       throw error;
     }
@@ -80,7 +83,18 @@ export const AuthProvider = ({ children } : AuthProviderProps) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, role, isAuthenticated,isLoading, login, logout, setUser }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        role,
+        isAuthenticated,
+        isLoading,
+        login,
+        logout,
+        setUser,
+        refreshUser
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
