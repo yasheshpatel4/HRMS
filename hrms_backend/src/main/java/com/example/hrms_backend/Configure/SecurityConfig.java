@@ -91,6 +91,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/Post/{postId}/like").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
                         .requestMatchers(HttpMethod.POST, "/Post/{postId}/comment").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/Post/{postId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/Post/update/{postId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+
 
                         .requestMatchers(HttpMethod.GET, "/Notification/{userId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/Notification/{notificationId}/read").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")

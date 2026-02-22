@@ -83,7 +83,16 @@ public class GameBookingService {
         if (participantIds.size() > maxOtherEmployees) {
             return ("Maximum " + maxOtherEmployees + " other employees can be added");
         }
-        int completedCount = bookingRepository.countCompletedSlotsByUser(userId, game.getGameId());
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = LocalDate.now().atTime(LocalTime.MAX);
+
+        int completedCount = bookingRepository.countCompletedSlotsByUserToday(
+                userId,
+                game.getGameId(),
+                startOfDay,
+                endOfDay
+        );
+//        int completedCount = bookingRepository.countCompletedSlotsByUser(userId, game.getGameId());
         Optional<Booking> activeBooking =
                 bookingRepository.findBySlotAndStatus(slot, BookingStatus.ACTIVE);
         if (completedCount == 0 && activeBooking.isEmpty()) {
@@ -114,6 +123,13 @@ public class GameBookingService {
                 "Slot Confirmed",
                 "Your slot for " +slot.getGame().getGameName()+ " at " + slot.getStartTime() + " is confirmed."
         );
+        for (User participant : booking.getParticipants()) {
+            emailService.sendEmail(
+                    participant.getEmail(),
+                    "You are added to a Slot",
+                    "you are added as participant by"+user.getName()
+            );
+        }
     }
 
     private void addToQueue(User user, Game game, int completedCount,Set<Long> participantIds) {
