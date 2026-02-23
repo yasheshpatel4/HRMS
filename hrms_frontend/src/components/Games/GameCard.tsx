@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Heart, Clock, Users, Settings } from 'lucide-react';
+import { Heart, Clock, Users, Settings, Trash2 } from 'lucide-react';
 import api from '../../api';
 
 interface Game {
@@ -23,6 +23,7 @@ interface Props {
 export const GameCard = ({ game, role, onSelect, onEdit }: Props) => {
   const [isInterested, setIsInterested] = useState(game.isInterested || false);
   const isAdmin = role === 'ADMIN' || role === 'HR';
+  const [isDeleted, setIsDeleted] = useState(false);
 
   const toggleInterest = async () => {
     const method = isInterested ? 'DELETE' : 'POST';
@@ -37,6 +38,19 @@ export const GameCard = ({ game, role, onSelect, onEdit }: Props) => {
       console.error("Failed to update interest:", error);
     }
   };
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this game?")) return;
+    
+    try {
+      await api(`/Game/${game.gameId}`, { method: 'DELETE' });
+      setIsDeleted(true);
+    } catch (error) {
+      console.error("Failed to delete game:", error);
+      alert("Error deleting game. Please try again.");
+    }
+  };
+
+  if (isDeleted) return null;
 
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100 p-5">
@@ -44,12 +58,20 @@ export const GameCard = ({ game, role, onSelect, onEdit }: Props) => {
         <h3 className="text-xl font-bold text-gray-800">{game.gameName}</h3>
         <div className="flex gap-2">
           {isAdmin && (
-            <button 
+            <>
+              <button 
               onClick={() => onEdit(game)} 
               className="text-blue-500 hover:bg-blue-50 p-1.5 rounded-full transition-colors"
             >
               <Settings size={20} />
             </button>
+            <button 
+                onClick={handleDelete} 
+                className="text-red-500 hover:bg-red-50 p-1.5 rounded-full transition-colors"
+              >
+                <Trash2 size={20} />
+              </button>
+            </>
           )}
           <button 
             onClick={toggleInterest}

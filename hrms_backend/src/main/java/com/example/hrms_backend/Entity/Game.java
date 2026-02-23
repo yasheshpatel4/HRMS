@@ -25,5 +25,6 @@ public class Game {
     @OneToOne(mappedBy = "game", cascade = CascadeType.ALL)
     @JsonManagedReference
     private GameConfiguration configuration;
+    private boolean isDeleted=false;
 }
 

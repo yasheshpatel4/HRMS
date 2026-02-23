@@ -39,13 +39,15 @@ public class GameService {
     private SlotRepository slotRepository;
 
     public List<Game> getAllGames(){
-        return gameRepository.findAll();
+        return gameRepository.findAllByIsDeletedFalse();
     }
     public Optional<Game> getGame(Long id){
         return gameRepository.findById(id);
     }
     public void deleteGame(Long id){
-        gameRepository.deleteById(id);
+        Game game=gameRepository.findById(id).orElseThrow(()->new RuntimeException("game not found"));
+        game.setDeleted(true);
+        gameRepository.save(game);
     }
 
     public GameConfiguration getGameConfiguration(Long gameId) {
@@ -110,7 +112,7 @@ public class GameService {
     public void generateDailySlots() {
         LocalDate targetDate = LocalDate.now();
 //        LocalDate targetDate = LocalDate.now().plusDays(1);
-        List<Game> allGames = gameRepository.findAll();
+        List<Game> allGames = gameRepository.findAllByIsDeletedFalse();
 
         for (Game game : allGames) {
             GameConfiguration config = game.getConfiguration();

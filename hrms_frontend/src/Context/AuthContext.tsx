@@ -48,8 +48,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(response.data);
       setIsAuthenticated(true);
     } catch (error) {
+      console.error("Session restoration failed:", error);
       setUser(null);
       setIsAuthenticated(false);
+    }finally {
+      setIsLoading(false);
     }
   };
 
@@ -67,7 +70,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       await refreshUser();
 
     } catch (error) {
-      throw error;
+      console.error("login failed:", error);
     }
   };
 

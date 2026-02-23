@@ -65,7 +65,6 @@ const ExpenseList = () => {
         }
         response = { data: allExpenses };
       }
-      console.log(response.data);
       setExpenses(response.data);
 
       const travelMap = new Map<number, Travel>();
