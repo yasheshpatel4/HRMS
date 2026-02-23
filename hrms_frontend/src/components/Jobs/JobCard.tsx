@@ -19,14 +19,14 @@ interface JobCardProps {
 
 const JobCard = ({ job, onShare, onRefer, onEdit, onDelete, canManage }: JobCardProps) => {
   return (
-    <div className="border rounded-lg p-4 shadow-md bg-white flex flex-col justify-between">
+    <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100 p-5">
       <div>
         <div className="flex justify-between items-start">
           <h3 className="text-xl font-bold mb-2">{job.title}</h3>
           {canManage && (
             <div className="flex space-x-1">
-              <button onClick={() => onEdit(job)} className="p-2 text-gray-500 hover:text-blue-600 transition"><Edit2 size={18} /></button>
-              <button onClick={() => onDelete(job.jobId)} className="p-2 text-gray-500 hover:text-red-600 transition"><Trash2 size={18} /></button>
+              <button onClick={() => onEdit(job)} className="text-blue-500 hover:bg-blue-50 p-1.5 rounded-full transition-colors"><Edit2 size={18} /></button>
+              <button onClick={() => onDelete(job.jobId)} className="text-red-500 hover:bg-red-50 p-1.5 rounded-full transition-colors"><Trash2 size={18} /></button>
             </div>
           )}
         </div>

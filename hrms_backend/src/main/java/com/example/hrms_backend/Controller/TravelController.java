@@ -93,4 +93,13 @@ public class TravelController {
     public ResponseEntity<String> getDocument(@PathVariable Long docId){
         return ResponseEntity.ok(travelService.getDocument(docId));
     }
+    @PutMapping("/{travelId}")
+    public ResponseEntity<Travel> updateTravel(@PathVariable Long travelId,@ModelAttribute Travel travel){
+        travel.setTravelId(travelId);
+        return ResponseEntity.ok(travelService.updateTravel(travel));
+    }
+    @DeleteMapping("/{travelId}")
+    public ResponseEntity<String> deleteTravel(@PathVariable Long travelId){
+        return ResponseEntity.ok(travelService.deleteTravel(travelId));
+    }
 }

@@ -4,6 +4,7 @@ import com.example.hrms_backend.Entity.Job;
 import com.example.hrms_backend.Entity.Referral;
 import com.example.hrms_backend.Entity.Share;
 import com.example.hrms_backend.Service.JobService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -58,7 +59,7 @@ public class JobController {
     }
 
     @PostMapping("/{jobId}/share")
-    public ResponseEntity<String> shareJob(@PathVariable Long jobId, @RequestBody List<String> recipientEmails) {
+    public ResponseEntity<String> shareJob(@PathVariable Long jobId, @Valid @RequestBody List<String> recipientEmails) {
         jobService.shareJob(jobId, recipientEmails);
         return ResponseEntity.ok("Shared");
     }

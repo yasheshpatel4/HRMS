@@ -42,4 +42,8 @@ public class Travel {
     @JsonIdentityReference(alwaysAsId = true)
     private Set<User> assignedUsers = new HashSet<>();
     private int budget;
+
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "bit default 0")
+    private boolean isDeleted = false;
+
 }

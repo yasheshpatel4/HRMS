@@ -3,10 +3,11 @@ import { useAuth } from '../../Context/AuthContext';
 import DocumentUpload from './DocumentUpload';
 import TravelForm from './TravelForm';
 import api from '../../api';
+import { Edit2, Trash2 } from 'lucide-react';
 
 interface Travel {
   travelId: number;
-  destination: string;
+  title: string;
   startDate: string;
   endDate: string;
   description: string;
@@ -24,10 +25,24 @@ const TravelList = ({ onNavigateToExpense }:TravelListProps) => {
   const [selectedTravel, setSelectedTravel] = useState<Travel | null>(null);
   const [documents, setDocuments] = useState<any[]>([]);
   const [showTravelForm, setShowTravelForm] = useState(false);
+  const [isDeleted, setIsDeleted] = useState(false);
 
   useEffect(() => {
     fetchTravels();
   }, [user, role]);
+
+  const handleDelete = async (travelId: number) => {
+    if (!window.confirm("Are you sure you want to delete this travel?")) return;
+    
+    try {
+      const response=await api(`/Travel/${travelId}`, { method: 'DELETE' });
+      setIsDeleted(true);
+      alert(response.data);
+    } catch (error) {
+      console.error("Failed to delete travel:", error);
+      alert("Error deleting travel. Please try again.");
+    }
+  };
 
   const fetchTravels = async () => {
     try {
@@ -88,10 +103,13 @@ const TravelList = ({ onNavigateToExpense }:TravelListProps) => {
         {travels.map((travel) => (
           <div key={travel.travelId} className="bg-white rounded-lg shadow-md p-6">
             <div className="flex justify-between items-start mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">{travel.destination}</h3>
-              <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                {travel.status}
-              </span>
+              <h3 className="text-lg font-semibold text-gray-800">{travel.title}</h3>
+              {(role === 'HR' || role === 'ADMIN') && (
+            <div className="flex space-x-1">
+              <button onClick={() => console.log("edit")} className="text-blue-500 hover:bg-blue-50 p-1.5 rounded-full transition-colors"><Edit2 size={18} /></button>
+              <button onClick={() => console.log(handleDelete(travel.travelId))} className="text-red-500 hover:bg-red-50 p-1.5 rounded-full transition-colors"><Trash2 size={18} /></button>
+            </div>
+            )} 
             </div>
 
             <div className="space-y-2 text-sm text-gray-600">
@@ -132,7 +150,7 @@ const TravelList = ({ onNavigateToExpense }:TravelListProps) => {
           <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium text-gray-900">
-                Documents for {selectedTravel.destination}
+                Documents for {selectedTravel.title}
               </h3>
               <button
                 onClick={() => setSelectedTravel(null)}

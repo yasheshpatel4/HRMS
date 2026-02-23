@@ -44,7 +44,7 @@ public class GameBookingService {
         Slot slot = booking.getSlot();
 
         if (LocalDateTime.now().isBefore(slot.getStartTime())) {
-            throw new RuntimeException("Cannot complete booking before slot end time");
+            throw new RuntimeException("Cannot complete booking before slot start time");
         }
         booking.setStatus(BookingStatus.COMPLETED);
         bookingRepository.save(booking);

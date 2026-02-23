@@ -103,11 +103,11 @@ const PostCard = ({ post, onDelete, onEdit, onCommentAdded, expanded = false, on
         {(isOwner || isHR || isADMIN) && (
           <div className="flex gap-2">
             {isOwner && (
-              <button onClick={() => onEdit(post)} className="p-2 text-gray-500 hover:text-blue-600 transition">
+              <button onClick={() => onEdit(post)} className="text-blue-500 hover:bg-blue-50 p-1.5 rounded-full transition-colors">
                 <Edit2 size={18} />
               </button>
             )}
-            <button onClick={handleDelete} className="p-2 text-gray-500 hover:text-red-600 transition">
+            <button onClick={handleDelete} className="text-red-500 hover:bg-red-50 p-1.5 rounded-full transition-colors">
               <Trash2 size={18} />
             </button>
           </div>

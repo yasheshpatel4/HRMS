@@ -25,11 +25,11 @@ export const ConfigModal = ({ game, onClose, onSave }: any) => {
           </div>
           <div>
             <label className="text-xs font-bold uppercase text-gray-500">Duration (Mins)</label>
-            <input type="number" className="w-full border p-2 rounded" value={formData.slotDurationMins} onChange={e => setFormData({...formData, slotDurationMins: parseInt(e.target.value)})} />
+            <input type="number" className="w-full border p-2 rounded" value={formData.slotDurationMins} onChange={e => setFormData({...formData, slotDurationMins: Number(e.target.value)})} />
           </div>
           <div>
             <label className="text-xs font-bold uppercase text-gray-500">Max Players</label>
-            <input type="number" className="w-full border p-2 rounded" value={formData.maxPlayers} onChange={e => setFormData({...formData, maxPlayers: parseInt(e.target.value)})} />
+            <input type="number" className="w-full border p-2 rounded" value={formData.maxPlayers} onChange={e => setFormData({...formData, maxPlayers: Number(e.target.value)})} />
           </div>
         </div>
         

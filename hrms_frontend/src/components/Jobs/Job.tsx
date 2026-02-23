@@ -31,9 +31,10 @@ const Job = () => {
     if (window.confirm("Are you sure you want to delete this job opening?")) {
       try {
         await api.delete(`/Job/${jobId}`);
-        setJobs(prev => prev.filter(j => j.jobId !== jobId));
+        // setJobs(prev => prev.filter(j => j.jobId !== jobId));
+        fetchJobs();
       } catch (err) {
-        alert("Failed to delete job.");
+        console.error(err);
       }
     }
   };
@@ -41,18 +42,17 @@ const Job = () => {
   const handleUpdateLocal = (updatedJob: Job) => {
     setJobs(prev => prev.map(j => j.jobId === updatedJob.jobId ? updatedJob : j));
   };
-
-  useEffect(() => {
-    const fetchJobs = async () => {
+  const fetchJobs = async () => {
       try {
         const response = await api.get('/Job/all');
         setJobs(response.data);
       } catch (err) {
-        setError('Failed to load jobs.');
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
+  useEffect(() => {
     fetchJobs();
   }, []);
 
@@ -81,21 +81,29 @@ const Job = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Job Management</h1>
 
-      {/* Navigation and Create Button Row */}
-      <div className="flex justify-between items-center mb-8 border-b">
+      <div className="flex justify-between items-center border-b">
         <div className="flex space-x-4">
           <button 
             onClick={() => { setView('jobs'); setShowForm(false); }} 
-            className={`pb-2 px-4 transition-colors ${view === 'jobs' ? 'border-b-2 border-blue-500 text-blue-600 font-bold' : 'text-gray-500 hover:text-blue-500'}`}
+            className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+              view === 'jobs' 
+                ? 'border-blue-500 text-blue-600' 
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
           >
             Job Openings
           </button>
           <button 
             onClick={() => { setView('referrals'); setShowForm(false); }} 
-            className={`pb-2 px-4 transition-colors ${view === 'referrals' ? 'border-b-2 border-blue-500 text-blue-600 font-bold' : 'text-gray-500 hover:text-blue-500'}`}
+            className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+              view === 'referrals' 
+                ? 'border-blue-500 text-blue-600' 
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
           >
-            {isManagement ? 'All Referrals' : 'My Referrals'}
+            Referrals
           </button>
+
         </div>
 
         {/* Create Job Button on the right side */}

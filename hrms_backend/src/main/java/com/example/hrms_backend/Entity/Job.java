@@ -26,7 +26,7 @@ public class Job {
     private String jdFilePath;
 
     @Email
-    private String hrEmail;
+    private String hrEmail="dl.india.hr@gmail.com";
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(

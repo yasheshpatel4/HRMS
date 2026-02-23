@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -47,16 +48,24 @@ public class TravelService {
     }
 
     public List<Travel> getAllTravel() {
-        return travelRepository.findAll();
+        return travelRepository.findByIsDeletedFalse();
     }
 
 
-    public String deleteTravel(Travel travel) {
-        travelRepository.delete(travel);
+    public String deleteTravel(Long travelId) {
+        Travel travel=travelRepository.findById(travelId).orElseThrow(()->new RuntimeException("travel not found"));
+        if(travel.getStartDate().isBefore(LocalDate.now())){
+            return "Can not delete after start date!";
+        }
+        travel.setDeleted(true);
+        travelRepository.save(travel);
         return "successful";
     }
 
     public Travel updateTravel(Travel travel) {
+        if(travel.getStartDate().isBefore(LocalDate.now())){
+            throw new RuntimeException("Can not update after start date");
+        }
         return travelRepository.findById(travel.getTravelId())
                 .map(existingTravel -> {
 //                    existingTravel.setAssignedUsers(travel.getAssignedUsers());
