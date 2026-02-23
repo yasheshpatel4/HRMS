@@ -15,8 +15,8 @@ const Travel = () => {
   };
 
   const tabs = [
-    { id: 'travels', label: 'Travel Assignments', roles: ['EMPLOYEE', 'MANAGER', 'HR'] },
-    { id: 'expenses', label: 'Expense Management', roles: ['EMPLOYEE', 'MANAGER', 'HR'] },
+    { id: 'travels', label: 'Travel Assignments', roles: ['EMPLOYEE', 'MANAGER', 'HR','ADMIN'] },
+    { id: 'expenses', label: 'Expense Management', roles: ['EMPLOYEE', 'MANAGER', 'HR','ADMIN'] },
   ];
 
   const filteredTabs = tabs.filter(tab => tab.roles.includes(role));

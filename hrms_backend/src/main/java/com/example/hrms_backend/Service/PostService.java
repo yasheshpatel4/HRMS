@@ -9,7 +9,9 @@ import com.example.hrms_backend.Repository.CommentRepository;
 import com.example.hrms_backend.Repository.PostRepository;
 import com.example.hrms_backend.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -51,12 +53,20 @@ public class PostService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("user not found"));
         Post post = postRepository.findById(id).orElseThrow(() -> new RuntimeException("post not found"));
-        if (!post.getOwner().equals(currentUser) && !currentUser.getRole().name().equals("HR")) {
+        String role = currentUser.getRole().name();
+        boolean isOwner = post.getOwner().equals(currentUser);
+        boolean hasAuthority = role.equals("HR") || role.equals("ADMIN");
+
+        if (!isOwner && !hasAuthority) {
             throw new RuntimeException("You do not have permission to delete this post");
         }
-        if (currentUser.getRole().name().equals("HR") && !post.getOwner().equals(currentUser)) {
-            emailService.sendEmail(post.getOwner().getEmail(), "Warning: Post Deleted by HR",
-                    "Your post titled '" + post.getTitle() + "' has been deleted by HR for inappropriate content.");
+
+        if (hasAuthority && !isOwner) {
+            emailService.sendEmail(
+                    post.getOwner().getEmail(),
+                    "Warning: Post Deleted by " + role,
+                    "Your post titled '" + post.getTitle() + "' has been deleted by " + role + " for inappropriate content."
+            );
         }
         post.setIsDeleted(true);
         post.setDeletedBy(currentUser.getEmail());
@@ -132,9 +142,11 @@ public class PostService {
     public List<Post> searchPosts(String author, String tag, LocalDateTime startDate, LocalDateTime endDate) {
         return postRepository.searchPosts(author, tag, startDate, endDate);
     }
-    @Scheduled(cron = "0 0 0 * * ?")
+    @Scheduled(cron = "0 1 0 * * *")
+    @EventListener(ApplicationReadyEvent.class)
     public void generateCelebrationPosts() {
         LocalDate today = LocalDate.now();
+        LocalDateTime startOfToday = today.atStartOfDay();
 
         List<User> usersWithBirthday = userRepository.findAll().stream()
                 .filter(user -> user.getDob() != null &&
@@ -143,15 +155,20 @@ public class PostService {
                 .toList();
 
         for (User user : usersWithBirthday) {
-            Post birthdayPost = new Post();
-            birthdayPost.setTitle("Happy Birthday!");
-            birthdayPost.setContent("Today is " + user.getName() + "'s birthday! Wish them a happy birthday.");
-            birthdayPost.setDescription("System-generated birthday post");
-            birthdayPost.setOwner(user);
-            birthdayPost.setCreatedAt(LocalDateTime.now());
-            birthdayPost.setVisibility("all");
-            birthdayPost.setIsSystemGenerated(true);
-            postRepository.save(birthdayPost);
+            boolean alreadyExists = postRepository.existsByOwnerAndTitleAndCreatedAtAfter(
+                    user, "Happy Birthday!", startOfToday);
+
+            if (!alreadyExists) {
+                Post birthdayPost = new Post();
+                birthdayPost.setTitle("Happy Birthday!");
+                birthdayPost.setContent("Today is " + user.getName() + "'s birthday! Wish them a happy birthday.");
+                birthdayPost.setDescription("System-generated birthday post");
+                birthdayPost.setOwner(user);
+                birthdayPost.setCreatedAt(LocalDateTime.now());
+                birthdayPost.setVisibility("all");
+                birthdayPost.setIsSystemGenerated(true);
+                postRepository.save(birthdayPost);
+            }
         }
 
         List<User> usersWithAnniversary = userRepository.findAll().stream()
@@ -163,16 +180,19 @@ public class PostService {
                 .toList();
 
         for (User user : usersWithAnniversary) {
-            long years = ChronoUnit.YEARS.between(user.getDoj(), today);
-            Post anniversaryPost = new Post();
-            anniversaryPost.setTitle("Work Anniversary!");
-            anniversaryPost.setContent(user.getName() + " completes " + years + " years at the organization. Congratulations!");
-            anniversaryPost.setDescription("System-generated anniversary post");
-            anniversaryPost.setOwner(user);
-            anniversaryPost.setCreatedAt(LocalDateTime.now());
-            anniversaryPost.setVisibility("all");
-            anniversaryPost.setIsSystemGenerated(true);
-            postRepository.save(anniversaryPost);
+            boolean exists = postRepository.existsByOwnerAndTitleAndCreatedAtAfter(user,"Work Anniversary!", startOfToday);
+            if(!exists) {
+                long years = ChronoUnit.YEARS.between(user.getDoj(), today);
+                Post anniversaryPost = new Post();
+                anniversaryPost.setTitle("Work Anniversary!");
+                anniversaryPost.setContent(user.getName() + " completes " + years + " years at the organization. Congratulations!");
+                anniversaryPost.setDescription("System-generated anniversary post");
+                anniversaryPost.setOwner(user);
+                anniversaryPost.setCreatedAt(LocalDateTime.now());
+                anniversaryPost.setVisibility("all");
+                anniversaryPost.setIsSystemGenerated(true);
+                postRepository.save(anniversaryPost);
+            }
         }
     }
 

@@ -40,7 +40,7 @@ const ReferralList = ({ role }: { role: string | null }) => {
           <tr>
             <th className="px-6 py-3 text-left">Candidate</th>
             <th className="px-6 py-3 text-left">Job</th>
-            {role === 'HR' && <th className="px-6 py-3 text-left">Referred By</th>}
+            {(role === 'HR'|| role === 'ADMIN') && <th className="px-6 py-3 text-left">Referred By</th>}
             <th className="px-6 py-3 text-left">Status</th>
             <th className="px-6 py-3 text-left">Actions</th>
           </tr>
@@ -50,7 +50,7 @@ const ReferralList = ({ role }: { role: string | null }) => {
             <tr key={ref.referralId} className="border-t">
               <td className="px-6 py-4">{ref.friendName}<br/><span className="text-xs text-gray-500">{ref.friendEmail}</span></td>
               <td className="px-6 py-4">{ref.job.title}</td>
-              {role === 'HR' && <td className="px-6 py-4">{ref.referrer?.name}</td>}
+              {(role === 'HR'|| role === 'ADMIN') && <td className="px-6 py-4">{ref.referrer?.name}</td>}
               <td className="px-6 py-4">
                 <span className={`px-2 py-1 rounded text-sm ${ref.status === 'Pending' ? 'bg-yellow-100' : 'bg-green-100'}`}>
                   {ref.status}
@@ -58,7 +58,7 @@ const ReferralList = ({ role }: { role: string | null }) => {
               </td>
               <td className="px-6 py-4 flex space-x-2">
                 <a href={ref.cvFilePath} target="_blank" className="text-blue-500 underline">CV</a>
-                {role === 'HR' && (
+                {(role === 'HR'|| role === 'ADMIN') && (
                   <select 
                     value={ref.status} 
                     onChange={(e) => handleStatusChange(ref.referralId, e.target.value)}

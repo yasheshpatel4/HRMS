@@ -218,9 +218,7 @@ public class JobService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        boolean isHr = user.getRole()==Role.HR;
-
-        if (isHr) {
+        if (user.getRole()==Role.HR || user.getRole()==Role.ADMIN) {
             return referralRepository.findAll();
         } else {
             return referralRepository.findByReferrerUserId(user.getUserId());

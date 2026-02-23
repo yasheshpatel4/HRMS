@@ -45,8 +45,10 @@ const ExpenseList = () => {
       let response;
       if (role === 'HR') {
         response = await api.get(`/Travel/Expense/hr/${user?.userId}`);
-      } else {
-
+      } else if(role==='ADMIN'){
+        response = await api.get(`/Travel/Expense/all`);
+      } 
+      else {
         const travelResponse = await api.get(`/Travel/user/${user?.userId}`);
         const userTravels = travelResponse.data;
 
@@ -58,7 +60,7 @@ const ExpenseList = () => {
               allExpenses.push(...expenseResponse.data);
             }
           } catch (error) {
-
+              console.log(error);
           }
         }
         response = { data: allExpenses };
@@ -152,7 +154,7 @@ const ExpenseList = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Travel
                 </th>
-                {role === 'HR' && (
+                {(role === 'HR'|| role === 'ADMIN') && (
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Submitted By
                   </th>

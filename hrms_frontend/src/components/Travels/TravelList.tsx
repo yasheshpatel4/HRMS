@@ -35,8 +35,8 @@ const TravelList = ({ onNavigateToExpense }:TravelListProps) => {
       if (role == 'HR') {
         response = await api.get(`/Travel/HR/${user?.userId}`);
       }
-      else if(role =='MANAGER' || role == 'ADMIN'){
-         response = await api.get(`/Travel/HR/all`);       
+      else if( role == 'ADMIN'){
+         response = await api.get(`/Travel/all`);       
       } else {
         response = await api.get(`/Travel/user/${user?.userId}`);
       }

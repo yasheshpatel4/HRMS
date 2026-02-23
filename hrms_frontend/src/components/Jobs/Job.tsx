@@ -21,6 +21,7 @@ const Job = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [view, setView] = useState<'jobs' | 'referrals'>('jobs');
+  const [showForm, setShowForm] = useState(false); // State to toggle form
   const [shareModal, setShareModal] = useState<{ isOpen: boolean; jobId: number | null }>({ isOpen: false, jobId: null });
   const [referModal, setReferModal] = useState<{ isOpen: boolean; jobId: number | null }>({ isOpen: false, jobId: null });
   const { role } = useAuth();
@@ -74,29 +75,51 @@ const Job = () => {
   if (loading) return <div className="text-center py-8">Loading jobs...</div>;
   if (error) return <div className="text-center py-8 text-red-500">{error}</div>;
 
+  const isManagement = role === 'HR' || role === 'ADMIN';
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Job Management</h1>
 
-      <div className="flex space-x-4 mb-8 border-b">
-        <button 
-          onClick={() => setView('jobs')} 
-          className={`pb-2 px-4 transition-colors ${view === 'jobs' ? 'border-b-2 border-blue-500 text-blue-600 font-bold' : 'text-gray-500 hover:text-blue-500'}`}
-        >
-          Job Openings
-        </button>
-        <button 
-          onClick={() => setView('referrals')} 
-          className={`pb-2 px-4 transition-colors ${view === 'referrals' ? 'border-b-2 border-blue-500 text-blue-600 font-bold' : 'text-gray-500 hover:text-blue-500'}`}
-        >
-          {role === 'HR' ? 'All Referrals' : 'My Referrals'}
-        </button>
+      {/* Navigation and Create Button Row */}
+      <div className="flex justify-between items-center mb-8 border-b">
+        <div className="flex space-x-4">
+          <button 
+            onClick={() => { setView('jobs'); setShowForm(false); }} 
+            className={`pb-2 px-4 transition-colors ${view === 'jobs' ? 'border-b-2 border-blue-500 text-blue-600 font-bold' : 'text-gray-500 hover:text-blue-500'}`}
+          >
+            Job Openings
+          </button>
+          <button 
+            onClick={() => { setView('referrals'); setShowForm(false); }} 
+            className={`pb-2 px-4 transition-colors ${view === 'referrals' ? 'border-b-2 border-blue-500 text-blue-600 font-bold' : 'text-gray-500 hover:text-blue-500'}`}
+          >
+            {isManagement ? 'All Referrals' : 'My Referrals'}
+          </button>
+        </div>
+
+        {/* Create Job Button on the right side */}
+        {isManagement && (
+          <button
+            onClick={() => { setView('jobs'); setShowForm(!showForm); }}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors mb-2"
+          >
+            {showForm ? 'Close Form' : 'Create Job Opening'}
+          </button>
+        )}
       </div>
 
       {view === 'jobs' ? (
         <>
-          {role === 'HR' && <JobForm />}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
+          {/* Conditional Form Rendering */}
+          {showForm && isManagement && (
+            <div className="mb-10 p-6 bg-gray-50 rounded-lg border border-gray-200">
+              <h2 className="text-xl font-semibold mb-4">Post a New Job</h2>
+              <JobForm />
+            </div>
+          )}
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {jobs.map((job) => (
               <JobCard 
                 key={job.jobId} 
@@ -105,7 +128,7 @@ const Job = () => {
                 onRefer={handleRefer}
                 onEdit={(j) => setEditingJob(j)}
                 onDelete={handleDelete}
-                canManage={role === 'HR'}
+                canManage={isManagement}
               />
             ))}
           </div>
@@ -114,6 +137,7 @@ const Job = () => {
         <ReferralList role={role} />
       )}
 
+      {/* Modals */}
       {editingJob && (
         <EditJobModal 
           job={editingJob} 
@@ -122,16 +146,8 @@ const Job = () => {
         />
       )}
       
-      <ShareModal
-        jobId={shareModal.jobId!}
-        isOpen={shareModal.isOpen}
-        onClose={closeShareModal}
-      />
-      <ReferModal
-        jobId={referModal.jobId!}
-        isOpen={referModal.isOpen}
-        onClose={closeReferModal}
-      />
+      <ShareModal jobId={shareModal.jobId!} isOpen={shareModal.isOpen} onClose={closeShareModal} />
+      <ReferModal jobId={referModal.jobId!} isOpen={referModal.isOpen} onClose={closeReferModal} />
     </div>
   );
 };

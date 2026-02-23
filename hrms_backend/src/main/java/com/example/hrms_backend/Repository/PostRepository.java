@@ -2,6 +2,7 @@ package com.example.hrms_backend.Repository;
 
 import com.example.hrms_backend.Entity.Comment;
 import com.example.hrms_backend.Entity.Post;
+import com.example.hrms_backend.Entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,4 +24,7 @@ public interface PostRepository extends JpaRepository<Post,Long> {
     List<Post> searchPosts( String author, String tag, LocalDateTime startDate, LocalDateTime endDate);
 
     Page<Post> findAllByIsDeletedFalse(Pageable pageable);
+
+    boolean existsByOwnerAndTitleAndCreatedAtAfter(User owner, String title, LocalDateTime date);
+
 }

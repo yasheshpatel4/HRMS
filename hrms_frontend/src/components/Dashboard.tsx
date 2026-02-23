@@ -82,9 +82,9 @@ const Dashboard = () => {
             <button className="flex items-center gap-1 hover:text-blue-600 transition-colors">
               <Globe size={14} /> Support
             </button>
-            <a className="flex items-center gap-1 hover:text-blue-600 transition-colors">
+            <p className="flex items-center gap-1 hover:text-blue-600 transition-colors">
               <Mail size={14} /> Contact
-            </a>
+            </p>
           </div>
 
           <div className="text-sm text-slate-400 font-medium">

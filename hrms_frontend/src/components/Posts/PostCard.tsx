@@ -21,6 +21,7 @@ const PostCard = ({ post, onDelete, onEdit, onCommentAdded, expanded = false, on
 
   const isOwner = user?.userId == post.owner?.userId;
   const isHR = role =='HR';
+  const isADMIN= role == 'ADMIN';
   const isLiked = post.likedBy?.some((u: any) => u.userId === user?.userId);
 
   const handleLike = async () => {
@@ -99,7 +100,7 @@ const PostCard = ({ post, onDelete, onEdit, onCommentAdded, expanded = false, on
           )}
         </div>
 
-        {(isOwner || isHR) && (
+        {(isOwner || isHR || isADMIN) && (
           <div className="flex gap-2">
             {isOwner && (
               <button onClick={() => onEdit(post)} className="p-2 text-gray-500 hover:text-blue-600 transition">
