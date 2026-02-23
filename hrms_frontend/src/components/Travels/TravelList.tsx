@@ -50,7 +50,7 @@ const TravelList = ({ onNavigateToExpense }:TravelListProps) => {
       if (role == 'HR') {
         response = await api.get(`/Travel/HR/${user?.userId}`);
       }
-      else if( role == 'ADMIN'){
+      else if( role == 'ADMIN' || role == 'MANAGER'){
          response = await api.get(`/Travel/all`);       
       } else {
         response = await api.get(`/Travel/user/${user?.userId}`);

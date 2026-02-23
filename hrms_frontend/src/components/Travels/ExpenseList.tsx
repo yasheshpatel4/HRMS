@@ -46,7 +46,7 @@ const ExpenseList = () => {
       let response;
       if (role === 'HR') {
         response = await api.get(`/Travel/Expense/hr/${user?.userId}`);
-      } else if(role==='ADMIN'){
+      } else if(role==='ADMIN' || role === 'MANAGER'){
         response = await api.get(`/Travel/Expense/all`);
       } 
       else {
@@ -165,7 +165,7 @@ const ExpenseList = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Travel
                 </th>
-                {(role === 'HR'|| role === 'ADMIN') && (
+                {(role === 'HR'|| role === 'ADMIN' || role=== 'MANAGER') && (
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Submitted By
                   </th>
