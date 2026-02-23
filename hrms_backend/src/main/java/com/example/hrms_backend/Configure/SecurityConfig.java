@@ -70,6 +70,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/Travel/Expense/{expenseId}/upload-proof").hasAnyAuthority("EMPLOYEE","ADMIN","HR")
                         .requestMatchers(HttpMethod.GET, "/Travel/Expense/{expenseId}/proofs").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/Travel/Expense/proof/{proofId}/url").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/Travel/Expense/{expenseId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
 
                         .requestMatchers(HttpMethod.GET, "/User/orgchart/{id}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/User/allUser").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")

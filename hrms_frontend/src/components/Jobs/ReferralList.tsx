@@ -29,7 +29,7 @@ const ReferralList = ({ role }: { role: string | null }) => {
       });
       setReferrals(prev => prev.map(r => r.referralId === id ? { ...r, status: newStatus } : r));
     } catch (err) {
-      alert("Failed to update status");
+      console.error(err);
     }
   };
 

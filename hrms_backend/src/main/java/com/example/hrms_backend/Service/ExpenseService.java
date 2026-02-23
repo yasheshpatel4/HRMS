@@ -45,7 +45,7 @@ public class ExpenseService {
     }
 
     public List<Expense> getAll() {
-        return expenseRepository.findAll();
+        return expenseRepository.findAllByIsDeletedFalse();
     }
 
     public Expense addExpense(Expense expense) {
@@ -74,7 +74,14 @@ public class ExpenseService {
 }
 
     public void deleteExpense(Long id){
-        expenseRepository.deleteById(id);
+        Expense expense = expenseRepository.findById(id).orElseThrow(()->new RuntimeException("expense not found"));
+        expense.setIsDeleted(true);
+        User hr=expense.getTravel().getCreatedBy();
+        notificationService.createNotification(
+                hr.getUserId(),
+                "Expense",
+                "New expense:"+expense.getExpenseId()+"is deleted by user");
+        expenseRepository.save(expense);
     }
 
     @Transactional
@@ -82,6 +89,9 @@ public class ExpenseService {
         String email=SecurityContextHolder.getContext().getAuthentication().getName();
         User user=userRepository.findByEmail(email).orElseThrow(()->new RuntimeException("user not found"));
         Expense expense=expenseRepository.findById(id).orElseThrow(()->new RuntimeException("Expense not found"));
+        if(expense.getIsDeleted()==true){
+            throw new RuntimeException("Expense is already deleted by Employee");
+        }
         expense.setStatus("APPROVED");
         expense.setProcessedAt(LocalDateTime.now());
         expense.setProcessedBy(user);

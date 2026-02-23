@@ -99,7 +99,7 @@ export const GameCard = ({ game, role, onSelect, onEdit }: Props) => {
 
       <button 
         onClick={() => onSelect(game.gameId)} 
-        className="w-full mt-6 bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm"
+        className="w-full mt-6 bg-gray-600 text-white py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors shadow-sm"
       >
         View Slots
       </button>

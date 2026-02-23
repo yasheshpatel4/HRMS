@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../Context/AuthContext';
 import api from '../../api';
+import { Trash2 } from 'lucide-react';
 
 interface Expense {
   expenseId: number;
@@ -108,6 +109,17 @@ const ExpenseList = () => {
       setSelectedExpense(expenses.find(exp => exp.expenseId == expenseId) || null);
     } catch (error) {
       console.error('Error fetching proofs:', error);
+    }
+  };
+
+  const handleDelete = async (expenseId: number) => {
+    if (window.confirm("Are you sure you want to delete this travel expense?")) {
+        try {
+          await api.delete(`/Travel/Expense/${expenseId}`);
+          await fetchExpenses();
+        } catch (error) {
+          console.error('Error fetching proofs:', error);
+        }
     }
   };
 
@@ -232,6 +244,15 @@ const ExpenseList = () => {
                           Reject
                         </button>
                       </>
+                    )}
+                    {role === 'EMPLOYEE' && expense.status == 'PENDING' &&(
+                      <button 
+                        onClick={() => handleDelete(expense.expenseId)} 
+                        className="text-gray-600 hover:text-red-600 transition-colors"
+                        title="Delete Expense"
+                      >
+                        <Trash2 size={18} />
+                      </button>
                     )}
                   </td>
                 </tr>

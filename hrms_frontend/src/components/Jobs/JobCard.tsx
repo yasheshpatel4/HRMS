@@ -1,3 +1,4 @@
+import { Edit2, Trash2 } from "lucide-react";
 
 interface Job {
   jobId: number;
@@ -24,8 +25,8 @@ const JobCard = ({ job, onShare, onRefer, onEdit, onDelete, canManage }: JobCard
           <h3 className="text-xl font-bold mb-2">{job.title}</h3>
           {canManage && (
             <div className="flex space-x-1">
-              <button onClick={() => onEdit(job)} className="p-1 text-blue-600 hover:bg-blue-50 rounded">Edit</button>
-              <button onClick={() => onDelete(job.jobId)} className="p-1 text-red-600 hover:bg-red-50 rounded">Delete</button>
+              <button onClick={() => onEdit(job)} className="p-2 text-gray-500 hover:text-blue-600 transition"><Edit2 size={18} /></button>
+              <button onClick={() => onDelete(job.jobId)} className="p-2 text-gray-500 hover:text-red-600 transition"><Trash2 size={18} /></button>
             </div>
           )}
         </div>
