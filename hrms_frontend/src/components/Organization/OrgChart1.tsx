@@ -31,6 +31,7 @@ const OrgChart1 = () => {
             if (userData.length > 0) setSelectedUserId(user?.userId  || userData[0].userId);
         } catch (err) {
             setError('Failed to load organization chart');
+            console.error(err);
         } finally {
             setLoading(false);
         }

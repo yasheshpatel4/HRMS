@@ -31,6 +31,7 @@ const PostCard = ({ post, onDelete, onEdit, onCommentAdded, expanded = false, on
       onCommentAdded(); 
     } catch (err) {
       setError('Failed to like post');
+      console.error(err);
     } finally {
       setLiking(false);
     }
@@ -49,6 +50,7 @@ const PostCard = ({ post, onDelete, onEdit, onCommentAdded, expanded = false, on
       onCommentAdded(); 
     } catch (err) {
       setError('Failed to add comment');
+      console.error(err);
     } finally {
       setCommenting(false);
     }
@@ -61,6 +63,7 @@ const PostCard = ({ post, onDelete, onEdit, onCommentAdded, expanded = false, on
         onDelete(post.postId);
       } catch (err) {
         setError('Failed to delete post');
+        console.error(err);
       }
     }
   };

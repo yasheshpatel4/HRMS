@@ -40,6 +40,7 @@ const ReferModal = ({ jobId, isOpen, onClose }:ReferModalProps) => {
       onClose();
     } catch (err) {
       setError('Failed to submit referral. Please try again.');
+      console.error(err);
     } finally {
       setLoading(false);
     }

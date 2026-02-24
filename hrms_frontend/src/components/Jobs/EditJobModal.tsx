@@ -10,7 +10,7 @@ const EditJobModal = ({ job, onClose, onUpdate }: { job: any, onClose: () => voi
     jdFilePath: job.jdFilePath || '',
     hrEmail: job.hrEmail || ''
   });
-  const [emails, setEmails] = useState<string>(""); // Comma separated string
+  const [emails, setEmails] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {

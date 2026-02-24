@@ -21,7 +21,7 @@ const Job = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [view, setView] = useState<'jobs' | 'referrals'>('jobs');
-  const [showForm, setShowForm] = useState(false); // State to toggle form
+  const [showForm, setShowForm] = useState(false);
   const [shareModal, setShareModal] = useState<{ isOpen: boolean; jobId: number | null }>({ isOpen: false, jobId: null });
   const [referModal, setReferModal] = useState<{ isOpen: boolean; jobId: number | null }>({ isOpen: false, jobId: null });
   const { role } = useAuth();
@@ -31,7 +31,6 @@ const Job = () => {
     if (window.confirm("Are you sure you want to delete this job opening?")) {
       try {
         await api.delete(`/Job/${jobId}`);
-        // setJobs(prev => prev.filter(j => j.jobId !== jobId));
         fetchJobs();
       } catch (err) {
         console.error(err);
@@ -120,7 +119,6 @@ const Job = () => {
         <>
           {showForm && isManagement && (
             <div className="mb-10 p-6 bg-gray-50 rounded-lg border border-gray-200">
-              <h2 className="text-xl font-semibold mb-4">Post a New Job</h2>
               <JobForm />
             </div>
           )}

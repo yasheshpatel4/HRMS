@@ -58,7 +58,11 @@ const ExpenseList = () => {
           try {
             const expenseResponse = await api.get(`/Travel/Expense/${user?.userId}/${travel.travelId}`);
             if (expenseResponse.data) {
-              allExpenses.push(...expenseResponse.data);
+              const myOwnExpenses = expenseResponse.data.filter(
+              (exp: Expense) => exp.user?.userId === user?.userId
+              );
+        
+              allExpenses.push(...myOwnExpenses);
             }
           } catch (error) {
               console.log(error);

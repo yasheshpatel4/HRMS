@@ -12,8 +12,6 @@ const encryptPassword = (password: string): string => {
   return encrypted.toString();
 };
 
-
-
 interface User {
   userId: number;
   name: string;
@@ -61,6 +59,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(response.data);
       setIsAuthenticated(true);
     } catch (error) {
+      console.error(error);
       setUser(null);
       setIsAuthenticated(false);
     }
@@ -81,7 +80,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       await refreshUser();
 
     } catch (error) {
-      throw error;
+      console.error(error);
     }
   };
 

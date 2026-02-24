@@ -34,6 +34,7 @@ const ShareModal = ({ jobId, isOpen, onClose }:ShareModalProps) => {
       onClose();
     } catch (err) {
       setError('Failed to share job. Please try again.');
+      console.error(err);
     } finally {
       setLoading(false);
     }
