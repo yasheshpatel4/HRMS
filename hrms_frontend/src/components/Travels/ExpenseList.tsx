@@ -196,6 +196,7 @@ const ExpenseList = () => {
                       {travels.get(expense.travel.travelId)?.title || `Travel ${expense.travel.travelId}`}
                     </div>
                   </td>
+                  {(role === 'HR'|| role === 'ADMIN' || role=== 'MANAGER') && (
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
                       {expense.user?.name || 'Unknown'}
@@ -204,6 +205,7 @@ const ExpenseList = () => {
                        ID: {expense.user?.userId || expense.userId}
                     </div>
                   </td>
+                  )}
 
                   <td className="px-6 py-4 whitespace-nowrap">
 

@@ -106,7 +106,6 @@ const Job = () => {
 
         </div>
 
-        {/* Create Job Button on the right side */}
         {isManagement && (
           <button
             onClick={() => { setView('jobs'); setShowForm(!showForm); }}
@@ -119,7 +118,6 @@ const Job = () => {
 
       {view === 'jobs' ? (
         <>
-          {/* Conditional Form Rendering */}
           {showForm && isManagement && (
             <div className="mb-10 p-6 bg-gray-50 rounded-lg border border-gray-200">
               <h2 className="text-xl font-semibold mb-4">Post a New Job</h2>
@@ -145,7 +143,6 @@ const Job = () => {
         <ReferralList role={role} />
       )}
 
-      {/* Modals */}
       {editingJob && (
         <EditJobModal 
           job={editingJob} 

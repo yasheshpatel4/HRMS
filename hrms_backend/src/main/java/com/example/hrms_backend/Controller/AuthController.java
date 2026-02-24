@@ -6,6 +6,11 @@ import com.example.hrms_backend.Entity.User;
 import com.example.hrms_backend.Service.JwtService;
 import com.example.hrms_backend.Service.RefreshTokenService;
 import com.example.hrms_backend.Service.userService;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +23,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,11 +39,31 @@ public class AuthController {
     @Autowired
     userService userservice;
 
+    private static final String SECRET_KEY = "MySecretKey12345"; 
+
+    private String decryptPassword(String encryptedData) throws Exception {
+        SecretKeySpec keySpec = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), "AES");
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, keySpec);
+        byte[] decoded = Base64.getDecoder().decode(encryptedData);
+        byte[] decrypted = cipher.doFinal(decoded);
+        return new String(decrypted, StandardCharsets.UTF_8);
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserDTO user, HttpServletResponse response) {
+        String decryptedPassword;
+        try {
+            decryptedPassword = decryptPassword(user.getPassword());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to decrypt password", e);
+        }
+
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword())
+                new UsernamePasswordAuthenticationToken(user.getEmail(), decryptedPassword)
         );
+
+
 
         if (authentication.isAuthenticated()) {
             String accessToken = jwtService.generateToken(user.getEmail());

@@ -7,7 +7,7 @@ import EditPostModal from './EditPostModal';
 interface PostListProps {
   filter?: 'all';
   refreshTrigger?: number;
-  searchParams?: any; // Added to receive filters from PostSearch
+  searchParams?: any; 
 }
 
 const PostList = ({ filter = 'all', refreshTrigger = 0, searchParams = null }: PostListProps) => {
@@ -43,11 +43,9 @@ const PostList = ({ filter = 'all', refreshTrigger = 0, searchParams = null }: P
     setError('');
 
     try {
-      // Determine endpoint based on whether searchParams exist
       const baseUrl = searchParams ? '/Post/search' : '/Post/all';
       
       const params = new URLSearchParams();
-      // If searching, spread the filters into the params
       if (searchParams) {
         Object.entries(searchParams).forEach(([key, value]) => {
           if (value) params.append(key, value as string);
@@ -74,14 +72,12 @@ const PostList = ({ filter = 'all', refreshTrigger = 0, searchParams = null }: P
     }
   };
 
-  // Trigger reset and initial fetch when filter, search, or refresh happens
   useEffect(() => {
     setPage(0);
     setHasMore(true);
     fetchPosts(0, true);
-  }, [filter, refreshTrigger, JSON.stringify(searchParams)]); // Stringify params to detect deep changes
+  }, [filter, refreshTrigger, JSON.stringify(searchParams)]); 
 
-  // Pagination trigger
   useEffect(() => {
     if (page > 0) {
       fetchPosts(page);

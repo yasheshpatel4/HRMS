@@ -1,5 +1,18 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+ import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import api from '../api';
+import CryptoJS from 'crypto-js';
+
+const SECRET_KEY = 'MySecretKey12345'; 
+
+const encryptPassword = (password: string): string => {
+  const encrypted = CryptoJS.AES.encrypt(password, CryptoJS.enc.Utf8.parse(SECRET_KEY), {
+    mode: CryptoJS.mode.ECB,
+    padding: CryptoJS.pad.Pkcs7
+  });
+  return encrypted.toString();
+};
+
+
 
 interface User {
   userId: number;
@@ -48,11 +61,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(response.data);
       setIsAuthenticated(true);
     } catch (error) {
-      console.error("Session restoration failed:", error);
       setUser(null);
       setIsAuthenticated(false);
-    }finally {
-      setIsLoading(false);
     }
   };
 
@@ -66,13 +76,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const login = async (email: string, password: string) => {
     try {
-      await api.post('/Auth/login', { email, password });
+      const encryptedPassword = encryptPassword(password);
+      await api.post('/Auth/login', { email, password: encryptedPassword });
       await refreshUser();
 
     } catch (error) {
-      console.error("login failed:", error);
+      throw error;
     }
   };
+
 
   const logout = async () => {
     try {
