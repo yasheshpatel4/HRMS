@@ -2,6 +2,7 @@ package com.example.hrms_backend.Service;
 
 import com.example.hrms_backend.DTO.UserDTO;
 import com.example.hrms_backend.Entity.User;
+import com.example.hrms_backend.ExceptionHandler.ResourceNotFoundException;
 import com.example.hrms_backend.Repository.UserRepository;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,7 +38,7 @@ public class userService implements UserDetailsService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User currentUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException( "User not found"));
         return currentUser;
     }
 
