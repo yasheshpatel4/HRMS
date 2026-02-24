@@ -64,7 +64,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/Travel/Document/{docId}/url").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
 
                         .requestMatchers(HttpMethod.POST, "/Travel/Expense/submit").hasAnyAuthority("EMPLOYEE","ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/Travel/Expense/approve/{id}").hasAnyAuthority("HR","ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/Travel/Expense/approve/{id}").hasAnyAuthority("HR","ADMIN","MANAGER")
                         .requestMatchers(HttpMethod.GET, "/Travel/Expense/all").hasAnyAuthority("MANAGER","EMPLOYEE","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/Travel/Expense/{userId}/{travelId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/Travel/Expense/{travelId}").hasAnyAuthority("HR", "MANAGER", "ADMIN")

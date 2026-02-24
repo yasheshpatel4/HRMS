@@ -235,7 +235,7 @@ const ExpenseList = () => {
                     >
                       View Proofs
                     </button>
-                    {role === 'HR' && expense.status == 'PENDING' && (
+                    {(role === 'HR' || role === 'MANAGER') && expense.status == 'PENDING' && (
                       <>
                         <button
                           onClick={() => handleStatusChange(expense.expenseId, 'APPROVED')}

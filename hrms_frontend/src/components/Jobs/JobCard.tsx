@@ -35,8 +35,8 @@ const JobCard = ({ job, onShare, onRefer, onEdit, onDelete, canManage }: JobCard
       </div>
       
       <div className="flex space-x-2 mt-auto">
-        <button onClick={() => onShare(job.jobId)} className="flex-1 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Share</button>
-        <button onClick={() => onRefer(job.jobId)} className="flex-1 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Refer</button>
+        <button onClick={() => onShare(job.jobId)} className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 text-sm">Share</button>
+        <button onClick={() => onRefer(job.jobId)} className="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 text-sm">Refer</button>
       </div>
     </div>
   );
