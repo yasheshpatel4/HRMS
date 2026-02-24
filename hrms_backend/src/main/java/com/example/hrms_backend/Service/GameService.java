@@ -89,7 +89,7 @@ public class GameService {
         return slotRepository.findSlotsForDateRange(gameId, startOfDay, endOfDay);
     }
     public List<Slot> getTodayUpcoming(Long gameId) {
-        return slotRepository.findUpcomingSlotsForToday(gameId, LocalDateTime.now(), LocalDate.now().atTime(23, 59));
+        return slotRepository.findUpcomingSlotsForToday(gameId, LocalDateTime.now().plusMinutes(29), LocalDate.now().atTime(23, 59));
     }
 
     @Transactional

@@ -34,7 +34,7 @@ const ReferralList = ({ role }: { role: string | null }) => {
   };
 
   return (
-    <div className="overflow-x-auto bg-white rounded-lg shadow">
+    <div className="overflow-x-auto bg-white rounded-lg shadow mt-6">
       <table className="min-w-full table-auto">
         <thead className="bg-gray-50">
           <tr>

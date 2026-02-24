@@ -187,6 +187,9 @@ public class GameBookingService {
 
         Slot slot = booking.getSlot();
 
+        if(slot.getStartTime().isBefore(LocalDateTime.now())){
+            throw new RuntimeException("can not cancel after start time");
+        }
         booking.setStatus(BookingStatus.CANCELLED);
         bookingRepository.save(booking);
 

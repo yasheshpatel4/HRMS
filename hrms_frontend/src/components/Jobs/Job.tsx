@@ -80,7 +80,7 @@ const Job = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Job Management</h1>
 
-      <div className="flex justify-between items-center border-b">
+      <div className="flex justify-between items-center border-b border-gray-200">
         <div className="flex space-x-4">
           <button 
             onClick={() => { setView('jobs'); setShowForm(false); }} 
@@ -123,7 +123,7 @@ const Job = () => {
             </div>
           )}
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
             {jobs.map((job) => (
               <JobCard 
                 key={job.jobId} 
