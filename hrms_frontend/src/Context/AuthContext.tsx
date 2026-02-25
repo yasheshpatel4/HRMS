@@ -80,6 +80,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       await refreshUser();
 
     } catch (error) {
+      alert("invalid parameter");
       console.error(error);
     }
   };
