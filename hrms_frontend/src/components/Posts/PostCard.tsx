@@ -27,7 +27,11 @@ const PostCard = ({ post, onDelete, onEdit, onCommentAdded, expanded = false, on
   const handleLike = async () => {
     setLiking(true);
     try {
-      await api.post(`/Post/${post.postId}/like`);
+      if(isLiked == true){
+        await api.delete(`/Post/${post.postId}/like`);
+      }
+      else
+        await api.post(`/Post/${post.postId}/like`);
       onCommentAdded(); 
     } catch (err) {
       setError('Failed to like post');
@@ -61,6 +65,17 @@ const PostCard = ({ post, onDelete, onEdit, onCommentAdded, expanded = false, on
       try {
         await api.delete(`/Post/${post.postId}`);
         onDelete(post.postId);
+      } catch (err) {
+        setError('Failed to delete post');
+        console.error(err);
+      }
+    }
+  };
+  const deleteComment = async (commentId:Number) => {
+    if (window.confirm('Are you sure you want to delete this comment?')) {
+      try {
+        await api.delete(`/Post/comment/${commentId}`);
+        onCommentAdded();
       } catch (err) {
         setError('Failed to delete post');
         console.error(err);
@@ -213,7 +228,12 @@ const PostCard = ({ post, onDelete, onEdit, onCommentAdded, expanded = false, on
                         <p className="font-bold text-gray-800 text-sm">{comment.author?.name || 'Anonymous'}</p>
                         <p className="text-[10px] text-gray-400 uppercase tracking-tighter">{formatDate(comment.createdAt)}</p>
                       </div>
-                      <p className="text-gray-700 text-sm mt-0.5">{comment.text}</p>
+                      <div className="flex justify-between items-start">
+                        <p className="text-gray-700 text-sm mt-0.5">{comment.text}</p>
+                        {( comment.author.userId == user?.userId || isOwner ) && (<button onClick={()=>deleteComment(comment.commentId)} className="text-red-500 hover:bg-red-50 p-1.5 rounded-full transition-colors">
+                          <Trash2 size={18} />
+                        </button>)}
+                      </div>
                     </div>
                   </div>
                 ))

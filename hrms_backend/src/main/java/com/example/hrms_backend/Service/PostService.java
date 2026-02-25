@@ -196,4 +196,18 @@ public class PostService {
         }
     }
 
+    public String deleteComment(Long commentId) {
+        commentRepository.deleteById(commentId);
+        return "successful";
+    }
+
+    public void removeLike(Long postId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("user not found"));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("post not found"));
+        if (post.getLikedBy().contains(user)) {
+            post.getLikedBy().remove(user);
+            postRepository.save(post);
+        }
+    }
 }

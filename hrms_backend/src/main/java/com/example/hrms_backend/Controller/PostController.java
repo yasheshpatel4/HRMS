@@ -64,11 +64,20 @@ public class PostController {
         postService.addLike(postId);
         return ResponseEntity.ok("successful");
     }
+    @DeleteMapping("/{postId}/like")
+    public ResponseEntity<String> removelike(@PathVariable Long postId){
+        postService.removeLike(postId);
+        return ResponseEntity.ok("successful");
+    }
 
     @PostMapping("/{postId}/comment")
     public ResponseEntity<String> addComment(@PathVariable Long postId,@RequestBody String msg){
         postService.addComment(postId,msg);
         return ResponseEntity.ok("successful");
+    }
+    @DeleteMapping("/comment/{id}")
+    public ResponseEntity<String> deleteComment(@PathVariable Long id){
+        return ResponseEntity.ok(postService.deleteComment(id));
     }
 
     @GetMapping("/search")
