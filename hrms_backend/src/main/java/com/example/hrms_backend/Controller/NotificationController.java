@@ -4,6 +4,7 @@ import com.example.hrms_backend.Entity.Notification;
 import com.example.hrms_backend.Service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.method.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +23,12 @@ public class NotificationController {
     @PutMapping("/{notificationId}/read")
     public ResponseEntity<String> markRead(@PathVariable Long notificationId){
         notificationService.markRead(notificationId);
+        return ResponseEntity.ok("successful");
+    }
+
+    @DeleteMapping("/{notificationId}")
+    public ResponseEntity<String> delete(@PathVariable Long notificationId){
+        notificationService.delete(notificationId);
         return ResponseEntity.ok("successful");
     }
 
