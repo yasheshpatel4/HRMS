@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import api from '../../api';
 
 interface ReferModalProps {
@@ -7,42 +7,40 @@ interface ReferModalProps {
   onClose: () => void;
 }
 
-const ReferModal = ({ jobId, isOpen, onClose }:ReferModalProps) => {
-  const [friendName, setFriendName] = useState('');
-  const [friendEmail, setFriendEmail] = useState('');
-  const [cv, setCv] = useState<File | null>(null);
-  const [note, setNote] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+interface ReferFormInputs {
+  friendName: string;
+  friendEmail: string;
+  cv: FileList;
+  note: string;
+}
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!friendName || !cv) {
-      setError('Friend name and CV are required.');
-      return;
-    }
-    setError('');
-    setLoading(true);
+const ReferModal = ({ jobId, isOpen, onClose }: ReferModalProps) => {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<ReferFormInputs>();
+
+  const onSubmit = async (data: ReferFormInputs) => {
     try {
       const formData = new FormData();
-      formData.append('friendName', friendName);
-      formData.append('friendEmail', friendEmail);
-      formData.append('cv', cv);
-      formData.append('note', note);
+      formData.append('friendName', data.friendName);
+      formData.append('friendEmail', data.friendEmail);
+      formData.append('cv', data.cv[0]);
+      formData.append('note', data.note);
+
       await api.post(`/Job/${jobId}/refer`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
+
       alert('Referral submitted successfully!');
-      setFriendName('');
-      setFriendEmail('');
-      setCv(null);
-      setNote('');
+      reset();
       onClose();
     } catch (err) {
-      setError('Failed to submit referral. Please try again.');
+      setError('root', { message: 'Failed to submit referral. Please try again.' });
       console.error(err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -52,50 +50,62 @@ const ReferModal = ({ jobId, isOpen, onClose }:ReferModalProps) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-6 rounded-lg w-96">
         <h2 className="text-xl font-bold mb-4">Refer Friend</h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <label className="block mb-2">
             Friend Name:
             <input
+              {...register('friendName', { required: 'Friend name is required' })}
               type="text"
-              value={friendName}
-              onChange={(e) => setFriendName(e.target.value)}
               className="w-full p-2 border rounded mt-1"
-              required
             />
+            {errors.friendName && <p className="text-red-500 text-xs">{errors.friendName.message}</p>}
           </label>
+
           <label className="block mb-2">
             Friend Email :
             <input
+              {...register('friendEmail')}
               type="email"
-              value={friendEmail}
-              onChange={(e) => setFriendEmail(e.target.value)}
               className="w-full p-2 border rounded mt-1"
             />
           </label>
+
           <label className="block mb-2">
             CV File:
             <input
+              {...register('cv', { required: 'CV is required' })}
               type="file"
               accept="image/*,.pdf"
-              onChange={(e) => setCv(e.target.files ? e.target.files[0] : null)}
               className="w-full p-2 border rounded mt-1"
-              required
             />
+            {errors.cv && <p className="text-red-500 text-xs">{errors.cv.message}</p>}
           </label>
+
           <label className="block mb-2">
             Note (optional):
             <textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
+              {...register('note')}
               className="w-full p-2 border rounded mt-1"
               rows={3}
             />
           </label>
-          {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+
+          {errors.root && <p className="text-red-500 text-sm mb-2">{errors.root.message}</p>}
+
           <div className="flex justify-end space-x-2">
-            <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-300 rounded">Cancel</button>
-            <button type="submit" disabled={loading} className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50">
-              {loading ? 'Submitting...' : 'Submit'}
+            <button 
+              type="button" 
+              onClick={() => { reset(); onClose(); }} 
+              className="px-4 py-2 bg-gray-300 rounded"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              disabled={isSubmitting} 
+              className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50"
+            >
+              {isSubmitting ? 'Submitting...' : 'Submit'}
             </button>
           </div>
         </form>

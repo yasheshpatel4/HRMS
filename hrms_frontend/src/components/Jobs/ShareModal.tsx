@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import api from '../../api';
 
 interface ShareModalProps {
@@ -7,10 +7,18 @@ interface ShareModalProps {
   onClose: () => void;
 }
 
-const ShareModal = ({ jobId, isOpen, onClose }:ShareModalProps) => {
-  const [emails, setEmails] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+interface ShareFormValues {
+  emails: string;
+}
+
+const ShareModal = ({ jobId, isOpen, onClose }: ShareModalProps) => {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm<ShareFormValues>();
 
   const validateEmails = (emailString: string) => {
     const emailArray = emailString.split(',').map(e => e.trim());
@@ -18,25 +26,26 @@ const ShareModal = ({ jobId, isOpen, onClose }:ShareModalProps) => {
     return emailArray.every(email => emailRegex.test(email));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateEmails(emails)) {
-      setError('Please enter valid email addresses separated by commas.');
+  const onSubmit = async (data: ShareFormValues) => {
+    if (!validateEmails(data.emails)) {
+      setError('emails', {
+        type: 'manual',
+        message: 'Please enter valid email addresses separated by commas.',
+      });
       return;
     }
-    setError('');
-    setLoading(true);
     try {
-      const recipientEmails = emails.split(',').map(e => e.trim());
+      const recipientEmails = data.emails.split(',').map((e) => e.trim());
       await api.post(`/Job/${jobId}/share`, recipientEmails);
       alert('Job shared successfully!');
-      setEmails('');
+      reset();
       onClose();
     } catch (err) {
-      setError('Failed to share job. Please try again.');
+      setError('emails', {
+        type: 'manual',
+        message: 'Failed to share job. Please try again.',
+      });
       console.error(err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -46,22 +55,32 @@ const ShareModal = ({ jobId, isOpen, onClose }:ShareModalProps) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-6 rounded-lg w-96">
         <h2 className="text-xl font-bold mb-4">Share Job</h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <label className="block mb-2">
             Recipient Email(s) (comma-separated):
             <input
               type="text"
-              value={emails}
-              onChange={(e) => setEmails(e.target.value)}
+              {...register('emails', { required: 'Email addresses are required' })}
               className="w-full p-2 border rounded mt-1"
-              required
             />
           </label>
-          {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+          {errors.emails && (
+            <p className="text-red-500 text-sm mb-2">{errors.emails.message}</p>
+          )}
           <div className="flex justify-end space-x-2">
-            <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-300 rounded">Cancel</button>
-            <button type="submit" disabled={loading} className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50">
-              {loading ? 'Sharing...' : 'Share'}
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-300 rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
+            >
+              {isSubmitting ? 'Sharing...' : 'Share'}
             </button>
           </div>
         </form>
