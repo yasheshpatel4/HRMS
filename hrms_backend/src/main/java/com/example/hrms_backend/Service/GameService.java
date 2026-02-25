@@ -4,6 +4,7 @@ import com.example.hrms_backend.Entity.Game;
 import com.example.hrms_backend.Entity.GameConfiguration;
 import com.example.hrms_backend.Entity.Slot;
 import com.example.hrms_backend.Entity.User;
+import com.example.hrms_backend.ExceptionHandler.ResourceNotFoundException;
 import com.example.hrms_backend.Repository.GameConfigurationRepository;
 import com.example.hrms_backend.Repository.GameRepository;
 import com.example.hrms_backend.Repository.SlotRepository;
@@ -106,39 +107,54 @@ public class GameService {
         existingConfig.setMaxPlayers(newConfig.getMaxPlayers());
         gameConfigurationRepository.save(existingConfig);
     }
-    @Scheduled(cron = "0 1 0 * * *") 
+    @Scheduled(cron = "0 1 0 * * *")
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void generateDailySlots() {
-        LocalDate targetDate = LocalDate.now();
-//        LocalDate targetDate = LocalDate.now().plusDays(1);
-        List<Game> allGames = gameRepository.findAllByIsDeletedFalse();
+        try {
+            LocalDate targetDate = LocalDate.now();
+            List<Game> allGames = gameRepository.findAllByIsDeletedFalse();
 
-        for (Game game : allGames) {
-            GameConfiguration config = game.getConfiguration();
-            if (config == null) continue;
-            LocalDateTime startOfTargetDay = targetDate.atStartOfDay();
-            LocalDateTime endOfTargetDay = targetDate.atTime(LocalTime.MAX);
-            List<Slot> existing = slotRepository.findSlotsForDateRange(game.getGameId(), startOfTargetDay, endOfTargetDay);
+            for (Game game : allGames) {
+                GameConfiguration config = game.getConfiguration();
+                if (config == null || config.getSlotDurationMins() <= 0) {
+                    continue;
+                }
 
-            if (!existing.isEmpty()) continue;
+                LocalDateTime startOfTargetDay = targetDate.atStartOfDay();
+                LocalDateTime endOfTargetDay = targetDate.atTime(LocalTime.MAX);
 
-            List<Slot> slots = new ArrayList<>();
-            LocalTime current = config.getOperatingHoursStart();
-            LocalTime end = config.getOperatingHoursEnd();
+                List<Slot> existing = slotRepository.findSlotsForDateRange(game.getGameId(), startOfTargetDay, endOfTargetDay);
+                if (!existing.isEmpty()) {
+                    continue;
+                }
 
-            while (!current.plusMinutes(config.getSlotDurationMins()).isAfter(end)) {
-                Slot slot = new Slot();
-                slot.setGame(game);
-                slot.setStartTime(targetDate.atTime(current));
+                List<Slot> slots = new ArrayList<>();
+                LocalTime current = config.getOperatingHoursStart();
+                LocalTime end = config.getOperatingHoursEnd();
 
-                LocalTime nextTime = current.plusMinutes(config.getSlotDurationMins());
-                slot.setEndTime(targetDate.atTime(nextTime));
-                slot.setAvailable(true);
-                slots.add(slot);
-                current = nextTime;
+                while (current != null && !current.plusMinutes(config.getSlotDurationMins()).isAfter(end)) {
+                    Slot slot = new Slot();
+                    slot.setGame(game);
+                    slot.setStartTime(targetDate.atTime(current));
+
+                    LocalTime nextTime = current.plusMinutes(config.getSlotDurationMins());
+                    slot.setEndTime(targetDate.atTime(nextTime));
+                    slot.setAvailable(true);
+                    slots.add(slot);
+                    current = nextTime;
+
+                    if (current.equals(LocalTime.MIDNIGHT) || current.isBefore(config.getOperatingHoursStart())) {
+                        break;
+                    }
+                }
+
+                if (!slots.isEmpty()) {
+                    slotRepository.saveAll(slots);
+                }
             }
-            slotRepository.saveAll(slots);
+        } catch (Exception e) {
+            throw new RuntimeException("Error during daily slot generation: " + e.getMessage(), e);
         }
     }
 
