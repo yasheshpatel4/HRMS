@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../Context/AuthContext';
 import api from '../../api';
+import { Trash2 } from 'lucide-react';
 
 interface NotificationType {
     notificationId: number;
@@ -56,6 +57,18 @@ const Notification = () => {
 
     if (!user) return <div className="p-6 md:p-10 text-center text-gray-600">Please login to view notifications.</div>;
     if (loading) return <div className="p-6 md:p-10 text-center animate-pulse text-blue-600 font-medium">Loading notifications...</div>;
+
+    const handleDelete = async (notificationId:Number) => {
+    if (!window.confirm("Are you sure you want to delete this game?")) return;
+    
+    try {
+      await api.delete(`/Notification/${notificationId}`);
+      fetchNotifications();
+    } catch (error) {
+      console.error("Failed to delete game:", error);
+      alert("Error deleting game. Please try again.");
+    }
+  } ;
 
     return (
         <div className="w-full max-w-2xl mx-auto px-4 py-6 md:py-10">
@@ -120,11 +133,19 @@ const Notification = () => {
                                 </span>
                             </div>
                             
-                            <p className={`text-sm md:text-base leading-snug break-words ${
-                                n.read ? 'text-gray-500' : 'text-gray-900 font-medium'
-                            }`}>
-                                {n.message}
-                            </p>
+                            <div className="flex justify-between items-start mb-2 gap-2">
+                                <p className={`text-sm md:text-base leading-snug break-words ${
+                                    n.read ? 'text-gray-500' : 'text-gray-900 font-medium'
+                                }`}>
+                                    {n.message}
+                                </p>
+                                <button 
+                                    onClick={()=>handleDelete(n.notificationId)} 
+                                    className="text-red-500 hover:bg-red-50 p-1.5 rounded-full transition-colors"
+                                >
+                                    <Trash2 size={20} />
+                                </button>
+                            </div>
                         </div>
                     ))
                 )}

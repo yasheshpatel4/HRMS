@@ -92,4 +92,16 @@ public class JobController {
     public ResponseEntity<List<Referral>> getMyReferrals() {
         return ResponseEntity.ok(jobService.getReferralsForCurrentUser());
     }
+    @DeleteMapping("/referral/{id}")
+    public ResponseEntity<String> deleteReferral(@PathVariable Long id){
+        jobService.deleteReferral(id);
+        return ResponseEntity.ok("Successful");
+    }
+    @PutMapping("/referral/{id}")
+    public ResponseEntity<String> updateReferral(@PathVariable Long id ,
+                                                 @ModelAttribute Referral referral){
+        referral.setReferralId(id);
+        jobService.updateReferral(referral);
+        return ResponseEntity.ok("Successful");
+    }
 }

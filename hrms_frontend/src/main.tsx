@@ -15,6 +15,7 @@ import Notification from './components/Notifications/Notification'
 import Job from './components/Jobs/Job'
 import Travel from './components/Travels/Travel'
 import OrgChart from './components/Organization/OrgChart'
+import OrgChart1 from './components/Organization/OrgChart1'
 
 const queryClient = new QueryClient();
 
@@ -47,7 +48,7 @@ const router = createBrowserRouter([
       { path: "travel", element: <Travel /> },
       { path: "games", element: <Games /> },
       { path: "jobs", element: <Job /> },
-      { path: "organization", element: <OrgChart /> },
+      { path: "organization", element: <OrgChart1 /> },
       { path: "notifications", element: <Notification /> },
     ],
   },

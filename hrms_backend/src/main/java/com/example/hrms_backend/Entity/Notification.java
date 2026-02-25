@@ -26,4 +26,7 @@ public class Notification {
     private Boolean read = false;
 
     private LocalDateTime createdAt;
+
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "bit default 0")
+    private boolean isDeleted=false;
 }

@@ -5,9 +5,11 @@ import com.cloudinary.utils.ObjectUtils;
 import com.example.hrms_backend.Entity.*;
 import com.example.hrms_backend.Repository.*;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -39,7 +41,8 @@ public class JobService {
 
     @Autowired
     EmailService emailService;
-
+    @Autowired
+    ModelMapper modelMapper;
     @Autowired
     private Cloudinary cloudinary;
     @Autowired
@@ -223,7 +226,20 @@ public class JobService {
         if (user.getRole()==Role.HR || user.getRole()==Role.ADMIN) {
             return referralRepository.findAll();
         } else {
-            return referralRepository.findByReferrerUserId(user.getUserId());
+            return referralRepository.findByReferrerUserIdAndIsDeletedFalse(user.getUserId());
         }
+    }
+    public void deleteReferral(Long id){
+        Referral referral=referralRepository.findById(id)
+                .orElseThrow(()->new RuntimeException("not found"));
+        referral.setDeleted(true);
+        referralRepository.save(referral);
+    }
+
+    public void updateReferral(Referral referral) {
+        Referral referral1=referralRepository.findById(referral.getReferralId())
+                .orElseThrow(()->new RuntimeException("not found"));
+        modelMapper.map(referral,referral1);
+        referralRepository.save(referral1);
     }
 }

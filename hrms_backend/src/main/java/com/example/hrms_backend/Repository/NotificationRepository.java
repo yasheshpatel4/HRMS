@@ -16,4 +16,6 @@ public interface NotificationRepository extends JpaRepository<Notification,Long>
     void markRead(Long id);
 
     List<Notification> findNotificationByUser(User user);
+
+    List<Notification> findByUserAndIsDeletedFalse(User user);
 }

@@ -38,6 +38,13 @@ public class NotificationService {
 
     public List<Notification> getNotification(Long userId) {
         User user=userRepository.findById(userId).orElseThrow(()->new RuntimeException("user not found"));
-        return notificationRepository.findNotificationByUser(user);
+        return notificationRepository.findByUserAndIsDeletedFalse(user);
+    }
+
+    public void delete(Long notificationId) {
+        Notification notification=notificationRepository.findById(notificationId)
+                .orElseThrow(()->new RuntimeException("not found"));
+        notification.setDeleted(true);
+        notificationRepository.save(notification);
     }
 }
