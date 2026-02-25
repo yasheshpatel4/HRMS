@@ -31,4 +31,7 @@ public class Referral {
     private String status;
     private String note;
     private LocalDateTime createdAt;
+
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "bit default 0")
+    private boolean isDeleted=false;
 }

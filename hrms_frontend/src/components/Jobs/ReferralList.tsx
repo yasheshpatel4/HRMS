@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import api from '../../api';
+import { Edit2, Trash2 } from 'lucide-react';
 
 interface Referral {
   referralId: number;
@@ -14,12 +15,11 @@ interface Referral {
 const ReferralList = ({ role }: { role: string | null }) => {
   const [referrals, setReferrals] = useState<Referral[]>([]);
   const [expandedJob, setExpandedJob] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchReferrals = async () => {
+  const fetchReferrals = async () => {
       const response = await api.get('/Job/referrals');
       setReferrals(response.data);
     };
+  useEffect(() => {
     fetchReferrals();
   }, []);
 
@@ -42,6 +42,15 @@ const ReferralList = ({ role }: { role: string | null }) => {
         headers: { 'Content-Type': 'text/plain' } 
       });
       setReferrals(prev => prev.map(r => r.referralId === id ? { ...r, status: newStatus } : r));
+    } catch (err) { console.error(err); }
+  };
+  const handleEdit = async (id: number) => {
+    console.log(id)
+  };
+  const handleDelete = async (id: number) => {
+    try {
+      await api.delete(`/Job/referral/${id}`)
+      fetchReferrals();
     } catch (err) { console.error(err); }
   };
 
@@ -96,6 +105,12 @@ const ReferralList = ({ role }: { role: string | null }) => {
                         <a href={ref.cvFilePath} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline text-sm">
                           CV
                         </a>
+                        {(role === 'EMPLOYEE') && (ref.status == 'Pending') && (
+                          <div className="flex space-x-1">
+                            <button onClick={() => handleEdit(ref.referralId)} className="text-blue-500 hover:bg-blue-50 p-1.5 rounded-full transition-colors"><Edit2 size={18} /></button>
+                            <button onClick={() => handleDelete(ref.referralId)} className="text-red-500 hover:bg-red-50 p-1.5 rounded-full transition-colors"><Trash2 size={18} /></button>
+                          </div>
+                        )}
                         {(role === 'HR' || role === 'ADMIN') && (
                           <select 
                             value={ref.status} 

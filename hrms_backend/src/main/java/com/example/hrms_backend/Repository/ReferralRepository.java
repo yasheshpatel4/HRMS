@@ -10,8 +10,9 @@ import java.util.List;
 @Repository
 public interface ReferralRepository extends JpaRepository<Referral,Long> {
 
-    @Query("select r from Referral r where r.job.jobId=:jobId")
+    @Query("select r from Referral r where r.job.jobId=:jobId and isDeleted=false")
     List<Referral> findByJobId(Long jobId);
     List<Referral> findByReferrerUserId(Long userId);
-    List<Referral> findByJobJobId(Long jobId);
+    List<Referral> findByReferrerUserIdAndIsDeletedFalse(Long referrerUserId);
+
 }

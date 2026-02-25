@@ -185,7 +185,7 @@ const TravelList = ({ onNavigateToExpense }:TravelListProps) => {
                       onClick={() => downloadDocument(doc.docId)}
                       className="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 text-sm"
                     >
-                      Download
+                      View
                     </button>
                   </div>
                 ))}
