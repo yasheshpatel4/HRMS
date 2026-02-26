@@ -37,6 +37,9 @@ const TravelList = ({ onNavigateToExpense }:TravelListProps) => {
     try {
       const response=await api(`/Travel/${travelId}`, { method: 'DELETE' });
       setIsDeleted(true);
+      if(response.data != "Successful"){
+        alert(response.data);
+      }
       fetchTravels();
     } catch (error) {
       console.error("Failed to delete travel:", error);

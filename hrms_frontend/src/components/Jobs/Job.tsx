@@ -120,7 +120,7 @@ const Job = () => {
         <>
           {showForm && isManagement && (
             <div className="mb-10 p-6 bg-gray-50 rounded-lg border border-gray-200">
-              <JobForm />
+              <JobForm onCreate={()=>fetchJobs()}/>
             </div>
           )}
           

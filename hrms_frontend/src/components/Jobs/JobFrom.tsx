@@ -10,7 +10,8 @@ interface JobFormData {
   jdFile: FileList;
 }
 
-const JobForm = () => {
+
+const JobForm = ({onCreate}:{onCreate:()=>void} ) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   
@@ -43,6 +44,7 @@ const JobForm = () => {
       else 
         setMessage('Job created successfully!');
       reset();
+      onCreate();
     } catch (error: any) {
       setMessage(error.response?.data?.message || 'Error creating job');
     } finally {
