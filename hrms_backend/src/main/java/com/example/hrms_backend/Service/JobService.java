@@ -91,6 +91,9 @@ public class JobService {
     }
 
     public Job updateJob(Job job, List<String> reviewerEmails) {
+        if(job.isDeleted()){
+            throw new RuntimeException("deleted job can not be edited");
+        }
         return jobRepository.findById(job.getJobId())
                 .map(job1 -> {
                     job1.setTitle(job.getTitle());
@@ -124,6 +127,9 @@ public class JobService {
 
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
+        if(job.isDeleted()){
+            throw new RuntimeException("deleted job can not be shared");
+        }
 
         Share share =new Share();
         share.setJob(job);
@@ -154,6 +160,9 @@ public class JobService {
 
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
+        if(job.isDeleted()){
+            throw new RuntimeException("deleted job can not be referred");
+        }
 
         File convFile = new File(System.getProperty("java.io.tmpdir") + "/" + cv.getOriginalFilename() + "_" + System.currentTimeMillis());
         try {
@@ -242,4 +251,5 @@ public class JobService {
         modelMapper.map(referral,referral1);
         referralRepository.save(referral1);
     }
+
 }

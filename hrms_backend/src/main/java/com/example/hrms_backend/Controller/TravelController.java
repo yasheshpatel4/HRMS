@@ -42,7 +42,7 @@ public class TravelController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Travel> addTravel(@ModelAttribute Travel travel, @RequestParam List<Long> assignedUserIds) {
+    public ResponseEntity<String> addTravel(@ModelAttribute Travel travel, @RequestParam List<Long> assignedUserIds) {
 
         Set<User> users = new HashSet<>();
         for (Long id : assignedUserIds) {

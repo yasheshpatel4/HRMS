@@ -138,7 +138,8 @@ public class GameBookingService {
             emailService.sendEmail(
                     participant.getEmail(),
                     "You are added to a Slot",
-                    "you are added as participant by"+user.getName()
+                    "you are added as participant by: "+user.getName()+"in the game of the "
+                            +slot.getGame().getGameName() + "slot start time is : "+slot.getStartTime()
             );
         }
     }

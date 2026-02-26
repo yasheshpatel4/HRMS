@@ -88,14 +88,14 @@ public class TravelService {
         return travelRepository.findByHR(user);
     }
 
-    public Travel createTravel(Travel travel) {
+    public String createTravel(Travel travel) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User currentUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         for(User user:travel.getAssignedUsers()){
             if(travelRepository.hasTravelOverlap(user.getUserId(),travel.getStartDate(),travel.getEndDate())){
-                throw new RuntimeException("travel overlap for user: "+user.getName());
+                return ("travel overlap for user: "+user.getName());
             }
         }
 
@@ -107,7 +107,7 @@ public class TravelService {
             emailService.sendEmail(user.getEmail(),"Assigned Travel:"+travel.getTitle(),"You have been assigned to travel: " + savedTravel.getTitle());
             notificationService.createNotification(user.getUserId(),"Travel", "You have been assigned to travel: " + savedTravel.getTitle());
         }
-        return savedTravel;
+        return "Successful";
     }
 
     public TravelDocument uploadDocument(Long travelId, MultipartFile file, Long userId) throws IOException {

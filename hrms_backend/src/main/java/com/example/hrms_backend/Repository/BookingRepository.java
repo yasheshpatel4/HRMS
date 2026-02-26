@@ -47,6 +47,8 @@ public interface BookingRepository extends JpaRepository<Booking,Long> {
 
     @Query("SELECT b FROM Booking b WHERE b.status = 'ACTIVE' AND b.slot.startTime <= :now")
     List<Booking> findBookingsToAutoComplete(LocalDateTime now);
-    @Query("Select COUNT(b)>0 from Booking b where b.bookedBy.userId =:userId and b.slot.startTime between :startTime and :endTime and b.slot.endTime between :startTime and :endTime ")
+    @Query("Select COUNT(b)>0 from Booking b where b.bookedBy.userId =:userId " +
+            "and b.slot.startTime between :startTime and :endTime " +
+            "and b.slot.endTime between :startTime and :endTime ")
     boolean hasActiveBookingOverlap(Long userId, LocalDateTime startTime, LocalDateTime endTime);
 }
