@@ -21,7 +21,7 @@ const Dashboard = () => {
           employees: emp.data?.length || 0,
           jobs: job.data?.length || 0,
           games: game.data?.length || 0,
-          posts: post.data?.totalElements || 0
+          posts: post.data?.page.totalElements || 0
         });
       } finally {
         setLoading(false);

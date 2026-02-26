@@ -58,8 +58,8 @@ const Notification = () => {
     if (!user) return <div className="p-6 md:p-10 text-center text-gray-600">Please login to view notifications.</div>;
     if (loading) return <div className="p-6 md:p-10 text-center animate-pulse text-blue-600 font-medium">Loading notifications...</div>;
 
-    const handleDelete = async (notificationId:Number) => {
-    if (!window.confirm("Are you sure you want to delete this game?")) return;
+    const handleDelete = async (notificationId:number) => {
+    if (!globalThis.confirm("Are you sure you want to delete this game?")) return;
     
     try {
       await api.delete(`/Notification/${notificationId}`);
@@ -113,7 +113,7 @@ const Notification = () => {
                     </div>
                 ) : (
                     displayList.map((n) => (
-                        <div 
+                        <button 
                             key={n.notificationId}
                             onClick={() => !n.read && handleMarkRead(n.notificationId)}
                             className={`group relative p-4 md:p-5 rounded-xl border-l-4 transition-all duration-200 shadow-sm active:scale-[0.98] ${
@@ -146,7 +146,7 @@ const Notification = () => {
                                     <Trash2 size={20} />
                                 </button>
                             </div>
-                        </div>
+                        </button>
                     ))
                 )}
             </div>

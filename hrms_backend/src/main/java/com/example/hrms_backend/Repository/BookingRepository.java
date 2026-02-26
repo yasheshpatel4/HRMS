@@ -3,6 +3,7 @@ package com.example.hrms_backend.Repository;
 import com.example.hrms_backend.Entity.Booking;
 import com.example.hrms_backend.Entity.BookingStatus;
 import com.example.hrms_backend.Entity.Slot;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -46,5 +47,8 @@ public interface BookingRepository extends JpaRepository<Booking,Long> {
 
     @Query("SELECT b FROM Booking b WHERE b.status = 'ACTIVE' AND b.slot.startTime <= :now")
     List<Booking> findBookingsToAutoComplete(LocalDateTime now);
-
+    @Query("Select COUNT(b)>0 from Booking b where b.bookedBy.userId =:userId " +
+            "and b.slot.startTime between :startTime and :endTime " +
+            "and b.slot.endTime between :startTime and :endTime ")
+    boolean hasActiveBookingOverlap(Long userId, LocalDateTime startTime, LocalDateTime endTime);
 }

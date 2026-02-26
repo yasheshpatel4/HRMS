@@ -46,7 +46,7 @@ public class JobController {
     }
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Job> createJob(@RequestParam("title") String title,
+    public ResponseEntity<String> createJob(@RequestParam("title") String title,
                                          @RequestParam("summary") String summary,
                                          @RequestParam("jdFile") MultipartFile jdFile,
                                          @RequestParam("hrEmail") String hrEmail,

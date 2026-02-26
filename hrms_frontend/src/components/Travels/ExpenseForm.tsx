@@ -218,7 +218,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ preSelectedTravelId, onSucces
               name="amount"
               value={formData.amount}
               onChange={handleInputChange}
-              step="0.01"
+              step="1"
               min="0"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required

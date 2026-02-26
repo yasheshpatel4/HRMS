@@ -95,7 +95,10 @@ const TravelForm = ({ isOpen, onClose, onSuccess }: TravelFormProps) => {
     data.append('assignedUserIds', id.toString());
   });
 
-      await api.post('/Travel/add', data);
+      const response=await api.post('/Travel/add', data);
+      if(response.data !== "Successful"){
+        alert(response.data);
+      }
 
       setMessage('Travel created successfully!');
       setFormData({
