@@ -58,11 +58,16 @@ public class JobService {
 //        return jobRepository.findById(id);
 //    }
 
-    public Job createJob(Job job, MultipartFile jdFile, List<String> reviewerEmails) throws IOException {
+    public String createJob(Job job, MultipartFile jdFile, List<String> reviewerEmails) throws IOException {
         log.info("Process started: Creating Job ");
         String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userRepository.findByEmail(currentUserEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        User hr=userRepository.findByEmail(job.getHrEmail()).orElseThrow(()->new RuntimeException("not found"));
+        if(hr == null || hr.getRole() != Role.HR){
+            return "given Hr email is not valid";
+        }
 
         File convFile = new File(System.getProperty("java.io.tmpdir") + "/" + jdFile.getOriginalFilename() + "_" + System.currentTimeMillis());
         FileOutputStream fos = new FileOutputStream(convFile);
@@ -87,7 +92,8 @@ public class JobService {
         job.setCreatedAt(LocalDate.now());
         job.setCreatedBy(currentUser);
         loggingService.saveLog("INFO", "Job Created", "JobService", "successful");
-        return jobRepository.save(job);
+        jobRepository.save(job);
+        return "Successful";
     }
 
     public Job updateJob(Job job, List<String> reviewerEmails) {

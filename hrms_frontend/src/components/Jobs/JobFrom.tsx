@@ -37,8 +37,11 @@ const JobForm = () => {
       .forEach(email => formData.append('reviewerEmails', email));
 
     try {
-      await api.post('/Job/create', formData);
-      setMessage('Job created successfully!');
+      const response =await api.post('/Job/create', formData);
+      if(response.data !== "Successful")
+        alert(response.data);
+      else 
+        setMessage('Job created successfully!');
       reset();
     } catch (error: any) {
       setMessage(error.response?.data?.message || 'Error creating job');
