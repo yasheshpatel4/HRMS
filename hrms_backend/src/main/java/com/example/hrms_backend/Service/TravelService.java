@@ -93,6 +93,11 @@ public class TravelService {
 
         User currentUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        for(User user:travel.getAssignedUsers()){
+            if(travelRepository.hasTravelOverlap(user.getUserId(),travel.getStartDate(),travel.getEndDate())){
+                throw new RuntimeException("travel overlap for user: "+user.getName());
+            }
+        }
 
         travel.setCreatedBy(currentUser);
         travel.setCreatedAt(LocalDateTime.now());

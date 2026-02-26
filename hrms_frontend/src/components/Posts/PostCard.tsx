@@ -27,7 +27,7 @@ const PostCard = ({ post, onDelete, onEdit, onCommentAdded, expanded = false, on
   const handleLike = async () => {
     setLiking(true);
     try {
-      if(isLiked == true){
+      if(isLiked){
         await api.delete(`/Post/${post.postId}/like`);
       }
       else
@@ -61,7 +61,7 @@ const PostCard = ({ post, onDelete, onEdit, onCommentAdded, expanded = false, on
   };
 
   const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this post?')) {
+    if (globalThis.confirm('Are you sure you want to delete this post?')) {
       try {
         await api.delete(`/Post/${post.postId}`);
         onDelete(post.postId);
@@ -71,8 +71,8 @@ const PostCard = ({ post, onDelete, onEdit, onCommentAdded, expanded = false, on
       }
     }
   };
-  const deleteComment = async (commentId:Number) => {
-    if (window.confirm('Are you sure you want to delete this comment?')) {
+  const deleteComment = async (commentId:number) => {
+    if (globalThis.confirm('Are you sure you want to delete this comment?')) {
       try {
         await api.delete(`/Post/comment/${commentId}`);
         onCommentAdded();

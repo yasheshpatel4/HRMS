@@ -28,12 +28,13 @@ const Job = () => {
   const [editingJob, setEditingJob] = useState<Job | null>(null);
 
   const handleDelete = async (jobId: number) => {
-    if (window.confirm("Are you sure you want to delete this job opening?")) {
+    if (globalThis.confirm("Are you sure you want to delete this job opening?")) {
       try {
         await api.delete(`/Job/${jobId}`);
         fetchJobs();
       } catch (err) {
         console.error(err);
+        setError("error in deleting job");
       }
     }
   };

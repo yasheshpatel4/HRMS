@@ -75,13 +75,24 @@ public class GameBookingService {
         if (!isInterested) {
             return ("You must add " + game.getGameName() + " to your interested games first.");
         }
-
+        for(long id:participantIds){
+            if(id == userId){
+                return "you cant add your self as participant";
+            }
+            if(bookingRepository.hasActiveBookingOverlap(id,slot.getStartTime(),slot.getEndTime())){
+                User participant=userRepository.findById(id).orElseThrow(()->new RuntimeException("not found"));
+                return "your participant :"+participant.getName()+" has already an active booking for this duration";
+            }
+        }
         if (bookingRepository.hasActiveBookingForGame(userId, game.getGameId())) {
             return ("You already have an active booking for " + game.getGameName());
         }
         int maxOtherEmployees = game.getConfiguration().getMaxPlayers()-1;
         if (participantIds.size() > maxOtherEmployees) {
             return ("Maximum " + maxOtherEmployees + " other employees can be added");
+        }
+        if(bookingRepository.hasActiveBookingOverlap(user.getUserId(),slot.getStartTime(),slot.getEndTime())){
+            return ("you have already one active booking for this time duration");
         }
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
         LocalDateTime endOfDay = LocalDate.now().atTime(LocalTime.MAX);
@@ -166,18 +177,24 @@ public class GameBookingService {
     }
 
     private void assignFromQueue(Slot slot) {
+        List<FairnessQueue> queue = fairnessQueueRepository.findByGameOrderBySlotsPlayedCurrentCycleAscRequestTimestampAsc(slot.getGame());
 
-        List<FairnessQueue> queue = fairnessQueueRepository
-                        .findByGameOrderBySlotsPlayedCurrentCycleAscRequestTimestampAsc(slot.getGame());
+        if (queue.isEmpty()) return;
 
-        if (queue.isEmpty())
+        for (FairnessQueue top : queue) {
+            boolean userOverlap = bookingRepository.hasActiveBookingOverlap(top.getUser().getUserId(), slot.getStartTime(), slot.getEndTime());
+
+            boolean participantOverlap = top.getParticipantIds().stream().anyMatch(id ->
+                    bookingRepository.hasActiveBookingOverlap(id, slot.getStartTime(), slot.getEndTime())
+            );
+
+            if (userOverlap || participantOverlap) {
+                continue;
+            }
+            assignSlot(top.getUser(), slot, top.getParticipantIds());
+            fairnessQueueRepository.delete(top);
             return;
-
-        FairnessQueue top = queue.get(0);
-
-        assignSlot(top.getUser(), slot,top.getParticipantIds());
-
-        fairnessQueueRepository.delete(top);
+        }
     }
 
     public void cancelBooking(Long bookingId) {

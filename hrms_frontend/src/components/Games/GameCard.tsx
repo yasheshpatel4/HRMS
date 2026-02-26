@@ -39,7 +39,7 @@ export const GameCard = ({ game, role, onSelect, onEdit }: Props) => {
     }
   };
   const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete this game?")) return;
+    if (!globalThis.confirm("Are you sure you want to delete this game?")) return;
     
     try {
       await api(`/Game/${game.gameId}`, { method: 'DELETE' });
