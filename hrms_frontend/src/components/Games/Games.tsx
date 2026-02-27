@@ -20,6 +20,7 @@ const Games = () => {
   const [editingGame, setEditingGame] = useState<Game | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [bookings, setBookings] = useState([]);
+  const [isAdminView, setIsAdminView] = useState(false);
   
   const { user, role } = useAuth();
   const isAdminOrHR = role === 'ADMIN' || role === 'HR';
@@ -27,10 +28,13 @@ const Games = () => {
   useEffect(() => {
     loadGames();
     loadBookings();
-  }, []);
+  }, [isAdminView]);
   
   const loadGames = () => api.get('/Game/all').then(res => setGames(res.data));
-  const loadBookings = () => api.get('/Game/booking/user').then(res => setBookings(res.data));
+  const loadBookings = () => {
+      const endpoint = isAdminView ? '/Game/booking/upcoming' : '/Game/booking/user';
+      api.get(endpoint).then(res => setBookings(res.data));
+  };
 
   const handleSelectGame = (id: number) => {
     setSelectedGameId(id);
@@ -144,9 +148,38 @@ const Games = () => {
               />
             )}
           </div>
-          <div className="xl:col-span-3">
-            <BookingList bookings={bookings} onRefresh={loadBookings} />
-          </div>
+            <div className="xl:col-span-3">
+              {isAdminOrHR && (
+                <div className="flex space-x-8 mb-6 border-b border-gray-200">
+                  <button 
+                    onClick={() => setIsAdminView(false)} 
+                    className={`py-4 px-1 border-b-2 font-bold text-sm transition-all ${
+                      !isAdminView 
+                        ? 'border-blue-600 text-blue-600' 
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    My Bookings
+                  </button>
+                  
+                  <button 
+                    onClick={() => setIsAdminView(true)} 
+                    className={`py-4 px-1 border-b-2 font-bold text-sm transition-all ${
+                      isAdminView 
+                        ? 'border-blue-600 text-blue-600' 
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    All Upcoming Bookings
+                  </button>
+                </div>
+              )}
+              <BookingList 
+                bookings={bookings} 
+                onRefresh={loadBookings} 
+                isAdminMode={isAdminView} 
+              />
+            </div>
         </div>
       </div>
 

@@ -2,6 +2,7 @@ package com.example.hrms_backend.Entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -26,7 +27,7 @@ public class Booking {
 
     @ManyToOne
     @JoinColumn(name = "booked_by_id")
-    @JsonBackReference
+    @JsonIgnoreProperties({"bookings", "interestedGames", "password", "authorities", "manager"})
     private User bookedBy;
 
     private LocalDateTime bookedAt;

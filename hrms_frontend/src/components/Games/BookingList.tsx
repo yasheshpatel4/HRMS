@@ -3,7 +3,10 @@ import api from '../../api';
 interface Booking {
   bookingId: number;
   status: string;
-
+  bookedBy?: {
+    name: string;
+    email: string;
+  };
   slot: {
     startTime: string;
     endTime: string;
@@ -14,7 +17,7 @@ interface Booking {
   };
 }
 
-export const BookingList = ({ bookings, onRefresh }: { bookings: Booking[], onRefresh: () => void }) => {
+export const BookingList = ({ bookings, onRefresh, isAdminMode = false }: { bookings: Booking[], onRefresh: () => void, isAdminMode?: boolean }) => {
   
   const handleAction = async (id: number, action: 'cancel' | 'complete') => {
     try {
@@ -27,13 +30,15 @@ export const BookingList = ({ bookings, onRefresh }: { bookings: Booking[], onRe
 
   return (
     <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">My Bookings</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">
+        {isAdminMode ? "All Upcoming Bookings" : "My Bookings"}
+      </h2>
       {bookings.length === 0 ? (
         <p className="text-gray-400">No bookings found.</p>
       ) : (
         <div className="space-y-4">
           {bookings.map((b) => (
-            <div key={b.bookingId} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+            <div key={b.bookingId} className={`flex items-center justify-between p-4 rounded-2xl ${isAdminMode ? 'bg-blue-50/40 border border-blue-100' : 'bg-gray-50'}`}>
               <div>
                 <p className="font-bold text-gray-900">Slot #{new Date(b.slot.startTime).toLocaleTimeString([], { 
                     hour: '2-digit', 
@@ -42,15 +47,24 @@ export const BookingList = ({ bookings, onRefresh }: { bookings: Booking[], onRe
                   })}
                 </p>
                 <p className="text-sm text-gray-500">{b.slot.game.gameName}</p>
-                {/* <p className="text-sm text-gray-500">{b.slot.startTime}</p> */}
-                <span className={`text-xs font-bold px-2 py-1 rounded ${
+                
+                {isAdminMode && b.bookedBy && (
+                  <div className="mt-1">
+                    <span className="text-xs font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded">
+                      User: {b.bookedBy.name}
+                    </span>
+                    <p className="text-[10px] text-gray-400 mt-0.5">{b.bookedBy.email}</p>
+                  </div>
+                )}
+
+                <span className={`inline-block mt-2 text-xs font-bold px-2 py-1 rounded ${
                   b.status === 'COMPLETED' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
                 }`}>
                   {b.status}
                 </span>
               </div>
               <div className="flex gap-2">
-                {b.status == 'ACTIVE' && (
+                {!isAdminMode && b.status == 'ACTIVE' && (
                   <>
                     <button 
                       onClick={() => handleAction(b.bookingId, 'complete')}
