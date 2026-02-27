@@ -102,8 +102,25 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/Notification/{userId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/Notification/{notificationId}/read").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
 
-                        .requestMatchers("/Game/**").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE", "ADMIN")
+                        .requestMatchers(HttpMethod.GET,"/Game/all").hasAnyAuthority("HR","ADMIN","MANAGER","EMPLOYEE")
+                        .requestMatchers(HttpMethod.DELETE,"/Game/{id}").hasAnyAuthority("HR","ADMIN")
+                        .requestMatchers(HttpMethod.POST,"/Game/create").hasAnyAuthority("HR","ADMIN")
+                        .requestMatchers(HttpMethod.GET,"/Game/{gameId}/configuration").hasAnyAuthority("HR","ADMIN","MANAGER","EMPLOYEE")
+                        .requestMatchers(HttpMethod.POST,"/Game/{gameId}/interest").hasAnyAuthority("HR","ADMIN","MANAGER","EMPLOYEE")
+                        .requestMatchers(HttpMethod.DELETE,"/Game/{gameId}/interest").hasAnyAuthority("HR","ADMIN","MANAGER","EMPLOYEE")
+                        .requestMatchers(HttpMethod.POST,"/Game/add").hasAnyAuthority("HR","ADMIN")
+                        .requestMatchers(HttpMethod.PUT,"/Game/{gameId}/configure").hasAnyAuthority("HR","ADMIN")
 
+                        .requestMatchers(HttpMethod.GET,"/Game/{gameId}/slots/available").hasAnyAuthority("HR","ADMIN","MANAGER","EMPLOYEE")
+                        .requestMatchers(HttpMethod.GET,"/Game/{gameId}/slots").hasAnyAuthority("HR","ADMIN","MANAGER","EMPLOYEE")
+                        .requestMatchers(HttpMethod.POST,"/Game/generate-slots").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET,"/Game/{gameId}/slots/today").hasAnyAuthority("HR","ADMIN","MANAGER","EMPLOYEE")
+
+                        .requestMatchers(HttpMethod.PUT,"/Game//booking/{bookingId}/cancel").hasAnyAuthority("HR","ADMIN","MANAGER","EMPLOYEE")
+                        .requestMatchers(HttpMethod.PUT,"/Game/booking/{bookingId}/complete").hasAnyAuthority("HR","ADMIN","MANAGER","EMPLOYEE")
+                        .requestMatchers(HttpMethod.GET,"/Game/booking/user").hasAnyAuthority("HR","ADMIN","MANAGER","EMPLOYEE")
+                        .requestMatchers(HttpMethod.GET,"/Game/booking/upcoming").hasAnyAuthority("HR","ADMIN","MANAGER","EMPLOYEE")
+                        .requestMatchers(HttpMethod.POST,"/Game/slots/{slotId}/book").hasAnyAuthority("HR","ADMIN","MANAGER","EMPLOYEE")
 
                         .anyRequest().authenticated()
                 )

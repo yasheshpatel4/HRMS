@@ -48,7 +48,7 @@ const PostForm = ({ onPostCreated, onCancel }: PostFormProps) => {
     const visibilityValue = data.visibility === 'all employees' ? 'all' : data.visibility;
     formData.append('visibility', visibilityValue);
     
-    if (data.file && data.file[0]) {
+    if (data.file?.[0]) {
       formData.append('file', data.file[0]);
     }
 
