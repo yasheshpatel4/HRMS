@@ -1,10 +1,50 @@
 import { useState } from "react";
 
 export const ConfigModal = ({ game, onClose, onSave }: any) => {
+  const [error, setError] = useState("");
+
+  const handleSave = () => {
+    const validationError = validate(); 
+    
+    if (validationError) {
+      alert(validationError);
+    } else {
+      onSave(game.gameId, formData);
+    }
+  };
+
+  const validate = () => {
+    const { maxPlayers, slotDurationMins, operatingHoursStart: start, operatingHoursEnd: end } = formData;
+    
+    const getMinutes = (timeStr: string) => {
+      const [h, m] = timeStr.split(':').map(Number);
+      return h * 60 + m;
+    };
+
+    const startMins = getMinutes(start);
+    const endMins = getMinutes(end);
+    const windowDuration = endMins - startMins;
+    let errorMsg = "";
+
+    if (maxPlayers < 1) {
+      errorMsg = "At least 1 player required";
+    } else if (endMins <= startMins) {
+      errorMsg = "End time must be after start time";
+    } else if (windowDuration < slotDurationMins) {
+      errorMsg = "Operating window too short for slot duration";
+    } else if (slotDurationMins < 10) {
+      errorMsg = "Duration must be greater than 10 min";
+    }
+
+    setError(errorMsg); 
+    return errorMsg;
+  };
+
+  
   const [formData, setFormData] = useState(game?.configuration || {
-    operatingHoursStart: "09:00",
+    operatingHoursStart: "10:00",
     operatingHoursEnd: "18:00",
-    slotDurationMins: 30,
+    slotDurationMins: 60,
     maxPlayers: 4
   });
 
@@ -25,19 +65,23 @@ export const ConfigModal = ({ game, onClose, onSave }: any) => {
           </div>
           <div>
             <label className="text-xs font-bold uppercase text-gray-500">Duration (Mins)</label>
-            <input type="number" className="w-full border p-2 rounded" value={formData.slotDurationMins} onChange={e => setFormData({...formData, slotDurationMins: Number(e.target.value)})} />
+            <input type="number" className="w-full border p-2 rounded" value={formData.slotDurationMins} min="10" onChange={e => setFormData({...formData, slotDurationMins: Number(e.target.value)})} />
           </div>
           <div>
             <label className="text-xs font-bold uppercase text-gray-500">Max Players</label>
-            <input type="number" className="w-full border p-2 rounded" value={formData.maxPlayers} onChange={e => setFormData({...formData, maxPlayers: Number(e.target.value)})} />
+            <input type="number" className="w-full border p-2 rounded" value={formData.maxPlayers} min="1" onChange={e => setFormData({...formData, maxPlayers: Number(e.target.value)})} />
           </div>
         </div>
         
         <div className="flex gap-4">
-          <button onClick={() => onSave(game.gameId, formData)} className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold">Apply Tomorrow</button>
+          <button onClick={handleSave} className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold">Apply Tomorrow</button>
           <button onClick={onClose} className="flex-1 bg-gray-100 py-3 rounded-xl font-bold">Cancel</button>
         </div>
       </div>
     </div>
   );
 };
+
+
+
+

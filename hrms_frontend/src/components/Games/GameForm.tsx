@@ -9,7 +9,7 @@ interface GameFormData {
 }
 
 export const GameForm = ({ onClose, onSave }: { onClose: () => void, onSave: (data: GameFormData) => void }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm<GameFormData>({
+  const { register, handleSubmit, getValues, formState: { errors } } = useForm<GameFormData>({
     defaultValues: {
       operatingHoursStart: '09:00',
       operatingHoursEnd: '18:00',
@@ -17,6 +17,12 @@ export const GameForm = ({ onClose, onSave }: { onClose: () => void, onSave: (da
       maxPlayers: 4
     }
   });
+
+  const getMinutes = (timeStr: string) => {
+    if (!timeStr) return 0;
+    const [h, m] = timeStr.split(':').map(Number);
+    return h * 60 + m;
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -42,21 +48,39 @@ export const GameForm = ({ onClose, onSave }: { onClose: () => void, onSave: (da
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">End Time</label>
-              <input type="time" {...register("operatingHoursEnd", { required: true })} 
-                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl" />
+              <input type="time" {...register("operatingHoursEnd", { required: true,
+                  validate: (value) => {
+                    const startMins = getMinutes(getValues("operatingHoursStart"));
+                    const endMins = getMinutes(value);
+                    const duration = getValues("slotDurationMins");
+
+                    if (endMins <= startMins) return "End time must be after start time";
+                    if (endMins - startMins < duration) return "Window too short for slot";
+                    return true;
+                  }
+                })} 
+                className={`w-full p-3 bg-gray-50 border ${errors.operatingHoursEnd ? 'border-red-500' : 'border-gray-200'} rounded-xl`} 
+              />
+              {errors.operatingHoursEnd && <p className="text-red-500 text-xs mt-1">{errors.operatingHoursEnd.message}</p>}
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Duration (Mins)</label>
-              <input type="number" {...register("slotDurationMins", { required: true, min: 15 })} 
-                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl" />
+              <input type="number" {...register("slotDurationMins", { required: true, 
+                  min: { value: 10, message: "Must be > 10 min" } 
+                })} 
+                className={`w-full p-3 bg-gray-50 border ${errors.slotDurationMins ? 'border-red-500' : 'border-gray-200'} rounded-xl`} 
+              />
+              {errors.slotDurationMins && <p className="text-red-500 text-xs mt-1">{errors.slotDurationMins.message}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Max Players</label>
-              <input type="number" {...register("maxPlayers", { required: true, min: 1 })} 
-                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl" />
+              <input type="number" {...register("maxPlayers", { required: true, min: { value: 1, message: "At least 1 player"}})} 
+                className={`w-full p-3 bg-gray-50 border ${errors.maxPlayers ? 'border-red-500' : 'border-gray-200'} rounded-xl`} 
+              />
+              {errors.maxPlayers && <p className="text-red-500 text-xs mt-1">{errors.maxPlayers.message}</p>}
             </div>
           </div>
 
