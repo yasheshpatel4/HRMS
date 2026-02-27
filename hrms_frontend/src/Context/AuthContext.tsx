@@ -66,11 +66,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   useEffect(() => {
+    const handleGlobalLogout = () => {
+      setUser(null);
+      setIsAuthenticated(false);
+    };
+    window.addEventListener('auth-logout', handleGlobalLogout);
     const checkAuth = async () => {
-      await refreshUser();
-      setIsLoading(false);
+      try {
+        await refreshUser();
+      } finally {
+        setIsLoading(false);
+      }
     };
     checkAuth();
+    return () => window.removeEventListener('auth-logout', handleGlobalLogout);
   }, []);
 
   const login = async (email: string, password: string) => {
