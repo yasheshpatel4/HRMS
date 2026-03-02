@@ -1,4 +1,4 @@
- import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import api from '../api';
 import CryptoJS from 'crypto-js';
 
@@ -27,6 +27,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  signup: (formData: any) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: User) => void;
   refreshUser: () => Promise<void>;
@@ -94,6 +95,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const signup = async (formData: any) => {
+    try {
+      const secureData = { 
+        ...formData, 
+        password: encryptPassword(formData.password) 
+      };
+      await api.post('/Auth/register', secureData);
+    } catch (error) {
+      throw error;
+    }
+  };
 
   const logout = async () => {
     try {
@@ -114,6 +126,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         isAuthenticated,
         isLoading,
         login,
+        signup,
         logout,
         setUser,
         refreshUser
