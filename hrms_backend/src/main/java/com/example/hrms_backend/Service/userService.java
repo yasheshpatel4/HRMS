@@ -1,5 +1,7 @@
 package com.example.hrms_backend.Service;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.example.hrms_backend.DTO.UserDTO;
 import com.example.hrms_backend.Entity.User;
 import com.example.hrms_backend.ExceptionHandler.ResourceNotFoundException;
@@ -19,7 +21,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +39,8 @@ public class userService implements UserDetailsService {
     public PasswordEncoder passwordEncoder;
     @Autowired
     ModelMapper modelmapper;
+    @Autowired
+    Cloudinary cloudinary;
 
     public User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -95,6 +103,34 @@ public class userService implements UserDetailsService {
             return userRepository.findByNameContainingIgnoreCase(search, pageable);
         }
         return userRepository.findAll(pageable);
+    }
+
+    public String updateProfilePhoto(Long userId, MultipartFile file) throws IOException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        File convFile = new File(System.getProperty("java.io.tmpdir") + "/" +
+                System.currentTimeMillis() + "_" + file.getOriginalFilename());
+
+        try (FileOutputStream fos = new FileOutputStream(convFile)) {
+            fos.write(file.getBytes());
+
+            var result = cloudinary.uploader().upload(convFile,
+                    ObjectUtils.asMap("folder", "Profiles/"));
+
+            if (result != null && result.containsKey("url")) {
+                String photoUrl = result.get("url").toString();
+                user.setProfilePhoto(photoUrl);
+                userRepository.save(user);
+                return photoUrl;
+            } else {
+                throw new RuntimeException("Cloudinary upload failed");
+            }
+        } finally {
+            if (convFile.exists()) {
+                convFile.delete();
+            }
+        }
     }
 }
 
