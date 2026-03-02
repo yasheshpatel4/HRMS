@@ -199,12 +199,20 @@ const TravelList = ({ onNavigateToExpense }:TravelListProps) => {
               </div>
             )}
 
-            {selectedTravel && (
+            {selectedTravel && new Date(selectedTravel.startDate) > new Date() && (
               <div className="mt-6 pt-6 border-t">
                 <DocumentUpload
                   travelId={selectedTravel.travelId}
                   onUploadSuccess={() => viewDocuments(selectedTravel)}
                 /><p>Document upload</p>
+              </div>
+            )}
+            
+            {selectedTravel && new Date(selectedTravel.endDate) <= new Date() && (
+              <div className="mt-6 pt-6 border-t">
+                <p className="text-gray-500 text-sm">
+                  Document upload is disabled as the travel has already completed.
+                </p>
               </div>
             )}
           </div>

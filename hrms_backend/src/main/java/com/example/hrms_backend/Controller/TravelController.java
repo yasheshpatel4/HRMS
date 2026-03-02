@@ -5,6 +5,7 @@ import com.example.hrms_backend.Entity.TravelDocument;
 import com.example.hrms_backend.Entity.User;
 import com.example.hrms_backend.Repository.UserRepository;
 import com.example.hrms_backend.Service.TravelService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
@@ -42,7 +43,7 @@ public class TravelController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<String> addTravel(@ModelAttribute Travel travel, @RequestParam List<Long> assignedUserIds) {
+    public ResponseEntity<String> addTravel(@Valid @ModelAttribute Travel travel, @RequestParam List<Long> assignedUserIds) {
 
         Set<User> users = new HashSet<>();
         for (Long id : assignedUserIds) {

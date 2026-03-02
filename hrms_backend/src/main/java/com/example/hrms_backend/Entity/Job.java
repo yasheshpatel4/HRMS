@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,13 +20,16 @@ public class Job {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long jobId;
 
-    @NotBlank
+    @NotBlank(message = "Job title is required")
+    @Size(min = 1, max = 200, message = "Job title must be between 1 and 200 characters")
     private String title;
 
+    @Size(max = 1000, message = "Summary must not exceed 1000 characters")
     private String summary;
     private String jdFilePath;
 
-    @Email
+    @NotBlank(message = "HR Email is required")
+    @Email(message = "Invalid email format")
     private String hrEmail="dl.india.hr@gmail.com";
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})

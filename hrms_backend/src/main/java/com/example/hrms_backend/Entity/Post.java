@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,9 +26,11 @@ public class Post {
     @ManyToOne
     private User owner;
 
-    @NotBlank
+    @NotBlank(message = "Title is required")
+    @Size(min = 1, max = 200, message = "Title must be between 1 and 200 characters")
     private String title;
 
+    @Size(max = 1000, message = "Description must not exceed 1000 characters")
     private String description;
     private String tags;
     private String content;

@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -128,7 +129,7 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody UserDTO userDto) {
+    public ResponseEntity<String> register(@Valid @RequestBody UserDTO userDto) {
         return new ResponseEntity<>(userservice.addUser(userDto), HttpStatus.CREATED);
     }
 

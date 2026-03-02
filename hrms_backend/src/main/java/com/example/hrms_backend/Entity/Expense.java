@@ -21,10 +21,11 @@ public class Expense {
     @ManyToOne
     private User user;
 
-    @Positive
+    @NotNull(message = "Amount is required")
+    @Positive(message = "Amount must be positive")
     private Double amount;
 
-    @NotBlank
+    @NotBlank(message = "Category is required")
     private String category;
 
     private String description;
