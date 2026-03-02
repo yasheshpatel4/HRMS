@@ -14,6 +14,7 @@ public class Recipient {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long recipientId;
 
+    @NotBlank
     @Email
     private String email;
 

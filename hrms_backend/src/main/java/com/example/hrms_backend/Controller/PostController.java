@@ -2,6 +2,7 @@ package com.example.hrms_backend.Controller;
 
 import com.example.hrms_backend.Entity.Post;
 import com.example.hrms_backend.Service.PostService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -45,7 +46,7 @@ public class PostController {
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void addPost(
-            @ModelAttribute Post post,
+            @Valid @ModelAttribute Post post,
             @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
         postService.createPost(post, file);
     }

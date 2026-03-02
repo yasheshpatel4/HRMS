@@ -15,15 +15,19 @@ public class Travel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long travelId;
 
-    @NotBlank
+    @NotBlank(message = "Title is required")
+    @Size(max = 200, message = "Title must not exceed 200 characters")
     private String title;
 
+    @Size(max = 1000, message = "Description must not exceed 1000 characters")
     private String description;
 
-    @FutureOrPresent
+    @NotNull(message = "Start date is required")
+    @FutureOrPresent(message = "Start date must be today or in the future")
     private LocalDate startDate;
 
-    @Future
+    @NotNull(message = "End date is required")
+    @Future(message = "End date must be in the future")
     private LocalDate endDate;
 
     @ManyToOne
@@ -41,6 +45,9 @@ public class Travel {
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "userId")
     @JsonIdentityReference(alwaysAsId = true)
     private Set<User> assignedUsers = new HashSet<>();
+
+    @NotNull(message = "Budget is required")
+    @Min(value = 0, message = "Budget must be positive")
     private int budget;
 
     @Column(name = "is_deleted", nullable = false, columnDefinition = "bit default 0")

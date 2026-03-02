@@ -24,6 +24,7 @@ public class Referral {
     @NotBlank
     private String friendName;
 
+    @NotBlank
     @Email
     private String friendEmail;
 
