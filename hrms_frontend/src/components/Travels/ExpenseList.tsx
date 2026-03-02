@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../Context/AuthContext';
 import api from '../../api';
 import { Trash2 } from 'lucide-react';
@@ -36,6 +36,7 @@ const ExpenseList = () => {
   const [filter, setFilter] = useState<'ALL' | 'SUBMITTED' | 'APPROVED' | 'REJECTED'>('ALL');
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [proofUrls, setProofUrls] = useState<string[]>([]);
+  const [expandedTravel, setExpandedTravel] = useState<string | null>(null);
 
   useEffect(() => {
     fetchExpenses();
@@ -132,6 +133,20 @@ const ExpenseList = () => {
     return expense.status === filter;
   });
 
+   const groupedExpenses = useMemo(() => {
+    return filteredExpenses.reduce((acc, expense) => {
+      const title = expense.travel.title;
+      
+      if (!acc[title]) acc[title] = [];
+      acc[title].push(expense);
+      return acc;
+    }, {} as Record<string, typeof filteredExpenses>);
+  }, [filteredExpenses, travels]);
+
+  const toggleTravel = (title: string) => {
+    setExpandedTravel(expandedTravel === title ? null : title);
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'APPROVED': return 'bg-green-100 text-green-800';
@@ -161,111 +176,89 @@ const ExpenseList = () => {
         </select>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Travel
-                </th>
-                {(role === 'HR'|| role === 'ADMIN' || role=== 'MANAGER') && (
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Submitted By
-                  </th>
-                )}
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Amount
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Category
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
+      <div className="space-y-4">
+        {Object.entries(groupedExpenses).map(([title, items]) => (
+          <div key={title} className="border rounded-lg bg-white shadow-sm overflow-hidden">
+            <button 
+              onClick={() => toggleTravel(title)}
+              className="w-full flex justify-between items-center px-6 py-4 bg-gray-50 hover:bg-gray-100 transition-colors"
+            >
+              <div className="flex items-center space-x-3">
+                <span className={`transform transition-transform duration-200 ${expandedTravel === title ? 'rotate-90' : ''}`}>
+                  ▶
+                </span>
+                <h3 className="font-bold text-gray-800">{title}</h3>
+              </div>
+              <div className="flex items-center space-x-4">
+                <span className="text-sm font-bold text-blue-600">
+                  Total: ${items.reduce((sum, i) => sum + i.amount, 0).toFixed(2)}
+                </span>
+                <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                  {items.length} Expense{items.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+            </button>
 
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredExpenses.map((expense) => (
-                <tr key={expense.expenseId} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {travels.get(expense.travel.travelId)?.title || `Travel ${expense.travel.travelId}`}
-                    </div>
-                  </td>
-                  {(role === 'HR'|| role === 'ADMIN' || role=== 'MANAGER') && (
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {expense.user?.name || 'Unknown'}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                       ID: {expense.user?.userId || expense.userId}
-                    </div>
-                  </td>
-                  )}
-
-                  <td className="px-6 py-4 whitespace-nowrap">
-
-                    <div className="text-sm text-gray-900">${expense.amount.toFixed(2)}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{expense.category}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      {new Date(expense.submittedAt).toLocaleDateString()}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(expense.status)}`}>
-                      {expense.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                    <button
-                      onClick={() => viewProofs(expense.expenseId)}
-                      className="text-blue-600 hover:text-blue-900"
-                    >
-                      View Proofs
-                    </button>
-                    {(role === 'HR' || role === 'MANAGER') && expense.status == 'PENDING' && (
-                      <>
-                        <button
-                          onClick={() => handleStatusChange(expense.expenseId, 'APPROVED')}
-                          className="text-green-600 hover:text-green-900"
-                        >
-                          Approve
-                        </button>
-                        <button
-                          onClick={() => handleStatusChange(expense.expenseId, 'REJECTED')}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Reject
-                        </button>
-                      </>
-                    )}
-                    {role === 'EMPLOYEE' && expense.status == 'PENDING' &&(
-                      <button 
-                        onClick={() => handleDelete(expense.expenseId)} 
-                        className="text-gray-600 hover:text-red-600 transition-colors"
-                        title="Delete Expense"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            {expandedTravel === title && (
+              <div className="overflow-x-auto border-t">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      {(role === 'HR' || role === 'ADMIN' || role === 'MANAGER') && (
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Submitted By</th>
+                      )}
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {items.map((expense) => (
+                      <tr key={expense.expenseId} className="hover:bg-gray-50">
+                        {(role === 'HR' || role === 'ADMIN' || role === 'MANAGER') && (
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">{expense.user?.name || 'Unknown'}</div>
+                            <div className="text-xs text-gray-500">ID: {expense.user?.userId || expense.userId}</div>
+                          </td>
+                        )}
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                          ${expense.amount.toFixed(2)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{expense.category}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                          {new Date(expense.submittedAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(expense.status)}`}>
+                            {expense.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+                          <button onClick={() => viewProofs(expense.expenseId)} className="text-blue-600 hover:text-blue-900">
+                            View Proofs
+                          </button>
+                          {(role === 'HR' || role === 'MANAGER') && expense.status === 'PENDING' && (
+                            <>
+                              <button onClick={() => handleStatusChange(expense.expenseId, 'APPROVED')} className="text-green-600 hover:text-green-900 font-bold">Approve</button>
+                              <button onClick={() => handleStatusChange(expense.expenseId, 'REJECTED')} className="text-red-600 hover:text-red-900 font-bold">Reject</button>
+                            </>
+                          )}
+                          {role === 'EMPLOYEE' && expense.status === 'PENDING' && (
+                            <button onClick={() => handleDelete(expense.expenseId)} className="text-gray-400 hover:text-red-600 transition-colors">
+                              <Trash2 size={18} />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        ))}
 
         {filteredExpenses.length === 0 && (
           <div className="text-center py-8 text-gray-500">
