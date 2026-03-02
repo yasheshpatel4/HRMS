@@ -127,10 +127,16 @@ public class AuthController {
         return ResponseEntity.ok(userservice.getCurrentUser());
     }
 
-
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody UserDTO userDto) {
-        return new ResponseEntity<>(userservice.addUser(userDto), HttpStatus.CREATED);
+        try {
+            String decryptedPassword = decryptPassword(userDto.getPassword());
+            userDto.setPassword(decryptedPassword);
+
+            return new ResponseEntity<>(userservice.addUser(userDto), HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Registration failed: Invalid password encryption", HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping("/logout")
