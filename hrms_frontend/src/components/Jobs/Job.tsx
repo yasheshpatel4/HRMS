@@ -26,6 +26,7 @@ const Job = () => {
   const [referModal, setReferModal] = useState<{ isOpen: boolean; jobId: number | null }>({ isOpen: false, jobId: null });
   const { role } = useAuth();
   const [editingJob, setEditingJob] = useState<Job | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleDelete = async (jobId: number) => {
     if (globalThis.confirm("Are you sure you want to delete this job opening?")) {
@@ -42,9 +43,12 @@ const Job = () => {
   const handleUpdateLocal = (updatedJob: Job) => {
     setJobs(prev => prev.map(j => j.jobId === updatedJob.jobId ? updatedJob : j));
   };
-  const fetchJobs = async () => {
+  
+  const fetchJobs = async (search: string = '') => {
       try {
-        const response = await api.get('/Job/all');
+        const response = search 
+          ? await api.get(`/Job/search?q=${encodeURIComponent(search)}`)
+          : await api.get('/Job/all');
         setJobs(response.data);
       } catch (err) {
         console.error(err);
@@ -52,6 +56,19 @@ const Job = () => {
         setLoading(false);
       }
     };
+  
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    fetchJobs(searchTerm);
+  };
+  
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    setLoading(true);
+    fetchJobs('');
+  };
+  
   useEffect(() => {
     fetchJobs();
   }, []);
@@ -77,9 +94,36 @@ const Job = () => {
 
   const isManagement = role === 'HR' || role === 'ADMIN';
 
-  return (
+return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Job Management</h1>
+
+      <div className="mb-6">
+        <form onSubmit={handleSearch} className="flex gap-2">
+          <input
+            type="text"
+            placeholder="Search jobs by title or summary..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Search
+          </button>
+          {(searchTerm) && (
+            <button
+              type="button"
+              onClick={handleClearSearch}
+              className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+            >
+              Clear
+            </button>
+          )}
+        </form>
+      </div>
 
       <div className="flex justify-between items-center border-b border-gray-200">
         <div className="flex space-x-4">
