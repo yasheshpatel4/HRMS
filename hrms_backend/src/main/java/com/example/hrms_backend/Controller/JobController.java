@@ -28,6 +28,11 @@ public class JobController {
         return ResponseEntity.ok(jobService.getAllJob());
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Job>> searchJobs(@RequestParam(required = false) String q){
+        return ResponseEntity.ok(jobService.searchJobs(q));
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Job> updateJob(
             @PathVariable("id") Long id,
@@ -47,10 +52,10 @@ public class JobController {
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> createJob(@RequestParam("title") String title,
-                                         @RequestParam("summary") String summary,
-                                         @RequestParam("jdFile") MultipartFile jdFile,
-                                         @RequestParam("hrEmail") String hrEmail,
-                                         @RequestParam("reviewerEmails") List<String> reviewerEmails) throws IOException {
+                                            @RequestParam("summary") String summary,
+                                            @RequestParam("jdFile") MultipartFile jdFile,
+                                            @RequestParam("hrEmail") String hrEmail,
+                                            @RequestParam("reviewerEmails") List<String> reviewerEmails) throws IOException {
         Job job = new Job();
         job.setTitle(title);
         job.setSummary(summary);

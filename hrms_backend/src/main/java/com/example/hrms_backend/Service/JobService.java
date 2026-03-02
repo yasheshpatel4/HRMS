@@ -49,9 +49,14 @@ public class JobService {
     private LoggingService loggingService;
 
     public List<Job> getAllJob() {
-        return jobRepository.findAll().stream()
-                .filter(job -> !job.isDeleted())
-                .collect(Collectors.toList());
+        return jobRepository.findAllByIsDeletedFalse();
+    }
+
+    public List<Job> searchJobs(String searchTerm) {
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return getAllJob();
+        }
+        return jobRepository.searchJobs(searchTerm.trim());
     }
 
 //    public Optional<Job> getJob(Long id) {
@@ -247,6 +252,12 @@ public class JobService {
     public void deleteReferral(Long id){
         Referral referral=referralRepository.findById(id)
                 .orElseThrow(()->new RuntimeException("not found"));
+
+        // Only allow delete if status is Pending
+        if (referral.getStatus() != null && !referral.getStatus().equals("Pending")) {
+            throw new RuntimeException("Cannot delete referral. Only PENDING referrals can be deleted.");
+        }
+
         referral.setDeleted(true);
         referralRepository.save(referral);
     }
@@ -254,6 +265,12 @@ public class JobService {
     public void updateReferral(Referral referral) {
         Referral referral1=referralRepository.findById(referral.getReferralId())
                 .orElseThrow(()->new RuntimeException("not found"));
+
+        // Only allow update if status is Pending
+        if (referral1.getStatus() != null && !referral1.getStatus().equals("Pending")) {
+            throw new RuntimeException("Cannot update referral. Only PENDING referrals can be updated.");
+        }
+
         modelMapper.map(referral,referral1);
         referralRepository.save(referral1);
     }
