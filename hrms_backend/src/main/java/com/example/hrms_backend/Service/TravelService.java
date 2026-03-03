@@ -42,6 +42,8 @@ public class TravelService {
     ModelMapper modelMapper;
     @Autowired
     private Cloudinary cloudinary;
+    @Autowired
+    private userService userService;
 
     public Optional<Travel> getTravelById(Long id) {
         return travelRepository.findById(id);
@@ -168,5 +170,40 @@ public class TravelService {
 
     public String getDocument(Long docId) {
         return travelDocumentRepository.findDocumentURL(docId);
+    }
+
+    public String deleteDocument(Long docId) {
+        TravelDocument travelDocument=travelDocumentRepository.findById(docId).orElseThrow(()->new RuntimeException("not found"));
+        if(travelDocument.getTravel().getEndDate().isBefore(LocalDate.now())){
+            return "can't delete document after the travel EndDate.";
+        }
+        travelDocumentRepository.deleteById(docId);
+        return "successful";
+    }
+
+    public String updateDocument(Long docId, MultipartFile file) throws IOException{
+        TravelDocument document=travelDocumentRepository.findById(docId).orElseThrow(()->new RuntimeException("not found"));
+        File convFile = new File(System.getProperty("java.io.tmpdir") + "/" + file.getOriginalFilename()+"_"+document.getDocId());
+
+        try {
+            FileOutputStream fos = new FileOutputStream(convFile);
+            fos.write(file.getBytes());
+            fos.close();
+            var result = cloudinary.uploader().upload(convFile, ObjectUtils.asMap("folder", "/Documents/"));
+            if (result != null && result.containsKey("url")) {
+                document.setFilePath(result.get("url").toString());
+            } else {
+                throw new RuntimeException("Cloudinary upload failed: " + result);
+            }
+            document.setDocType(file.getContentType());
+
+            travelDocumentRepository.save(document);
+            return "successful";
+        }
+        finally {
+            if (convFile.exists()) {
+                convFile.delete();
+            }
+        }
     }
 }

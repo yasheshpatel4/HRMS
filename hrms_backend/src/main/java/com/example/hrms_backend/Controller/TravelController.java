@@ -103,4 +103,12 @@ public class TravelController {
     public ResponseEntity<String> deleteTravel(@PathVariable Long travelId){
         return ResponseEntity.ok(travelService.deleteTravel(travelId));
     }
+    @DeleteMapping("/Document/{docId}")
+    public ResponseEntity<String> deleteDocument(@PathVariable Long docId){
+        return ResponseEntity.ok(travelService.deleteDocument(docId));
+    }
+    @PutMapping("/Document/{docId}")
+    public ResponseEntity<String> updateDocument(@PathVariable Long docId,@RequestParam MultipartFile file) throws IOException {
+        return ResponseEntity.ok(travelService.updateDocument(docId,file));
+    }
 }

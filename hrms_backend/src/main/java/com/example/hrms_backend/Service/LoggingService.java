@@ -22,7 +22,9 @@ public class LoggingService {
             case "ERROR" -> log.error("[{}] {}: {}", source, message, details);
             case "WARN" -> log.warn("[{}] {}: {}", source, message, details);
         }
-
+        if (level.equalsIgnoreCase("ERROR")) {
+            return;
+        }
         Log logEntry = new Log();
         logEntry.setTimestamp(LocalDateTime.now());
         logEntry.setLevel(level);
