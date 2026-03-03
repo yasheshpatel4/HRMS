@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../Context/AuthContext';
 import api from '../../api';
+import { X } from 'lucide-react';
 
 interface Travel {
   travelId: number;
@@ -93,8 +94,15 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ preSelectedTravelId, onSucces
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setProofFiles(Array.from(e.target.files));
+      const newFiles = Array.from(e.target.files);
+      setProofFiles((prev) => [...prev, ...newFiles]);
+      
+      e.target.value = ""; 
     }
+  };
+
+  const removeFile = (indexToRemove: number) => {
+    setProofFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -279,27 +287,47 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ preSelectedTravelId, onSucces
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Proof Documents * (At least one required)
           </label>
-          <input
-            type="file"
-            multiple
-            accept="image/*,.pdf"
-            onChange={handleFileChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-          <p className="text-sm text-gray-500 mt-1">
-            Upload receipts, invoices, or other proof documents (images or PDFs)
-          </p>
-          {proofFiles.length > 0 && (
-            <div className="mt-2">
-              <p className="text-sm text-gray-600">Selected files:</p>
-              <ul className="text-sm text-gray-500">
-                {proofFiles.map((file, index) => (
-                  <li key={index}>{file.name}</li>
-                ))}
-              </ul>
+          
+          <div className="space-y-3">
+            <div className="relative">
+              <input
+                type="file"
+                multiple
+                accept="image/*,.pdf"
+                onChange={handleFileChange}
+                className="block w-full text-sm text-gray-500
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-md file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-blue-50 file:text-blue-700
+                  hover:file:bg-blue-100 border border-gray-300 rounded-md p-1"
+              />
             </div>
-          )}
+            {proofFiles.length > 0 && (
+              <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                  Selected Files ({proofFiles.length})
+                </p>
+                <ul className="space-y-2">
+                  {proofFiles.map((file, index) => (
+                    <li 
+                      key={index} 
+                      className="flex items-center justify-between bg-white p-2 rounded border border-gray-100 text-sm shadow-sm animate-in fade-in slide-in-from-left-1"
+                    >
+                      <span className="truncate max-w-[80%] text-gray-700">{file.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeFile(index)}
+                        className="text-red-500 hover:text-red-700 p-1"
+                      >
+                        <X size={16} />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex space-x-4">
