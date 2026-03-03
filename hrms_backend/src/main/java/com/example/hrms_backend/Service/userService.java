@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -142,11 +143,16 @@ public class userService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Random random = new Random();
-        int otpNumber = 100000 + random.nextInt(900000);
-        String otp = String.valueOf(otpNumber);
+        SecureRandom secureRandom = new SecureRandom();
+        int otpNumber = secureRandom.nextInt(1000000);
+        String otp = String.format("%06d", otpNumber);
 
         otpCache.put(email, otp);
+
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() { otpCache.remove(email); }
+        }, 5 * 60 * 1000);
 
         emailService.sendEmail(email, "Your Password Reset OTP", "Your OTP is: " + otp);
     }
