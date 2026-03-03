@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, type ChangeEvent } from 'react';
 import { useAuth } from '../../Context/AuthContext';
 import DocumentUpload from './DocumentUpload';
 import TravelForm from './TravelForm';
@@ -26,6 +26,36 @@ const TravelList = ({ onNavigateToExpense }:TravelListProps) => {
   const [documents, setDocuments] = useState<any[]>([]);
   const [showTravelForm, setShowTravelForm] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [editingDocId, setEditingDocId] = useState<number | null>(null);
+
+  const handleEditClick = (docId: number): void => {
+    setEditingDocId(docId);
+    fileInputRef.current?.click(); 
+  };
+
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>): Promise<void> => {
+    const files = event.target.files;
+    if (!files || files.length === 0 || !editingDocId) return;
+
+    const file = files[0];
+    const formData = new FormData();
+    formData.append('file', file); 
+
+    try {
+      await api.put(`/Travel/Document/${editingDocId}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
+      if (selectedTravel) viewDocuments(selectedTravel);
+      alert('Updated!');
+    } catch (error) {
+      console.error("Upload failed", error);
+    } finally {
+      event.target.value = '';
+      setEditingDocId(null);
+    }
+  };
 
   useEffect(() => {
     fetchTravels();
@@ -44,6 +74,21 @@ const TravelList = ({ onNavigateToExpense }:TravelListProps) => {
     } catch (error) {
       console.error("Failed to delete travel:", error);
       alert("Error deleting travel. Please try again.");
+    }
+  };
+
+  const documentDelete = async (docId: number) => {
+    if (!window.confirm("Are you sure you want to delete this travel?")) return;
+    
+    try {
+      const response=await api(`/Travel/Document/${docId}`, { method: 'DELETE' });
+      if(response.data != "successful"){
+        alert(response.data);
+      }
+      viewDocuments(selectedTravel || travels[0]);
+    } catch (error) {
+      console.error("Failed to delete document:", error);
+      alert("Error deleting doc. Please try again.");
     }
   };
 
@@ -171,6 +216,12 @@ const TravelList = ({ onNavigateToExpense }:TravelListProps) => {
 
             {documents.length > 0 ? (
               <div className="space-y-3">
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleFileChange} 
+                  className="hidden" 
+                />
                 {documents.map((doc) => (
                   <div key={doc.docId} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center space-x-3">
@@ -184,12 +235,21 @@ const TravelList = ({ onNavigateToExpense }:TravelListProps) => {
                         </p>
                       </div>
                     </div>
-                    <button
+                    <div className="flex space-x-1">
+                      <button
                       onClick={() => downloadDocument(doc.docId)}
                       className="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 text-sm"
-                    >
-                      View
-                    </button>
+                      >
+                        View
+                      </button>
+                      <button 
+                        onClick={() => handleEditClick(doc.docId)} 
+                        className="text-blue-500 hover:bg-blue-50 p-1.5 rounded-full transition-colors"
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                      <button onClick={() => console.log(documentDelete(doc.docId))} className="text-red-500 hover:bg-red-50 p-1.5 rounded-full transition-colors"><Trash2 size={18} /></button>
+                    </div>
                   </div>
                 ))}
               </div>

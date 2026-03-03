@@ -47,8 +47,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/Auth/login","/Auth/logout", "/Auth/register", "/Auth/refresh","/Auth/me", "/error").permitAll()
-
+                                "/Auth/**", "/error").permitAll()
                         .requestMatchers(HttpMethod.POST, "/Travel/add").hasAnyAuthority("HR","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/Travel/all").hasAnyAuthority("MANAGER","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/Travel/{id}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
@@ -62,6 +61,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/Travel/Document/{travelId}/user/{userId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
                         .requestMatchers(HttpMethod.POST, "/Travel/Document/{travelId}/manager/{managerId}").hasAnyAuthority("HR", "MANAGER","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/Travel/Document/{docId}/url").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/Travel/Document/{docId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/Travel/Document/{docId}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
 
                         .requestMatchers(HttpMethod.POST, "/Travel/Expense/submit").hasAnyAuthority("EMPLOYEE","ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/Travel/Expense/approve/{id}").hasAnyAuthority("HR","ADMIN","MANAGER")

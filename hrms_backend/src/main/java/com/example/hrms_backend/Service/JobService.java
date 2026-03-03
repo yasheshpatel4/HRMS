@@ -96,7 +96,7 @@ public class JobService {
         job.setReviewers(reviewers);
         job.setCreatedAt(LocalDate.now());
         job.setCreatedBy(currentUser);
-        loggingService.saveLog("INFO", "Job Created", "JobService", "successful");
+        loggingService.saveLog("INFO", "job Created", "JobService","Job: "+job.getTitle()+" Created by: "+job.getCreatedBy().getName() );
         jobRepository.save(job);
         return "Successful";
     }
@@ -213,7 +213,7 @@ public class JobService {
                 );
                 emailService.sendEmail(reviewer.getEmail(), "New Job Referral: " + job.getTitle(), emailBody);
             }
-            loggingService.saveLog("INFO", "Referral created", "JobService","referral created by"+currentUser.getName());
+            loggingService.saveLog("INFO", "Referral created", "JobService","referral created by"+currentUser.getName()+"for job:"+referral.getJob().getTitle());
 
         }
         finally {
@@ -235,7 +235,7 @@ public class JobService {
         Referral referral = referralRepository.findById(referralId)
                 .orElseThrow(() -> new RuntimeException("Referral not found"));
         referral.setStatus(newStatus);
-        loggingService.saveLog("INFO", "Referral status updated", "JobService","referral status updated to: "+referral.getStatus());
+        loggingService.saveLog("INFO", "Referral status updated", "JobService","referral status updated to: "+referral.getStatus()+"by HR.");
         return referralRepository.save(referral);
     }
     public List<Referral> getReferralsForCurrentUser() {
