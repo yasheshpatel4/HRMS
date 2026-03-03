@@ -15,4 +15,8 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
     Page<User> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
+    @Query("Select u from User u where u.role=Role.HR")
+    List<User> findByRoleHR();
+
 }

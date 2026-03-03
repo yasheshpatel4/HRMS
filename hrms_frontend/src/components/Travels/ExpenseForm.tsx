@@ -4,7 +4,7 @@ import api from '../../api';
 
 interface Travel {
   travelId: number;
-  destination: string;
+  title: string;
   startDate: string;
   endDate: string;
 }
@@ -171,7 +171,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ preSelectedTravelId, onSucces
             <option value={0}>Choose a travel</option>
             {travels.map((travel) => (
               <option key={travel.travelId} value={travel.travelId}>
-                {travel.destination} ({new Date(travel.startDate).toLocaleDateString()} - {new Date(travel.endDate).toLocaleDateString()})
+                {travel.title}...({new Date(travel.startDate).toLocaleDateString()} - {new Date(travel.endDate).toLocaleDateString()})
               </option>
             ))}
           </select>

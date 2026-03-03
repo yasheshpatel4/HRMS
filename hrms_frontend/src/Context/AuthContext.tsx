@@ -19,6 +19,7 @@ interface User {
   role: string;
   department?: string;
   managerId?: number;
+  profilePhoto?: string;
 }
 
 interface AuthContextType {

@@ -77,6 +77,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/User/orgchart/{id}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/User/allUser").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/User/all").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/User/{userId}/profile-photo").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/User/HR").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
 
                         .requestMatchers(HttpMethod.POST, "/Job/create").hasAnyAuthority("HR","ADMIN","MANAGER")
                         .requestMatchers(HttpMethod.GET, "/Job/all").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")
