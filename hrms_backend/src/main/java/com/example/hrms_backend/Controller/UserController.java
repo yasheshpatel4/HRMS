@@ -45,4 +45,8 @@ public class UserController {
         String url = userservice.updateProfilePhoto(userId, file);
         return ResponseEntity.ok(url);
     }
+    @GetMapping("/HR")
+    public ResponseEntity<List<User>> getAllHR(){
+        return ResponseEntity.ok(userservice.getAllHR());
+    }
 }

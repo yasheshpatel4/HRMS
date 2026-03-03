@@ -132,5 +132,8 @@ public class userService implements UserDetailsService {
             }
         }
     }
+    public List<User> getAllHR() {
+        return userRepository.findByRoleHR();
+    }
 }
 
