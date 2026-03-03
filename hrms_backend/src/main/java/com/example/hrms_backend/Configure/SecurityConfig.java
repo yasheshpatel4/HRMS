@@ -47,8 +47,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/Auth/login","/Auth/logout", "/Auth/register", "/Auth/refresh","/Auth/me", "/error").permitAll()
-
+                                "/Auth/**", "/error").permitAll()
                         .requestMatchers(HttpMethod.POST, "/Travel/add").hasAnyAuthority("HR","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/Travel/all").hasAnyAuthority("MANAGER","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/Travel/{id}").hasAnyAuthority("HR", "MANAGER", "EMPLOYEE","ADMIN")

@@ -4,7 +4,7 @@ import CryptoJS from 'crypto-js';
 
 const SECRET_KEY = 'MySecretKey12345'; 
 
-const encryptPassword = (password: string): string => {
+export const encryptPassword = (password: string): string => {
   const encrypted = CryptoJS.AES.encrypt(password, CryptoJS.enc.Utf8.parse(SECRET_KEY), {
     mode: CryptoJS.mode.ECB,
     padding: CryptoJS.pad.Pkcs7

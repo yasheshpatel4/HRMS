@@ -1,5 +1,6 @@
 package com.example.hrms_backend.Controller;
 
+import com.example.hrms_backend.DTO.ResetRequest;
 import com.example.hrms_backend.DTO.UserDTO;
 import com.example.hrms_backend.Entity.RefreshToken;
 import com.example.hrms_backend.Entity.User;
@@ -165,6 +166,21 @@ public class AuthController {
 
         return ResponseEntity.ok("Logged out successfully");
     }
+    @PostMapping("/forgot")
+    public ResponseEntity<?> forgotPassword(@RequestParam String email) {
+        userservice.sendOtp(email);
+        return ResponseEntity.ok("OTP sent to your email.");
+    }
 
+    @PostMapping("/reset")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetRequest req) {
+        try {
+            String plainPassword = decryptPassword(req.getPassword());
+            userservice.verifyAndReset(req.getEmail(), req.getOtp(), plainPassword);
+            return ResponseEntity.ok("Password reset successful.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Decryption or Reset failed");
+        }
+    }
 
 }

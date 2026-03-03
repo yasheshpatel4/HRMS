@@ -26,9 +26,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class userService implements UserDetailsService {
@@ -41,6 +40,9 @@ public class userService implements UserDetailsService {
     ModelMapper modelmapper;
     @Autowired
     Cloudinary cloudinary;
+    @Autowired
+    EmailService emailService;
+    private final Map<String, String> otpCache = new ConcurrentHashMap<>();
 
     public User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -135,5 +137,28 @@ public class userService implements UserDetailsService {
     public List<User> getAllHR() {
         return userRepository.findByRoleHR();
     }
+
+    public void sendOtp(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Random random = new Random();
+        int otpNumber = 100000 + random.nextInt(900000);
+        String otp = String.valueOf(otpNumber);
+
+        otpCache.put(email, otp);
+
+        emailService.sendEmail(email, "Your Password Reset OTP", "Your OTP is: " + otp);
+    }
+
+    public void verifyAndReset(String email, String otp, String newPassword) {
+        if (!otp.equals(otpCache.get(email))) throw new RuntimeException("Invalid or expired OTP");
+
+        User user = userRepository.findByEmail(email).orElseThrow(()->new RuntimeException("user not found with email"));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        otpCache.remove(email);
+    }
+
 }
 
