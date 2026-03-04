@@ -262,17 +262,32 @@ public class JobService {
         referralRepository.save(referral);
     }
 
-    public void updateReferral(Referral referral) {
-        Referral referral1=referralRepository.findById(referral.getReferralId())
+    public void updateReferral(Long id,MultipartFile file) throws IOException{
+        Referral referral1=referralRepository.findById(id)
                 .orElseThrow(()->new RuntimeException("not found"));
 
-        // Only allow update if status is Pending
         if (referral1.getStatus() != null && !referral1.getStatus().equals("Pending")) {
             throw new RuntimeException("Cannot update referral. Only PENDING referrals can be updated.");
         }
+        File convFile = new File(System.getProperty("java.io.tmpdir") + "/" + file.getOriginalFilename() + "_" + System.currentTimeMillis());
+        try {
+            FileOutputStream fos = new FileOutputStream(convFile);
+            fos.write(file.getBytes());
+            fos.close();
+            var result = cloudinary.uploader().upload(convFile, ObjectUtils.asMap("folder", "/CVs/","resource_type", "auto"));
+            if (result != null && result.containsKey("url")) {
+                referral1.setCvFilePath(result.get("url").toString());
+            } else {
+                throw new RuntimeException("Cloudinary upload failed: " + result);
+            }
+            referralRepository.save(referral1);
+        }
+        finally {
+            if (convFile.exists()) {
+                convFile.delete();
+            }
+        }
 
-        modelMapper.map(referral,referral1);
-        referralRepository.save(referral1);
     }
 
 }
