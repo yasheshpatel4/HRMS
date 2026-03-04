@@ -102,4 +102,8 @@ public class ExpenseController {
     public ResponseEntity<Map<String, Object>> getBudgetInfo(@PathVariable Long userId, @PathVariable Long travelId){
         return ResponseEntity.ok(expenseService.getBudgetInfo(userId, travelId));
     }
+    @PutMapping("/{expenseId}")
+    public ResponseEntity<String> updateExpense(@PathVariable Long expenseId,@ModelAttribute Expense expense,@RequestParam MultipartFile file) throws IOException {
+        return ResponseEntity.ok(expenseService.updateExpense(expenseId,expense,file));
+    }
 }

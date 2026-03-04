@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -174,6 +173,30 @@ public class ExpenseService {
         budgetInfo.put("canSubmit", (totalExpense < travel.getBudget()));
 
         return budgetInfo;
+    }
+
+    public String updateExpense(Long expenseId, Expense expense, MultipartFile file)throws IOException {
+        Expense expense1=expenseRepository.findById(expenseId).orElseThrow(()->new RuntimeException("not found"));
+        expense1.setAmount(expense.getAmount());
+        expense1.setCategory(expense.getCategory());
+        expenseRepository.save(expense1);
+        ExpenseProof expenseProof=new ExpenseProof();
+        File convFile = new File(System.getProperty("java.io.tmpdir") + "/" + file.getOriginalFilename()+"_"+expense.getExpenseId());
+        try {
+            FileOutputStream fos = new FileOutputStream(convFile);
+            fos.write(file.getBytes());
+            fos.close();
+            var result = cloudinary.uploader().upload(convFile, ObjectUtils.asMap("folder", "/Expenses/"));
+            expenseProof.setProof(result.get("url").toString());
+            expenseProof.setExpense(expense1);
+            expenseProofRepository.save(expenseProof);
+        }
+        finally {
+            if(convFile.exists()){
+                convFile.delete();
+            }
+        }
+        return "Successful";
     }
 }
 
