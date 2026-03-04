@@ -41,7 +41,7 @@ const Job = () => {
   };
 
   const handleUpdateLocal = (updatedJob: Job) => {
-    setJobs(prev => prev.map(j => j.jobId === updatedJob.jobId ? updatedJob : j));
+    fetchJobs();
   };
   
   const fetchJobs = async (search: string = '') => {

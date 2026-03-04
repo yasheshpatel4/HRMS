@@ -104,9 +104,8 @@ public class JobController {
     }
     @PutMapping("/referral/{id}")
     public ResponseEntity<String> updateReferral(@PathVariable Long id ,
-                                                 @ModelAttribute Referral referral){
-        referral.setReferralId(id);
-        jobService.updateReferral(referral);
+                                                 @RequestParam MultipartFile file) throws IOException {
+        jobService.updateReferral(id,file);
         return ResponseEntity.ok("Successful");
     }
 }

@@ -4,8 +4,9 @@ import DocumentUpload from './DocumentUpload';
 import TravelForm from './TravelForm';
 import api from '../../api';
 import { Edit2, Trash2 } from 'lucide-react';
+import EditTravel from './EditTravel';
 
-interface Travel {
+export interface Travel {
   travelId: number;
   title: string;
   startDate: string;
@@ -14,6 +15,7 @@ interface Travel {
   status: string;
   assignedUsers: number[];
   createdBy: number;
+  budget:number;
 }
 interface TravelListProps {
   onNavigateToExpense?: (travelId: number) => void;
@@ -28,6 +30,7 @@ const TravelList = ({ onNavigateToExpense }:TravelListProps) => {
   const [isDeleted, setIsDeleted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [editingDocId, setEditingDocId] = useState<number | null>(null);
+  const [editingTravel, setEditingTravel] = useState<Travel | null>(null);
 
   const handleEditClick = (docId: number): void => {
     setEditingDocId(docId);
@@ -62,7 +65,7 @@ const TravelList = ({ onNavigateToExpense }:TravelListProps) => {
   }, [user, role]);
 
   const handleDelete = async (travelId: number) => {
-    if (!window.confirm("Are you sure you want to delete this travel?")) return;
+    if (!globalThis.confirm("Are you sure you want to delete this travel?")) return;
     
     try {
       const response=await api(`/Travel/${travelId}`, { method: 'DELETE' });
@@ -78,7 +81,7 @@ const TravelList = ({ onNavigateToExpense }:TravelListProps) => {
   };
 
   const documentDelete = async (docId: number) => {
-    if (!window.confirm("Are you sure you want to delete this travel?")) return;
+    if (!globalThis.confirm("Are you sure you want to delete this travel?")) return;
     
     try {
       const response=await api(`/Travel/Document/${docId}`, { method: 'DELETE' });
@@ -110,7 +113,9 @@ const TravelList = ({ onNavigateToExpense }:TravelListProps) => {
       setLoading(false);
     }
   };
-
+  const handleUpdateLocal = () => {
+    fetchTravels();
+  };
   const viewDocuments = async (travel: Travel) => {
     try {
       let response;
@@ -154,8 +159,8 @@ const TravelList = ({ onNavigateToExpense }:TravelListProps) => {
               <h3 className="text-lg font-semibold text-gray-800">{travel.title}</h3>
               {(role === 'HR' || role === 'ADMIN') && (
             <div className="flex space-x-1">
-              <button onClick={() => console.log("edit")} className="text-blue-500 hover:bg-blue-50 p-1.5 rounded-full transition-colors"><Edit2 size={18} /></button>
-              <button onClick={() => console.log(handleDelete(travel.travelId))} className="text-red-500 hover:bg-red-50 p-1.5 rounded-full transition-colors"><Trash2 size={18} /></button>
+              <button onClick={() =>setEditingTravel(travel)} className="text-blue-500 hover:bg-blue-50 p-1.5 rounded-full transition-colors"><Edit2 size={18} /></button>
+              <button onClick={()=>handleDelete(travel.travelId)} className="text-red-500 hover:bg-red-50 p-1.5 rounded-full transition-colors"><Trash2 size={18} /></button>
             </div>
             )} 
             </div>
@@ -286,6 +291,13 @@ const TravelList = ({ onNavigateToExpense }:TravelListProps) => {
           fetchTravels();
         }}
       />
+      {editingTravel && (
+        <EditTravel 
+          Travel={editingTravel} 
+          onClose={() => setEditingTravel(null)} 
+          onUpdate={handleUpdateLocal} 
+        />
+      )}
     </div>
   );
 };

@@ -44,9 +44,25 @@ const ReferralList = ({ role }: { role: string | null }) => {
       setReferrals(prev => prev.map(r => r.referralId === id ? { ...r, status: newStatus } : r));
     } catch (err) { console.error(err); }
   };
-  const handleEdit = async (id: number) => {
-    console.log(id)
-  };
+  const handleCvUpdate = async (id: number, files: FileList | null) => {
+  if (!files || files.length === 0) return;
+
+  const formData = new FormData();
+  formData.append('file', files[0]);
+
+  try {
+    await api.put(`/Job/referral/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    
+    alert('CV updated successfully!');
+    fetchReferrals();
+  } catch (err) {
+    console.error('Failed to update CV', err);
+    alert('Failed to update CV');
+  }
+};
+
   const handleDelete = async (id: number) => {
     try {
       await api.delete(`/Job/referral/${id}`)
@@ -102,15 +118,38 @@ const ReferralList = ({ role }: { role: string | null }) => {
                         </span>
                       </td>
                       <td className="px-6 py-4 flex items-center space-x-4">
-                        <a href={ref.cvFilePath} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline text-sm">
+                        <a href={ref.cvFilePath} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline text-sm font-medium">
                           CV
                         </a>
-                        {(role === 'EMPLOYEE') && (ref.status == 'Pending') && (
-                          <div className="flex space-x-1">
-                            <button onClick={() => handleEdit(ref.referralId)} className="text-blue-500 hover:bg-blue-50 p-1.5 rounded-full transition-colors"><Edit2 size={18} /></button>
-                            <button onClick={() => handleDelete(ref.referralId)} className="text-red-500 hover:bg-red-50 p-1.5 rounded-full transition-colors"><Trash2 size={18} /></button>
+
+                        {role === 'EMPLOYEE' && ref.status === 'Pending' && (
+                          <div className="flex items-center space-x-1">
+                            <input
+                              type="file"
+                              id={`edit-cv-${ref.referralId}`}
+                              className="hidden"
+                              accept=".pdf,.doc,.docx,image/*"
+                              onChange={(e) => handleCvUpdate(ref.referralId, e.target.files)}
+                            />
+                            
+                            <button 
+                              title="Update CV"
+                              onClick={() => document.getElementById(`edit-cv-${ref.referralId}`)?.click()} 
+                              className="text-blue-500 hover:bg-blue-50 p-1.5 rounded-full transition-colors"
+                            >
+                              <Edit2 size={18} />
+                            </button>
+
+                            <button 
+                              title="Delete Referral"
+                              onClick={() => handleDelete(ref.referralId)} 
+                              className="text-red-500 hover:bg-red-50 p-1.5 rounded-full transition-colors"
+                            >
+                              <Trash2 size={18} />
+                            </button>
                           </div>
                         )}
+
                         {(role === 'HR' || role === 'ADMIN') && (
                           <select 
                             value={ref.status} 
