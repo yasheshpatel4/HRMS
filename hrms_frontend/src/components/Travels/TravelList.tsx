@@ -62,7 +62,7 @@ const TravelList = ({ onNavigateToExpense }:TravelListProps) => {
   }, [user, role]);
 
   const handleDelete = async (travelId: number) => {
-    if (!window.confirm("Are you sure you want to delete this travel?")) return;
+    if (!globalThis.confirm("Are you sure you want to delete this travel?")) return;
     
     try {
       const response=await api(`/Travel/${travelId}`, { method: 'DELETE' });
@@ -78,7 +78,7 @@ const TravelList = ({ onNavigateToExpense }:TravelListProps) => {
   };
 
   const documentDelete = async (docId: number) => {
-    if (!window.confirm("Are you sure you want to delete this travel?")) return;
+    if (!globalThis.confirm("Are you sure you want to delete this travel?")) return;
     
     try {
       const response=await api(`/Travel/Document/${docId}`, { method: 'DELETE' });

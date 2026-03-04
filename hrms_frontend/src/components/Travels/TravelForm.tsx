@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../Context/AuthContext';
 import api from '../../api';
 
 interface User {
@@ -25,7 +24,6 @@ interface TravelFormProps {
 }
 
 const TravelForm = ({ isOpen, onClose, onSuccess }: TravelFormProps) => {
-  const { user } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [formData, setFormData] = useState<TravelFormData>({
     title: '',
@@ -146,9 +144,7 @@ const TravelForm = ({ isOpen, onClose, onSuccess }: TravelFormProps) => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Title *
-            </label>
-            <input
+              Title *<input
               type="text"
               name="title"
               value={formData.title}
@@ -157,13 +153,12 @@ const TravelForm = ({ isOpen, onClose, onSuccess }: TravelFormProps) => {
               placeholder="Enter travel title"
               required
             />
+            </label>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Description
-            </label>
-            <textarea
+              Description<textarea
               name="description"
               value={formData.description}
               onChange={handleInputChange}
@@ -171,12 +166,12 @@ const TravelForm = ({ isOpen, onClose, onSuccess }: TravelFormProps) => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter travel description"
             />
+            </label>
+            
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Budget
-            </label>
-            <input
+              Budget<input
               type="text"
               name="budget"
               value={formData.budget}
@@ -185,14 +180,14 @@ const TravelForm = ({ isOpen, onClose, onSuccess }: TravelFormProps) => {
               placeholder="Enter travel budget"
               required
             />
+            </label>
+            
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Start Date *
-              </label>
-              <input
+                Start Date *<input
                 type="date"
                 name="startDate"
                 value={formData.startDate}
@@ -200,13 +195,13 @@ const TravelForm = ({ isOpen, onClose, onSuccess }: TravelFormProps) => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
+              </label>
+              
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                End Date *
-              </label>
-              <input
+                End Date *<input
                 type="date"
                 name="endDate"
                 value={formData.endDate}
@@ -214,14 +209,14 @@ const TravelForm = ({ isOpen, onClose, onSuccess }: TravelFormProps) => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
+              </label>
+              
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Assign Employees *
-            </label>
-            <div className="max-h-40 overflow-y-auto border border-gray-300 rounded-md p-2">
+              Assign Employees *<div className="max-h-40 overflow-y-auto border border-gray-300 rounded-md p-2">
               {users.map((user) => (
                 <div key={user.userId} className="flex items-center space-x-2 py-1">
                   <input
@@ -237,6 +232,8 @@ const TravelForm = ({ isOpen, onClose, onSuccess }: TravelFormProps) => {
                 </div>
               ))}
             </div>
+            </label>
+            
             <p className="text-sm text-gray-500 mt-1">
               Selected: {formData.assignedUserIds.length} employees
             </p>

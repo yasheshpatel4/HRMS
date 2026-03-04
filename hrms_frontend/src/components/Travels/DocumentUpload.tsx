@@ -15,7 +15,7 @@ const DocumentUpload = ({ travelId, onUploadSuccess }:DocumentUploadProps) => {
   const [message, setMessage] = useState('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
+    if (e.target.files?.[0]) {
       setSelectedFile(e.target.files[0]);
     }
   };
@@ -60,9 +60,7 @@ const DocumentUpload = ({ travelId, onUploadSuccess }:DocumentUploadProps) => {
       <div className="space-y-3">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Document Type
-          </label>
-          <select
+            Document Type<select
             value={documentType}
             onChange={(e) => setDocumentType(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -73,13 +71,13 @@ const DocumentUpload = ({ travelId, onUploadSuccess }:DocumentUploadProps) => {
             <option value="RECEIPT">Receipt</option>
             <option value="OTHER">Other</option>
           </select>
+          </label>
+          
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            File
-          </label>
-          <input
+            File<input
             type="file"
             accept="image/*,.pdf"
             onChange={handleFileChange}
@@ -90,6 +88,7 @@ const DocumentUpload = ({ travelId, onUploadSuccess }:DocumentUploadProps) => {
               Selected: {selectedFile.name}
             </p>
           )}
+          </label>  
         </div>
 
         <button
