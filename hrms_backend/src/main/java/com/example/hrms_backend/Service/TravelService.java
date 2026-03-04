@@ -70,12 +70,12 @@ public class TravelService {
         }
         return travelRepository.findById(travel.getTravelId())
                 .map(existingTravel -> {
-//                    existingTravel.setAssignedUsers(travel.getAssignedUsers());
-//                    existingTravel.setTitle(travel.getTitle());
-//                    existingTravel.setStartDate(travel.getStartDate());
-//                    existingTravel.setEndDate(travel.getEndDate());
-//                    existingTravel.setDescription(travel.getDescription());
-                    existingTravel=modelMapper.map(travel,Travel.class);
+                    existingTravel.setTitle(travel.getTitle());
+                    existingTravel.setStartDate(travel.getStartDate());
+                    existingTravel.setEndDate(travel.getEndDate());
+                    existingTravel.setDescription(travel.getDescription());
+                    existingTravel.setBudget(travel.getBudget());
+//                    existingTravel=modelMapper.map(travel,Travel.class);
                     return travelRepository.save(existingTravel);
                 })
                 .orElseThrow(() -> new RuntimeException("Travel record not found"));
