@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -51,14 +52,23 @@ public class ExpenseController {
             @RequestParam Double amount,
             @RequestParam String category,
             @RequestParam String description,
-            @RequestParam Long travelId
+            @RequestParam Long travelId,
+            @RequestParam LocalDate date
     ) {
         Expense expense = new Expense();
         expense.setAmount(amount);
         expense.setCategory(category);
         expense.setDescription(description);
+        expense.setDate(date);
 
         Travel travel=travelRepository.findById(travelId).orElseThrow(()->new RuntimeException("not found"));
+        if(travel.getStartDate().isAfter(LocalDate.now()))
+            throw new RuntimeException("can not enter expense before start date of travel");
+        if(travel.getEndDate().plusDays(10).isBefore(LocalDate.now()))
+            throw new RuntimeException("can not enter expense after 10 days passed to end date of travel");
+        if(date.isBefore(travel.getStartDate()) || date.isAfter(travel.getEndDate())){
+            throw new RuntimeException("cant add expense which is not in travel duration");
+        }
         expense.setTravel(travel);
         return ResponseEntity.ok(expenseService.addExpense(expense));
     }

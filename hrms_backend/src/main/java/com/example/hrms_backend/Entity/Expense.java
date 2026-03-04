@@ -41,6 +41,7 @@ public class Expense {
     private String remarks;
 
     private LocalDateTime submittedAt;
+    private LocalDate date;
 
     private Boolean isDeleted = Boolean.FALSE;
 
