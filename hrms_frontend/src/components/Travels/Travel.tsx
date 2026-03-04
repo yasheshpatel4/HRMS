@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useAuth } from '../../Context/AuthContext';
 import { X } from 'lucide-react';
 import TravelList from './TravelList';
@@ -9,12 +9,16 @@ const Travel = () => {
   const [activeTab, setActiveTab] = useState<'travels' | 'expenses'>('travels');
   const [preSelectedId, setPreSelectedId] = useState<number | undefined>(undefined);
   const [showForm, setShowForm] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const handleQuickSubmit = (travelId: number) => {
     setPreSelectedId(travelId); 
     setActiveTab('expenses');
     setShowForm(true);
   };
+  const triggerRefresh = useCallback(() => {
+    setRefreshKey(prev => prev + 1);
+  }, []);
 
   const tabs = [
     { id: 'travels', label: 'Travel Assignments', roles: ['EMPLOYEE', 'MANAGER', 'HR','ADMIN'] },
@@ -77,11 +81,13 @@ const Travel = () => {
                   onSuccess={() => {
                     setPreSelectedId(undefined);
                     setShowForm(false); 
+                    triggerRefresh();
                   }}
+                  onCancel={()=>setShowForm(false)}
                 />
               </div>
             )}           
-            <ExpenseList />
+            <ExpenseList key={refreshKey} />
           </div>
         )}
       </div>

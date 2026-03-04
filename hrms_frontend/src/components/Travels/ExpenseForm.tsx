@@ -129,6 +129,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ preSelectedTravelId, onSucces
       data.append('category', formData.category);
       data.append('description', formData.description);
       data.append('travelId', formData.travelId.toString());
+      data.append('date',formData.date.toString());
 
       const expenseResponse = await api.post('/Travel/Expense/submit', data);
       const expenseId = expenseResponse.data.expenseId;
