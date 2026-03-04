@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../Context/AuthContext';
 import api from '../../api';
-import { Trash2 } from 'lucide-react';
+import { Edit2, Trash2 } from 'lucide-react';
 
 interface Expense {
   expenseId: number;
@@ -127,6 +127,9 @@ const ExpenseList = () => {
         }
     }
   };
+  const handleUpdate = async (expenseId: number) => {
+    console.log(expenseId);
+  };
 
   const filteredExpenses = expenses.filter(expense => {
     if (filter === 'ALL') return true;
@@ -246,9 +249,14 @@ const ExpenseList = () => {
                             </>
                           )}
                           {role === 'EMPLOYEE' && expense.status === 'PENDING' && (
-                            <button onClick={() => handleDelete(expense.expenseId)} className="text-gray-400 hover:text-red-600 transition-colors">
-                              <Trash2 size={18} />
-                            </button>
+                            <div className="flex space-x-1">
+                              <button onClick={() => handleUpdate(expense.expenseId)} className="text-blue-600 hover:text-blue-700 transition-colors">
+                                <Edit2 size={18} />
+                              </button>
+                              <button onClick={() => handleDelete(expense.expenseId)} className="text-red-600 hover:text-red-700 transition-colors">
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
                           )}
                         </td>
                       </tr>
