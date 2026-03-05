@@ -154,9 +154,9 @@ const Games = () => {
                   <button 
                     onClick={() => setIsAdminView(false)} 
                     className={`py-4 px-1 border-b-2 font-bold text-sm transition-all ${
-                      !isAdminView 
-                        ? 'border-blue-600 text-blue-600' 
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      isAdminView 
+                        ? 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' 
+                        : 'border-blue-600 text-blue-600'
                     }`}
                   >
                     My Bookings
