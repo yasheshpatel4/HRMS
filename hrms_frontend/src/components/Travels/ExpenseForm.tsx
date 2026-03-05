@@ -167,9 +167,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ preSelectedTravelId, onSucces
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Select Travel *
-          </label>
-          <select
+            Select Travel *<select
             name="travelId"
             value={formData.travelId}
             onChange={handleInputChange}
@@ -187,6 +185,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ preSelectedTravelId, onSucces
           {preSelectedTravelId && (
             <p className="text-sm text-gray-500 mt-1">Travel pre-selected from travel card</p>
           )}
+          </label>
         </div>
 
         {budgetInfo && (
@@ -220,9 +219,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ preSelectedTravelId, onSucces
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Amount *
-            </label>
-            <input
+              Amount *<input
               type="number"
               name="amount"
               value={formData.amount}
@@ -232,13 +229,12 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ preSelectedTravelId, onSucces
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
+            </label>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Category *
-            </label>
-            <select
+              Category *<select
               name="category"
               value={formData.category}
               onChange={handleInputChange}
@@ -252,14 +248,13 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ preSelectedTravelId, onSucces
               <option value="TRANSPORT">Transport</option>
               <option value="OTHER">Other</option>
             </select>
+            </label>
           </div>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Date *
-          </label>
-          <input
+            Date *<input
             type="date"
             name="date"
             value={formData.date}
@@ -267,13 +262,12 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ preSelectedTravelId, onSucces
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
+          </label>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Description *
-          </label>
-          <textarea
+            Description *<textarea
             name="description"
             value={formData.description}
             onChange={handleInputChange}
@@ -282,12 +276,13 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ preSelectedTravelId, onSucces
             placeholder="Describe the expense..."
             required
           />
+          </label>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <p className="block text-sm font-medium text-gray-700 mb-2">
             Proof Documents * (At least one required)
-          </label>
+          </p>
           
           <div className="space-y-3">
             <div className="relative">
@@ -312,7 +307,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ preSelectedTravelId, onSucces
                 <ul className="space-y-2">
                   {proofFiles.map((file, index) => (
                     <li 
-                      key={index} 
+                      key={file.name} 
                       className="flex items-center justify-between bg-white p-2 rounded border border-gray-100 text-sm shadow-sm animate-in fade-in slide-in-from-left-1"
                     >
                       <span className="truncate max-w-[80%] text-gray-700">{file.name}</span>

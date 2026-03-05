@@ -44,7 +44,7 @@ export const GameSlots = ({ slots, onBook, onClose }: { slots: Slot[], onBook: (
 
   const toggleUser = (user: User) => {
     setSelectedUsers(prev => 
-      prev.find(u => u.userId === user.userId) ? prev.filter(u => u.userId !== user.userId) : [...prev, user]
+      prev.some(u => u.userId === user.userId) ? prev.filter(u => u.userId !== user.userId) : [...prev, user]
     );
   };
 

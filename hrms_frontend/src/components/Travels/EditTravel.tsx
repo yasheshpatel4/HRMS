@@ -2,7 +2,6 @@ import { X } from "lucide-react";
 import { useState } from "react";
 import type { Travel } from "./TravelList";
 import api from "../../api";
-import TravelForm from "./TravelForm";
 
 interface TravelFormData {
   title: string;
@@ -52,7 +51,7 @@ const Edittravel=({ Travel, onClose, onUpdate }: { Travel: Travel, onClose: () =
             onClose();
         } catch (err) {
             console.error(err);
-            alert("Failed to update Travel. Ensure all fields are valid and can't update after startdate.");
+            alert("Failed to update Travel, Ensure all fields are valid and you can't update travel after start date");
         } finally {
             setLoading(false);
         }
@@ -156,21 +155,6 @@ const Edittravel=({ Travel, onClose, onUpdate }: { Travel: Travel, onClose: () =
                     </div>
                     </form>
 
-            </div>
-            <div>
-                <form onSubmit={handleSubmit} className="p-10 border-gray-100">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Budget<input
-                        type="text"
-                        name="budget"
-                        value={formData.budget}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter travel budget"
-                        required
-                        />
-                        </label>
-                </form>
             </div>
         </div>
     );

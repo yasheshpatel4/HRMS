@@ -1,7 +1,6 @@
 import { useState } from "react";
 
 export const ConfigModal = ({ game, onClose, onSave }: any) => {
-  const [error, setError] = useState("");
 
   const handleSave = () => {
     const validationError = validate(); 
@@ -35,8 +34,6 @@ export const ConfigModal = ({ game, onClose, onSave }: any) => {
     } else if (slotDurationMins < 10) {
       errorMsg = "Duration must be greater than 10 min";
     }
-
-    setError(errorMsg); 
     return errorMsg;
   };
 

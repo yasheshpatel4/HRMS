@@ -31,24 +31,27 @@ export const GameForm = ({ onClose, onSave }: { onClose: () => void, onSave: (da
         
         <form onSubmit={handleSubmit(onSave)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Game Name</label>
-            <input 
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Game Name<input 
               {...register("gameName", { required: "Game name is required" })}
               className={`w-full p-3 bg-gray-50 border ${errors.gameName ? 'border-red-500' : 'border-gray-200'} rounded-xl outline-none focus:ring-2 focus:ring-blue-500`}
               placeholder="e.g., Table Tennis"
             />
             {errors.gameName && <p className="text-red-500 text-xs mt-1">{errors.gameName.message}</p>}
+            </label>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
-              <input type="time" {...register("operatingHoursStart", { required: true })} 
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Start Time<input type="time" {...register("operatingHoursStart", { required: true })} 
                 className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl" />
+                </label>
+              
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">End Time</label>
-              <input type="time" {...register("operatingHoursEnd", { required: true,
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                End Time<input type="time" {...register("operatingHoursEnd", { required: true,
                   validate: (value) => {
                     const startMins = getMinutes(getValues("operatingHoursStart"));
                     const endMins = getMinutes(value);
@@ -62,25 +65,29 @@ export const GameForm = ({ onClose, onSave }: { onClose: () => void, onSave: (da
                 className={`w-full p-3 bg-gray-50 border ${errors.operatingHoursEnd ? 'border-red-500' : 'border-gray-200'} rounded-xl`} 
               />
               {errors.operatingHoursEnd && <p className="text-red-500 text-xs mt-1">{errors.operatingHoursEnd.message}</p>}
+              </label>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Duration (Mins)</label>
-              <input type="number" {...register("slotDurationMins", { required: true, 
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Duration (Mins)<input type="number" {...register("slotDurationMins", { required: true, 
                   min: { value: 10, message: "Must be > 10 min" } 
                 })} 
                 className={`w-full p-3 bg-gray-50 border ${errors.slotDurationMins ? 'border-red-500' : 'border-gray-200'} rounded-xl`} 
               />
               {errors.slotDurationMins && <p className="text-red-500 text-xs mt-1">{errors.slotDurationMins.message}</p>}
+              </label>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Max Players</label>
-              <input type="number" {...register("maxPlayers", { required: true, min: { value: 1, message: "At least 1 player"}})} 
-                className={`w-full p-3 bg-gray-50 border ${errors.maxPlayers ? 'border-red-500' : 'border-gray-200'} rounded-xl`} 
-              />
-              {errors.maxPlayers && <p className="text-red-500 text-xs mt-1">{errors.maxPlayers.message}</p>}
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Max Players<input type="number" {...register("maxPlayers", { required: true, min: { value: 1, message: "At least 1 player"}})} 
+                  className={`w-full p-3 bg-gray-50 border ${errors.maxPlayers ? 'border-red-500' : 'border-gray-200'} rounded-xl`} 
+                />
+                {errors.maxPlayers && <p className="text-red-500 text-xs mt-1">{errors.maxPlayers.message}</p>}
+              </label>
+              
             </div>
           </div>
 

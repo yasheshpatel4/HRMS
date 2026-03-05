@@ -14,9 +14,8 @@ import Games from './components/Games/Games'
 import Notification from './components/Notifications/Notification'
 import Job from './components/Jobs/Job'
 import Travel from './components/Travels/Travel'
-import OrgChart from './components/Organization/OrgChart'
 import OrgChart1 from './components/Organization/OrgChart1'
-import Signup from './components/SignUp'
+import Signup from './components/Signup'
 
 const queryClient = new QueryClient();
 
