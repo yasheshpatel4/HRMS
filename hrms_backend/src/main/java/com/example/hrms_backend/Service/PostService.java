@@ -10,6 +10,7 @@ import com.example.hrms_backend.Repository.PostRepository;
 import com.example.hrms_backend.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Page;
@@ -40,15 +41,15 @@ public class PostService {
     @Autowired
     Cloudinary cloudinary;
 
-    @Cacheable(value = "posts", key = "#pageable.pageNumber")
+    @Cacheable(value = "posts", key = "{#pageable.pageNumber, #pageable.pageSize, #pageable.sort.toString()}")
     public Page<Post> getAllPost(Pageable pageable) {
         return postRepository.findAllByIsDeletedFalse(pageable);
     }
 
-
     public Optional<Post> getPost(Long id){
         return postRepository.findById(id);
     }
+    @CacheEvict(value = "posts", allEntries = true)
     public void deletePost(Long id){
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("user not found"));
@@ -73,7 +74,7 @@ public class PostService {
 
         postRepository.save(post);
     }
-
+    @CacheEvict(value = "posts", allEntries = true)
     public Post updatePost(Long id,Post post,MultipartFile file) throws IOException{
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
@@ -99,7 +100,7 @@ public class PostService {
 
         return postRepository.save(existingPost);
     }
-
+    @CacheEvict(value = "posts", allEntries = true)
     public void createPost(Post post, MultipartFile file) throws IOException {
         String email=SecurityContextHolder.getContext().getAuthentication().getName();
         User user=userRepository.findByEmail(email).orElseThrow(()->new RuntimeException("user not found"));
@@ -116,7 +117,7 @@ public class PostService {
         }
         postRepository.save(post);
     }
-
+    @CacheEvict(value = "posts", allEntries = true)
     public void addLike(Long postId) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("user not found"));
@@ -126,7 +127,7 @@ public class PostService {
             postRepository.save(post);
         }
     }
-
+    @CacheEvict(value = "posts", allEntries = true)
     public void addComment(Long postId, String msg) {
         String email=SecurityContextHolder.getContext().getAuthentication().getName();
         User user=userRepository.findByEmail(email).orElseThrow(()->new RuntimeException("user not found"));
@@ -138,7 +139,7 @@ public class PostService {
         comment.setText(msg);
         commentRepository.save(comment);
     }
-
+    @CacheEvict(value = "posts", allEntries = true)
     public List<Post> searchPosts(String author, String tag, LocalDateTime startDate, LocalDateTime endDate) {
         return postRepository.searchPosts(author, tag, startDate, endDate);
     }
@@ -195,12 +196,12 @@ public class PostService {
             }
         }
     }
-
+    @CacheEvict(value = "posts", allEntries = true)
     public String deleteComment(Long commentId) {
         commentRepository.deleteById(commentId);
         return "successful";
     }
-
+    @CacheEvict(value = "posts", allEntries = true)
     public void removeLike(Long postId) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("user not found"));
