@@ -27,7 +27,6 @@ public class PostController {
     PostService postService;
 
     @GetMapping("/all")
-    @Cacheable(value = "posts", key = "#pageable.pageNumber")
     public ResponseEntity<Page<Post>> getAllPost(
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
