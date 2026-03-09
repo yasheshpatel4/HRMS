@@ -64,7 +64,7 @@ const PostList = ({ filter = 'all', refreshTrigger = 0, searchParams = null }: P
         
         // 2. DUPLICATE PROTECTION: Filter out posts already in the state
         const existingIds = new Set(prev.map(p => p.postId));
-        const uniqueNewPosts = content.filter(p => !existingIds.has(p.postId));
+        const uniqueNewPosts = content.filter((p: { postId: any; }) => !existingIds.has(p.postId));
         return [...prev, ...uniqueNewPosts];
       });
 
