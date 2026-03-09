@@ -7,7 +7,7 @@ import EditPostModal from './EditPostModal';
 interface PostListProps {
   filter?: 'all';
   refreshTrigger?: number;
-  searchParams?: any; 
+  searchParams?: any;
 }
 
 const PostList = ({ filter = 'all', refreshTrigger = 0, searchParams = null }: PostListProps) => {
@@ -19,91 +19,107 @@ const PostList = ({ filter = 'all', refreshTrigger = 0, searchParams = null }: P
   const [expandedPostId, setExpandedPostId] = useState<number | null>(null);
   const [editingPost, setEditingPost] = useState<any | null>(null);
 
+  const loadingRef = useRef(false);
+  const hasMoreRef = useRef(true);
   const observer = useRef<IntersectionObserver | null>(null);
+
+  useEffect(() => { loadingRef.current = loading; }, [loading]);
+  useEffect(() => { hasMoreRef.current = hasMore; }, [hasMore]);
 
   const handleUpdateLocal = (updatedPost: any) => {
     setPosts(prev => prev.map(p => p.postId === updatedPost.postId ? updatedPost : p));
   };
 
-  const lastPostElementRef = useCallback((node: HTMLDivElement | null) => {
-    if (loading) return;
-    if (observer.current) observer.current.disconnect();
-
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
-        setPage(prevPage => prevPage + 1);
-      }
-    });
-
-    if (node) observer.current.observe(node);
-  }, [loading, hasMore]);
-
-  const fetchPosts = async (pageNum: number, isInitial = false) => {
+  const fetchPosts = useCallback(async (pageNum: number, isInitial = false) => {
+    if (loadingRef.current && !isInitial) return;
+    
     setLoading(true);
     setError('');
 
     try {
-      const baseUrl = searchParams ? '/Post/search' : '/Post/all';
-      
-      const params = new URLSearchParams();
-      if (searchParams) {
+      // 1. IMPROVED SEARCH DETECTION: Ensure searchParams has actual values
+      const hasQuery = searchParams && Object.values(searchParams).some(v => v !== null && v !== '');
+      const baseUrl = hasQuery ? '/Post/search' : '/Post/all';
+
+      const requestParams: any = {
+        page: pageNum,
+        size: 10,
+        sort: 'createdAt,desc',
+      };
+
+      if (hasQuery) {
         Object.entries(searchParams).forEach(([key, value]) => {
-          if (value) params.append(key, value as string);
+          if (value) requestParams[key] = value;
         });
       }
-      
-      params.append('page', pageNum.toString());
-      params.append('size', '10');
 
-      const response = await api.get(`${baseUrl}?${params.toString()}`);
+      const response = await api.get(baseUrl, { params: requestParams });
       
-      // Defensive check for Spring Page object or direct array
       const rawData = response.data;
-      const content = rawData.content || (Array.isArray(rawData) ? rawData : []);
-      const last = rawData.last !== undefined ? rawData.last : true;
+      const content = Array.isArray(rawData?.content) ? rawData.content : (Array.isArray(rawData) ? rawData : []);
+      const last = rawData?.last ?? (content.length < 10);
 
-      setPosts(prev => isInitial ? content : [...prev, ...content]);
+      setPosts(prev => {
+        if (isInitial) return content;
+        
+        // 2. DUPLICATE PROTECTION: Filter out posts already in the state
+        const existingIds = new Set(prev.map(p => p.postId));
+        const uniqueNewPosts = content.filter(p => !existingIds.has(p.postId));
+        return [...prev, ...uniqueNewPosts];
+      });
+
       setHasMore(!last);
     } catch (err) {
       setError('Failed to load posts');
-      console.error(err);
+      console.error("Fetch Error:", err);
+      if (isInitial) setPosts([]); 
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchParams]);
 
+  // Handle Search/Filter/Refresh: Resets everything
   useEffect(() => {
     setPage(0);
-    setHasMore(true);
     fetchPosts(0, true);
-  }, [filter, refreshTrigger, JSON.stringify(searchParams)]); 
+  }, [filter, refreshTrigger, JSON.stringify(searchParams), fetchPosts]);
 
+  // Handle Pagination: Triggers on scroll
   useEffect(() => {
     if (page > 0) {
-      fetchPosts(page);
+      fetchPosts(page, false);
     }
-  }, [page]);
+  }, [page, fetchPosts]);
 
-  const handleDelete = (postId: number) => {
-    setPosts(prev => prev.filter(p => p.postId !== postId));
-  };
+  const lastPostElementRef = useCallback((node: HTMLDivElement | null) => {
+    if (loadingRef.current) return;
+    if (observer.current) observer.current.disconnect();
 
-  const handleExpandToggle = (postId: number) => {
-    setExpandedPostId(expandedPostId === postId ? null : postId);
-  };
+    observer.current = new IntersectionObserver(entries => {
+      // Only increment page if we aren't loading and there is more data
+      if (entries[0].isIntersecting && hasMoreRef.current && !loadingRef.current) {
+        setPage(prev => prev + 1);
+      }
+    });
 
-  if (error) {
-    return (
-      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-        {error}
-      </div>
-    );
-  }
+    if (node) observer.current.observe(node);
+  }, []);
+
+  const handleDelete = (postId: number) => setPosts(prev => prev.filter(p => p.postId !== postId));
+  const handleToggleExpand = (postId: number) => setExpandedPostId(prev => (prev === postId ? null : postId));
 
   return (
     <div className="space-y-4 pb-10">
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+          {error}
+        </div>
+      )}
+
       {(posts || []).map((post, index) => {
-        const isLast = posts.length === index + 1;
+        // Safe length check to avoid TypeError
+        const currentLength = posts?.length || 0;
+        const isLast = currentLength === index + 1;
         return (
           <div ref={isLast ? lastPostElementRef : null} key={post.postId || index}>
             <PostCard
@@ -112,7 +128,7 @@ const PostList = ({ filter = 'all', refreshTrigger = 0, searchParams = null }: P
               onEdit={(p) => setEditingPost(p)}
               onCommentAdded={() => fetchPosts(0, true)}
               expanded={expandedPostId === post.postId}
-              onToggleExpand={handleExpandToggle}
+              onToggleExpand={handleToggleExpand}
             />
           </div>
         );
@@ -122,7 +138,7 @@ const PostList = ({ filter = 'all', refreshTrigger = 0, searchParams = null }: P
         <EditPostModal 
           post={editingPost} 
           onClose={() => setEditingPost(null)} 
-          onUpdate={handleUpdateLocal}
+          onUpdate={handleUpdateLocal} 
         />
       )}
 
@@ -132,13 +148,13 @@ const PostList = ({ filter = 'all', refreshTrigger = 0, searchParams = null }: P
         </div>
       )}
 
-      {!hasMore && posts.length > 0 && (
+      {!hasMore && (posts?.length || 0) > 0 && (
         <p className="text-center text-gray-400 text-sm py-4">
           You've caught up with everything!
         </p>
       )}
 
-      {!loading && posts.length === 0 && (
+      {!loading && (posts?.length || 0) === 0 && !error && (
         <div className="text-center text-gray-500 text-lg py-12">
           {searchParams ? 'No posts found matching your search.' : 'No posts yet. Be the first to create one!'}
         </div>
