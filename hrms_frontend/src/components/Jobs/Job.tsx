@@ -98,7 +98,7 @@ return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Job Management</h1>
 
-      <div className="mb-6">
+      {(view === 'jobs') && (<div className="mb-6">
         <form onSubmit={handleSearch} className="flex gap-2">
           <input
             type="text"
@@ -124,6 +124,7 @@ return (
           )}
         </form>
       </div>
+      )}
 
       <div className="flex justify-between items-center border-b border-gray-200">
         <div className="flex space-x-4">

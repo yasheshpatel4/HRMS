@@ -105,11 +105,14 @@ public class AuthController {
     public ResponseEntity<?> refreshToken(@CookieValue(name = "refreshToken") String refreshToken, HttpServletResponse response) {
         return refreshTokenService.findByToken(refreshToken)
                 .map(refreshTokenService::verifyExpiration)
-                .map(RefreshToken::getUser)
-                .map(user -> {
-                    String newAccessToken = jwtService.generateToken(user.getEmail());
+                .map(token -> {
+                    User user = token.getUser();
+                    refreshTokenService.deleteByToken(refreshToken);
 
-                    ResponseCookie AccessTokenCookie = ResponseCookie.from("accessToken", newAccessToken)
+                    String newAccessToken = jwtService.generateToken(user.getEmail());
+                    RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user);
+
+                    ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", newAccessToken)
                             .httpOnly(true)
                             .secure(true)
                             .path("/")
@@ -117,11 +120,22 @@ public class AuthController {
                             .sameSite("Strict")
                             .build();
 
-                    response.addHeader(HttpHeaders.SET_COOKIE, AccessTokenCookie.toString());
-                    return ResponseEntity.ok("Token refreshed");
+                    ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", newRefreshToken.getToken())
+                            .httpOnly(true)
+                            .secure(true)
+                            .path("/")
+                            .maxAge(604800)
+                            .sameSite("Strict")
+                            .build();
+
+                    response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+                    response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+
+                    return ResponseEntity.ok("Tokens rotated successfully");
                 })
-                .orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
+                .orElseThrow(() -> new RuntimeException("Refresh token is invalid or has been used!"));
     }
+
 
     @GetMapping("/me")
     public ResponseEntity<User> getCurrentUser() {

@@ -139,12 +139,13 @@ const Notification = () => {
                                 }`}>
                                     {n.message}
                                 </p>
-                                <button 
+                                <div 
                                     onClick={()=>handleDelete(n.notificationId)} 
+                                    role='button'
                                     className="text-red-500 hover:bg-red-50 p-1.5 rounded-full transition-colors"
                                 >
                                     <Trash2 size={20} />
-                                </button>
+                                </div>
                             </div>
                         </button>
                     ))
